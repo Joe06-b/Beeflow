@@ -1,0 +1,28 @@
+<div class="rch-bo-head">
+  <nav class="tabs" aria-label="Sections de la gestion des ruches">
+    <a href="{% url 'ruches:liste' %}" class="{% if onglet == 'liste' %}is-active{% endif %}"{% if onglet == 'liste' %} aria-current="page"{% endif %}>
+      {% include "includes/icon.html" with i="list" %} Gestion des ruches
+    </a>
+    <a href="{% url 'ruches:statistiques' %}" class="{% if onglet == 'stats' %}is-active{% endif %}"{% if onglet == 'stats' %} aria-current="page"{% endif %}>
+      {% include "includes/icon.html" with i="chart" %} Statistiques
+    </a>
+    <a href="{% url 'ruches:historique' %}" class="{% if onglet == 'historique' %}is-active{% endif %}"{% if onglet == 'historique' %} aria-current="page"{% endif %}>
+      {% include "includes/icon.html" with i="history" %} Historique
+    </a>
+  </nav>
+  <div class="page-actions">
+    {% if onglet == "liste" %}
+    <form method="get" action="{% url 'ruches:exporter_pdf' %}" class="rch-export-form">
+      <label class="sr-only" for="regroupement-pdf">Regrouper le PDF</label>
+      <select class="bf-select rch-export-select" name="regroupement" id="regroupement-pdf" aria-label="Regrouper le PDF">
+        <option value="type">PDF par type</option>
+        <option value="etat">PDF par état</option>
+      </select>
+      <button type="submit" class="btn btn-ghost">{% include "includes/icon.html" with i="download" %} Exporter PDF</button>
+    </form>
+    {% endif %}
+    <a href="{% url 'ruches:ajouter' %}" class="btn btn-honey">
+      {% include "includes/icon.html" with i="plus" %} Ajouter une ruche
+    </a>
+  </div>
+</div>

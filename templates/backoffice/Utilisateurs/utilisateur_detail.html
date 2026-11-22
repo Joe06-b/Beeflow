@@ -1,0 +1,181 @@
+{% extends "layouts/base_backoffice.html" %}
+{% load static %}
+
+{% block title %}BeeFlow | Détail utilisateur — {{ utilisateur.username }}{% endblock %}
+
+{% block extra_css %}
+<link rel="stylesheet" href="{% static 'css/Utilisateurs/utilisateur_detail.css' %}">
+{% endblock %}
+
+{% block content %}
+<!-- Grande barre en marron du haut -->
+<section class="welcome">
+    <h1>Gestion des utilisateurs</h1>
+    <p>Consultez la fiche complète, les rôles et les paramètres de cet utilisateur.</p>
+</section>
+
+<!-- Fil d'Ariane -->
+<nav class="breadcrumb user-bo-crumb" aria-label="Fil d'Ariane">
+    <a href="{% url 'utilisateurs:liste' %}">
+        {% include "includes/icon.html" with i="arrow-left" %} Retour à la liste des utilisateurs
+    </a>
+</nav>
+
+<!-- Carte de détail -->
+<div class="card panel user-detail-panel">
+
+    <!-- En-tête avec avatar hexagone et actions directes -->
+    <div class="card-header user-detail-head">
+        <div class="user-head-info">
+            <div class="user-avatar-hex">
+                {% include "includes/icon.html" with i="user" %}
+            </div>
+            <div class="user-head-text">
+                <h2>{{ utilisateur.first_name }} {{ utilisateur.last_name|default:utilisateur.username }}</h2>
+                <p>@{{ utilisateur.username }} &bull; Inscrit le {{ utilisateur.created_at|date:"d/m/Y à H:i" }}</p>
+            </div>
+        </div>
+
+        <div class="detail-actions">
+            <a href="{% url 'utilisateurs:modifier' utilisateur.pk %}" class="btn btn-honey">
+                {% include "includes/icon.html" with i="edit" %} Modifier
+            </a>
+            <a href="{% url 'utilisateurs:supprimer' utilisateur.pk %}" class="btn btn-danger-ghost">
+                {% include "includes/icon.html" with i="trash" %} Supprimer
+            </a>
+            <a href="{% url 'utilisateurs:liste' %}" class="btn btn-ghost">
+                {% include "includes/icon.html" with i="arrow-left" %} Retour
+            </a>
+        </div>
+    </div>
+
+    <div class="card-body user-detail-body">
+
+        <!-- Section 1 : Informations personnelles -->
+        <h3 class="detail-section-title">
+            {% include "includes/icon.html" with i="user" %} Informations personnelles
+        </h3>
+
+        <div class="user-facts-grid">
+            <div class="user-fact-item">
+                <span class="user-fact-label">Nom d'utilisateur</span>
+                <p class="user-fact-value">{{ utilisateur.username }}</p>
+            </div>
+
+            <div class="user-fact-item">
+                <span class="user-fact-label">Prénom</span>
+                <p class="user-fact-value">{{ utilisateur.first_name|default:"—" }}</p>
+            </div>
+
+            <div class="user-fact-item">
+                <span class="user-fact-label">Nom</span>
+                <p class="user-fact-value">{{ utilisateur.last_name|default:"—" }}</p>
+            </div>
+
+            <div class="user-fact-item">
+                <span class="user-fact-label">Adresse e-mail</span>
+                <p class="user-fact-value">
+                    <a href="mailto:{{ utilisateur.email }}" style="color: var(--honey-ink); text-decoration: none;">{{ utilisateur.email }}</a>
+                </p>
+            </div>
+
+            <div class="user-fact-item">
+                <span class="user-fact-label">Téléphone</span>
+                <p class="user-fact-value">{{ utilisateur.telephone|default:"—" }}</p>
+            </div>
+
+            <div class="user-fact-item">
+                <span class="user-fact-label">Sexe</span>
+                <p class="user-fact-value">
+                    {% if utilisateur.sexe == 'homme' %}
+                        Homme
+                    {% elif utilisateur.sexe == 'femme' %}
+                        Femme
+                    {% else %}
+                        —
+                    {% endif %}
+                </p>
+            </div>
+
+            <div class="user-fact-item">
+                <span class="user-fact-label">Date de naissance</span>
+                <p class="user-fact-value">{{ utilisateur.date_naissance|date:"d/m/Y"|default:"—" }}</p>
+            </div>
+        </div>
+
+        <!-- Section 2 : Compte et Accès -->
+        <h3 class="detail-section-title">
+            {% include "includes/icon.html" with i="lock" %} Informations du compte & Statut
+        </h3>
+
+        <div class="user-facts-grid">
+            <div class="user-fact-item">
+                <span class="user-fact-label">Rôle sur le rucher</span>
+                <div style="margin-top: 4px;">
+                    {% if utilisateur.role == 'admin' %}
+                        <span class="role-badge role-admin">{% include "includes/icon.html" with i="lock" class="ico-sm" %} Administrateur</span>
+                    {% elif utilisateur.role == 'apiculteur' %}
+                        <span class="role-badge role-apiculteur">{% include "includes/icon.html" with i="hive" class="ico-sm" %} Apiculteur</span>
+                    {% elif utilisateur.role == 'responsable' %}
+                        <span class="role-badge role-responsable">{% include "includes/icon.html" with i="box" class="ico-sm" %} Responsable production & stock</span>
+                    {% else %}
+                        <span class="badge">{{ utilisateur.role }}</span>
+                    {% endif %}
+                </div>
+            </div>
+
+            <div class="user-fact-item">
+                <span class="user-fact-label">Statut du compte</span>
+                <div style="margin-top: 4px;">
+                    {% if utilisateur.statut == 'actif' %}
+                        <span class="badge lvl-actif">Actif</span>
+                    {% elif utilisateur.statut == 'inactif' %}
+                        <span class="badge lvl-inactif">Inactif</span>
+                    {% elif utilisateur.statut == 'suspendu' %}
+                        <span class="badge lvl-suspendu">Suspendu</span>
+                    {% else %}
+                        <span class="badge">{{ utilisateur.statut }}</span>
+                    {% endif %}
+                </div>
+            </div>
+
+            <div class="user-fact-item">
+                <span class="user-fact-label">Date de création</span>
+                <p class="user-fact-value">{{ utilisateur.created_at|date:"d/m/Y H:i" }}</p>
+            </div>
+
+            <div class="user-fact-item">
+                <span class="user-fact-label">Dernière modification</span>
+                <p class="user-fact-value">{{ utilisateur.updated_at|date:"d/m/Y H:i" }}</p>
+            </div>
+        </div>
+
+        <!-- Section 3 : Informations Spécifiques au Rôle -->
+        {% if utilisateur.role == 'admin' or utilisateur.role == 'apiculteur' or utilisateur.role == 'responsable' %}
+        <h3 class="detail-section-title">
+            {% include "includes/icon.html" with i="note" %} Spécificités du profil
+        </h3>
+
+        <div class="user-facts-grid">
+            {% if utilisateur.role == 'admin' %}
+                <div class="user-fact-item">
+                    <span class="user-fact-label">Date de nomination</span>
+                    <p class="user-fact-value">{{ utilisateur.admin.date_nomination|date:"d/m/Y"|default:"—" }}</p>
+                </div>
+            {% elif utilisateur.role == 'apiculteur' %}
+                <div class="user-fact-item">
+                    <span class="user-fact-label">Spécialité</span>
+                    <p class="user-fact-value">{{ utilisateur.apiculteur.specialite|default:"—" }}</p>
+                </div>
+            {% elif utilisateur.role == 'responsable' %}
+                <div class="user-fact-item">
+                    <span class="user-fact-label">Niveau d'expérience</span>
+                    <p class="user-fact-value">{{ utilisateur.responsable.get_niveau_experience_display|default:"—" }}</p>
+                </div>
+            {% endif %}
+        </div>
+        {% endif %}
+
+    </div>
+</div>
+{% endblock %}

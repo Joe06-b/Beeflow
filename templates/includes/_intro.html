@@ -1,0 +1,39 @@
+{% load static %}
+{% comment %}
+INTRO DE L'APPLICATION : « L'abeille qui dessine »
+Une abeille trace l'hexagone du logo avec une traînée de miel, écrit « BeeFlow »,
+l'alvéole se remplit de miel, puis on plonge dans l'alvéole qui devient la page d'accueil.
+- Jouée une fois par session (pour la rejouer : ajouter ?intro=1 à l'adresse)
+- Ignorée si l'ordinateur demande de réduire les animations
+{% endcomment %}
+<div class="intro" id="intro" role="dialog" aria-modal="true" aria-label="Introduction BeeFlow">
+    <canvas class="intro-canvas" id="introCanvas" aria-hidden="true"></canvas>
+
+    <div class="intro-word" id="introWord" aria-hidden="true">Bee<span>Flow</span></div>
+    <p class="intro-tagline" id="introTagline">La gestion apicole, alvéole par alvéole.</p>
+
+    <div class="intro-start" id="introStart">
+        <button type="button" class="btn btn-honey intro-enter" id="introEnter" autofocus>
+            {% include "includes/icon.html" with i="arrow-right" %} Entrer dans BeeFlow
+        </button>
+    </div>
+
+    <div class="intro-tools">
+        <button type="button" class="intro-tool" id="introSound" aria-pressed="true">
+            {% include "includes/icon.html" with i="volume" %}<span>Son activé</span>
+        </button>
+        <button type="button" class="intro-tool" id="introSkip">Passer l'introduction {% include "includes/icon.html" with i="chevrons-right" class="ico-sm" %}</button>
+    </div>
+</div>
+<div class="intro-bee" id="introBee" aria-hidden="true">{% include "includes/_bee.html" %}</div>
+<script>
+    // Exécuté immédiatement : on retire l'intro avant l'affichage si elle a déjà été vue
+    (function () {
+        var force = /[?&]intro=1/.test(location.search), vue = false;
+        try { vue = sessionStorage.getItem("beeflow_intro_vue") === "1"; } catch (e) {}
+        var calme = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+        if ((vue && !force) || calme) {
+            ["intro", "introBee"].forEach(function (id) { var el = document.getElementById(id); el.parentNode.removeChild(el); });
+        } else { document.documentElement.classList.add("intro-active"); }
+    })();
+</script>

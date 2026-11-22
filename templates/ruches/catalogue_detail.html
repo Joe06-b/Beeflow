@@ -1,0 +1,45 @@
+{% extends "layouts/base_frontoffice.html" %}
+{% load static %}
+
+{% block title %}{{ ruche.code_ruche }} | BeeFlow{% endblock %}
+{% block body_class %}page-ruches-front{% endblock %}
+{% block body_attrs %}data-honeycomb="soft"{% endblock %}
+{% block extra_css %}<link rel="stylesheet" href="{% static 'css/ruches_front.css' %}?v=20261121-2">{% endblock %}
+
+{% block content %}
+<main class="rf-page rf-detail-page">
+  <a class="rf-back" href="{% url 'ruches_front:liste' %}">← Retour à la gestion des ruches</a>
+  <article class="rf-detail-card {{ ruche.etat_css }}">
+    <header class="rf-detail-head">
+      <div class="rf-detail-identity">
+        <img class="rf-detail-thumb rf-photo-{{ ruche.type_ruche|slugify }}" src="{% get_static_prefix %}img/ruches/{{ ruche.type_ruche|slugify }}.png" alt="Photo d'une ruche {{ ruche.type_label }}">
+        <div><span>Détail de la colonie</span><h1>{{ ruche.code_ruche }}</h1><p>{{ ruche.type_label }} <b>•</b> {{ ruche.race_label }}</p></div>
+      </div>
+      <span class="rf-state {{ ruche.etat_css }}"><i></i>{{ ruche.get_etat_predit_display }}</span>
+    </header>
+    <div class="rf-detail-body">
+      <section class="rf-hive-picture">
+        <div class="rf-hive-3d-stage" data-hive-3d tabindex="0" role="group" aria-label="Vue 3D interactive de la ruche {{ ruche.code_ruche }}">
+          <div class="rf-hive-3d-shell" data-hive-3d-shell>
+            <div class="rf-hive-3d-face rf-hive-3d-front"><img class="rf-detail-photo rf-photo-{{ ruche.type_ruche|slugify }}" src="{% get_static_prefix %}img/ruches/{{ ruche.type_ruche|slugify }}.png" alt="Photo d'une ruche {{ ruche.type_label }}"></div>
+            <div class="rf-hive-3d-face rf-hive-3d-back" aria-hidden="true"><span class="rf-hive-3d-back-icon">{% include "includes/icon.html" with i="hive" %}</span><strong>{{ ruche.code_ruche }}</strong><small>{{ ruche.type_label }} • {{ ruche.race_label }}</small></div>
+          </div>
+        </div>
+        <p>Ruche de type <strong>{{ ruche.type_label }}</strong></p>
+      </section>
+      <dl class="rf-detail-facts">
+        <div><dt>Type de ruche</dt><dd>{{ ruche.type_label }}</dd></div>
+        <div><dt>Race d'abeilles</dt><dd>{{ ruche.race_label }}</dd></div>
+        <div><dt>Date d'installation</dt><dd>{{ ruche.date_installation|date:"d/m/Y" }}</dd></div>
+        <div><dt>Population</dt><dd>{{ ruche.nombre_abeilles }} abeilles</dd></div>
+        <div><dt>Reine présente</dt><dd class="{% if ruche.presence_reine %}rf-yes{% else %}rf-no{% endif %}">{{ ruche.presence_reine|yesno:"Oui,Non" }}</dd></div>
+        <div><dt>État de la colonie</dt><dd>{{ ruche.get_etat_predit_display }}</dd></div>
+        <div><dt>Utilisateur</dt><dd>{% if ruche.user_id %}#{{ ruche.user_id }}{% else %}Non renseigné{% endif %}</dd></div>
+        <div><dt>Environnement</dt><dd>{% if ruche.idZone %}Zone #{{ ruche.idZone }}{% else %}Non renseigné{% endif %}</dd></div>
+      </dl>
+    </div>
+  </article>
+</main>
+{% endblock %}
+
+{% block extra_js %}<script src="{% static 'js/ruches_front.js' %}"></script>{% endblock %}

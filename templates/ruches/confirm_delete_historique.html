@@ -1,0 +1,29 @@
+{% extends "layouts/base_backoffice.html" %}
+{% load static %}
+
+{% block title %}Supprimer l’historique | BeeFlow administration{% endblock %}
+{% block extra_css %}<link rel="stylesheet" href="{% static 'css/ruche.css' %}">{% endblock %}
+
+{% block content %}
+<nav class="breadcrumb rch-crumb" aria-label="Fil d'Ariane">
+  <a href="{% url 'ruches:historique' %}">{% include "includes/icon.html" with i="arrow-left" %} Historique des ruches</a>
+  <span>/</span><span aria-current="page">Supprimer</span>
+</nav>
+
+<section class="panel rch-confirm">
+  <span class="hex rch-confirm-icon">{% include "includes/icon.html" with i="trash" %}</span>
+  <h1>Supprimer cette entrée ?</h1>
+  <p>Cette action supprimera définitivement cette ligne de l’historique.</p>
+  <dl class="rch-confirm-facts">
+    <div><dt>Ruche</dt><dd>{{ entree.code_ruche }}</dd></div>
+    <div><dt>Action</dt><dd>{{ entree.get_action_display }}</dd></div>
+    <div><dt>Date</dt><dd>{{ entree.date_modification|date:"d/m/Y à H:i" }}</dd></div>
+    <div><dt>Auteur</dt><dd>{{ entree.auteur }}</dd></div>
+  </dl>
+  <form method="post" class="rch-confirm-actions">
+    {% csrf_token %}
+    <a href="{% url 'ruches:historique' %}" class="btn btn-ghost">Annuler</a>
+    <button type="submit" class="btn btn-danger">{% include "includes/icon.html" with i="trash" %} Supprimer définitivement</button>
+  </form>
+</section>
+{% endblock %}

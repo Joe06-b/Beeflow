@@ -1,0 +1,135 @@
+{% extends "layouts/base_backoffice.html" %}
+{% load static %}
+
+{% block title %}{{ form_title }} | BeeFlow administration{% endblock %}
+{% block extra_css %}<link rel="stylesheet" href="{% static 'css/ruche.css' %}">{% endblock %}
+
+{% block content %}
+<nav class="breadcrumb rch-crumb" aria-label="Fil d'Ariane">
+  <a href="{% url 'ruches:liste' %}">{% include "includes/icon.html" with i="arrow-left" %} Gestion des ruches</a>
+  <span>/</span><span aria-current="page">{{ form_title }}</span>
+</nav>
+
+<div class="grid-aside">
+  <form method="post" class="panel rch-form" id="ruche-form" novalidate>
+    {% csrf_token %}
+    <div class="rch-form-head">
+      <span class="hex hex-honey">{% include "includes/icon.html" with i="hive" %}</span>
+      <div><h1>{{ form_title }}</h1><p>Renseignez les caractéristiques et l'état de la ruche.</p></div>
+    </div>
+
+    {% if form.non_field_errors %}
+      <div class="notice is-bad">{% include "includes/icon.html" with i="alert" %}<div>{{ form.non_field_errors }}</div></div>
+    {% endif %}
+
+    <fieldset class="rch-fieldset">
+      <legend>{% include "includes/icon.html" with i="note" %} Identification</legend>
+      <div class="form-row">
+        {% include "ruches/_field.html" with champ=form.code_ruche %}
+        {% include "ruches/_field.html" with champ=form.type_ruche %}
+      </div>
+      <div class="form-row">
+        {% include "ruches/_field.html" with champ=form.race_abeilles %}
+        {% include "ruches/_field.html" with champ=form.date_installation %}
+      </div>
+    </fieldset>
+
+    <fieldset class="rch-fieldset">
+      <legend>{% include "includes/icon.html" with i="hive" %} Colonie</legend>
+      <div class="form-row">
+        {% include "ruches/_field.html" with champ=form.nombre_abeilles %}
+        {% include "ruches/_field.html" with champ=form.etat_predit %}
+      </div>
+      <div class="field{% if form.presence_reine.errors %} has-error{% endif %}">
+        <label class="rch-check-row" for="{{ form.presence_reine.id_for_label }}" data-boolean-row>
+          {{ form.presence_reine }}
+          <span><strong>{{ form.presence_reine.label }} : <b data-boolean-value></b></strong><small>{{ form.presence_reine.help_text }}</small></span>
+        </label>
+        {% for erreur in form.presence_reine.errors %}<span class="field-error">{% include "includes/icon.html" with i="alert" %} {{ erreur }}</span>{% endfor %}
+      </div>
+    </fieldset>
+
+    <fieldset class="rch-fieldset">
+      <legend>{% include "includes/icon.html" with i="hub" %} Rattachements</legend>
+      <div class="form-row">
+        {% include "ruches/_field.html" with champ=form.user_id %}
+        {% include "ruches/_field.html" with champ=form.idZone %}
+      </div>
+    </fieldset>
+  </form>
+
+  <aside class="sticky stack">
+    <div class="panel rch-form-actions">
+      <button type="submit" form="ruche-form" class="btn btn-honey">{% include "includes/icon.html" with i="check" %} Enregistrer</button>
+      {% if mode == "modification" %}
+        <a href="{% url 'ruches:detail' ruche.pk %}" class="btn btn-ghost">{% include "includes/icon.html" with i="eye" %} Voir la ruche</a>
+        <a href="{% url 'ruches:supprimer' ruche.pk %}" class="btn btn-danger-ghost">{% include "includes/icon.html" with i="trash" %} Supprimer la ruche</a>
+      {% endif %}
+      <a href="{% url 'ruches:liste' %}" class="btn btn-ghost">Annuler</a>
+    </div>
+    <div class="panel">
+      <h3 class="rch-tip-title">{% include "includes/icon.html" with i="alert" %} Contrôles de saisie</h3>
+      <ul class="rch-rules" id="rch-validation-rules">
+        <li data-rule="code"><span class="rch-rule-mark" aria-hidden="true"></span><span>Le code est renseigné, valide et unique.</span></li>
+        <li data-rule="date"><span class="rch-rule-mark" aria-hidden="true"></span><span>La date d'installation n'est pas future.</span></li>
+        <li data-rule="population"><span class="rch-rule-mark" aria-hidden="true"></span><span>La population est comprise entre 1 et 2 000 000.</span></li>
+        <li data-rule="relations"><span class="rch-rule-mark" aria-hidden="true"></span><span>user_id et idZone sont vides ou positifs.</span></li>
+      </ul>
+    </div>
+  </aside>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+(function () {
+  const form = document.getElementById("ruche-form");
+  if (!form) return;
+
+  const code = document.getElementById("id_code_ruche");
+  const date = document.getElementById("id_date_installation");
+  const population = document.getElementById("id_nombre_abeilles");
+  const userId = document.getElementById("id_user_id");
+  const zoneId = document.getElementById("id_idZone");
+  const reine = document.getElementById("id_presence_reine");
+  const ligneReine = form.querySelector("[data-boolean-row]");
+  const valeurReine = form.querySelector("[data-boolean-value]");
+  const aujourdHui = new Date().toISOString().slice(0, 10);
+  date.max = aujourdHui;
+
+  function marquer(regle, valide) {
+    const element = document.querySelector(`[data-rule="${regle}"]`);
+    if (!element) return;
+    element.classList.toggle("is-valid", valide);
+    element.classList.toggle("is-invalid", !valide);
+    element.querySelector(".rch-rule-mark").textContent = valide ? "✓" : "×";
+  }
+
+  function entierOptionnelValide(champ) {
+    if (!champ.value.trim()) return true;
+    const valeur = Number(champ.value);
+    return Number.isInteger(valeur) && valeur > 0;
+  }
+
+  function verifier() {
+    const erreurCodeServeur = code.closest(".field").classList.contains("has-error");
+    marquer("code", /^[A-Za-z0-9-]+$/.test(code.value.trim()) && !erreurCodeServeur);
+    marquer("date", Boolean(date.value) && date.value <= aujourdHui);
+    const nb = Number(population.value);
+    marquer("population", Number.isInteger(nb) && nb >= 1 && nb <= 2000000);
+    marquer("relations", entierOptionnelValide(userId) && entierOptionnelValide(zoneId));
+
+    const avecReine = reine.checked;
+    ligneReine.classList.toggle("is-true", avecReine);
+    ligneReine.classList.toggle("is-false", !avecReine);
+    valeurReine.textContent = avecReine ? "Oui" : "Non";
+  }
+
+  [code, date, population, userId, zoneId, reine].forEach(champ => {
+    champ.addEventListener("input", verifier);
+    champ.addEventListener("change", verifier);
+  });
+  verifier();
+})();
+</script>
+{% endblock %}

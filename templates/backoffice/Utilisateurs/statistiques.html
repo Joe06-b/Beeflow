@@ -1,0 +1,330 @@
+{% extends "layouts/base_backoffice.html" %}
+{% load static %}
+
+{% block title %}BeeFlow | Statistiques des utilisateurs{% endblock %}
+
+{% block extra_css %}
+<link rel="stylesheet" href="{% static 'css/suivi_sanitaire.css' %}">
+<link rel="stylesheet" href="{% static 'css/Utilisateurs/utilisateur_list.css' %}">
+{% endblock %}
+
+{% block content %}
+<!-- Grande barre en marron du haut -->
+<section class="welcome">
+    <h1>Gestion des utilisateurs</h1>
+    <p>Tableau de bord statistique : effectifs, répartition des rôles, statuts et dynamique des inscriptions.</p>
+</section>
+
+<!-- Onglets : Gestion des utilisateurs & Statistiques -->
+{% include "backoffice/Utilisateurs/_onglets.html" with onglet="stats" %}
+
+<!-- Cartes d'indicateurs KPIs -->
+<section class="kpis kpis-3 ss-kpis-2rows" aria-label="Indicateurs clés">
+    <div class="kpi">
+        <span class="hex hex-honey">{% include "includes/icon.html" with i="users" %}</span>
+        <div>
+            <div class="kpi-value">{{ stats.total }}</div>
+            <div class="kpi-label">Utilisateurs enregistrés</div>
+        </div>
+    </div>
+
+    <div class="kpi">
+        <span class="hex">{% include "includes/icon.html" with i="check" %}</span>
+        <div>
+            <div class="kpi-value">{{ stats.nb_actifs }}<small> ({{ stats.taux_actifs }}%)</small></div>
+            <div class="kpi-label">Comptes actifs</div>
+        </div>
+    </div>
+
+    <div class="kpi {% if stats.nb_suspendus > 0 %}is-bad{% elif stats.nb_inactifs > 0 %}is-warn{% endif %}">
+        <span class="hex">{% include "includes/icon.html" with i="user-x" %}</span>
+        <div>
+            <div class="kpi-value">{{ stats.nb_inactifs|add:stats.nb_suspendus }}</div>
+            <div class="kpi-label">Comptes inactifs / suspendus</div>
+        </div>
+    </div>
+
+    <div class="kpi">
+        <span class="hex">{% include "includes/icon.html" with i="hive" %}</span>
+        <div>
+            <div class="kpi-value">{{ stats.nb_apiculteurs }}<small> ({{ stats.taux_apiculteurs }}%)</small></div>
+            <div class="kpi-label">Apiculteurs</div>
+        </div>
+    </div>
+
+    <div class="kpi">
+        <span class="hex">{% include "includes/icon.html" with i="box" %}</span>
+        <div>
+            <div class="kpi-value">{{ stats.nb_responsables }}</div>
+            <div class="kpi-label">Responsables prod. & stock</div>
+        </div>
+    </div>
+
+    <div class="kpi">
+        <span class="hex">{% include "includes/icon.html" with i="calendar" %}</span>
+        <div>
+            <div class="kpi-value">+{{ stats.nouveaux_30j }}</div>
+            <div class="kpi-label">Nouveaux (30 derniers jours)</div>
+        </div>
+    </div>
+</section>
+
+{% if stats.total %}
+<!-- Graphiques : Rôles & Statuts -->
+<div class="grid-2" style="margin-top: 22px;">
+    <section class="panel">
+        <div class="panel-head">
+            <h2>{% include "includes/icon.html" with i="users" %} Répartition par rôle apicole</h2>
+        </div>
+        <div class="ss-chart ss-chart-short">
+            <canvas id="chart-roles" role="img" aria-label="Nombre d'utilisateurs par rôle"></canvas>
+        </div>
+    </section>
+
+    <section class="panel">
+        <div class="panel-head">
+            <h2>{% include "includes/icon.html" with i="alert" %} Répartition par statut de compte</h2>
+        </div>
+        <div class="ss-chart ss-chart-short">
+            <canvas id="chart-statuts" role="img" aria-label="Nombre d'utilisateurs par statut"></canvas>
+        </div>
+    </section>
+</div>
+
+<!-- Graphique : Évolution mensuelle -->
+<section class="panel" style="margin-top: 22px;">
+    <div class="panel-head">
+        <h2>{% include "includes/icon.html" with i="chart" %} Dynamique des inscriptions (6 derniers mois)</h2>
+    </div>
+    <div class="ss-chart">
+        <canvas id="chart-evolution" role="img" aria-label="Nouvelles inscriptions par mois"></canvas>
+    </div>
+</section>
+
+<!-- Données détaillées : Profils & Derniers inscrits -->
+<div class="grid-2" style="margin-top: 22px; margin-bottom: 26px;">
+    <!-- Niveaux d'expérience & Spécialités -->
+    <section class="panel">
+        <div class="panel-head">
+            <h2>{% include "includes/icon.html" with i="note" %} Expérience des responsables</h2>
+        </div>
+        <ul class="ss-rank" style="margin-top: 14px;">
+            {% for exp in stats.niveaux_exp %}
+            <li>
+                <span>{{ exp.nom }}</span>
+                <span class="ss-rank-bar">
+                    <i style="--w: {% if stats.nb_responsables > 0 %}{% widthratio exp.nb stats.nb_responsables 100 %}{% else %}0{% endif %}%;"></i>
+                </span>
+                <strong>{{ exp.nb }}</strong>
+            </li>
+            {% endfor %}
+        </ul>
+
+        {% if stats.top_specialites %}
+        <div class="panel-head ss-mt">
+            <h2>{% include "includes/icon.html" with i="hive" %} Spécialités d'apiculteurs</h2>
+        </div>
+        <ul class="ss-rank" style="margin-top: 14px;">
+            {% for s in stats.top_specialites %}
+            <li>
+                <span>{{ s.nom|capfirst }}</span>
+                <span class="ss-rank-bar">
+                    <i style="--w: {% widthratio s.nb stats.top_specialites.0.nb 100 %}%;"></i>
+                </span>
+                <strong>{{ s.nb }}</strong>
+            </li>
+            {% endfor %}
+        </ul>
+        {% endif %}
+    </section>
+
+    <!-- Derniers utilisateurs enregistrés -->
+    <section class="panel">
+        <div class="panel-head">
+            <h2>{% include "includes/icon.html" with i="user" %} Dernières inscriptions</h2>
+        </div>
+        <div class="table-scroll" style="margin-top: 14px; border: 1px solid var(--line-2); border-radius: var(--r);">
+            <table class="table">
+                <thead>
+                    <tr>
+                        <th>Utilisateur</th>
+                        <th>Rôle</th>
+                        <th>Statut</th>
+                        <th>Date</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for u in stats.derniers %}
+                    <tr>
+                        <td>
+                            <a href="{% url 'utilisateurs:detail' u.pk %}" style="color: var(--propolis); font-weight: 600; text-decoration: none;">
+                                {{ u.username }}
+                            </a>
+                        </td>
+                        <td>
+                            {% if u.role == 'admin' %}
+                                <span class="role-badge role-admin">Admin</span>
+                            {% elif u.role == 'apiculteur' %}
+                                <span class="role-badge role-apiculteur">Apiculteur</span>
+                            {% elif u.role == 'responsable' %}
+                                <span class="role-badge role-responsable">Responsable</span>
+                            {% endif %}
+                        </td>
+                        <td>
+                            {% if u.statut == 'actif' %}
+                                <span class="badge lvl-actif">Actif</span>
+                            {% elif u.statut == 'inactif' %}
+                                <span class="badge lvl-inactif">Inactif</span>
+                            {% elif u.statut == 'suspendu' %}
+                                <span class="badge lvl-suspendu">Suspendu</span>
+                            {% endif %}
+                        </td>
+                        <td style="font-size: 13px; color: var(--muted);">{{ u.created_at|date:"d/m/Y" }}</td>
+                    </tr>
+                    {% empty %}
+                    <tr>
+                        <td colspan="4" class="text-center" style="padding: 20px; color: var(--muted);">Aucun utilisateur récent</td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    </section>
+</div>
+{% else %}
+<section class="panel empty" style="margin-top: 22px;">
+    <span class="hex">{% include "includes/icon.html" with i="chart" %}</span>
+    <h3>Pas encore de données statistiques</h3>
+    <p>Les indicateurs et graphiques apparaîtront dès qu'un premier utilisateur sera inscrit.</p>
+    <a href="{% url 'utilisateurs:ajouter' %}" class="btn btn-honey">
+        {% include "includes/icon.html" with i="plus" %} Ajouter un utilisateur
+    </a>
+</section>
+{% endif %}
+
+{{ graphiques|json_script:"donnees-graphiques" }}
+{% endblock %}
+
+{% block extra_js %}
+<script src="{% static 'vendor/chart.umd.js' %}"></script>
+<script>
+(function () {
+    if (typeof Chart === "undefined" || !document.getElementById("donnees-graphiques")) return;
+    const g = JSON.parse(document.getElementById("donnees-graphiques").textContent);
+
+    const COULEURS_STATUT = ["#3F7A4A", "#E0A526", "#A93C30"]; // vert actif / jaune inactif / rouge suspendu
+    const COULEURS_ROLES = ["#E9B949", "#9C5A2E", "#2B1B0F"];  // miel / brun / propolis
+    const SERIE_1 = "#9C5A2E";
+    const GRILLE = "#EFE6D6";
+
+    Chart.defaults.font.family = "Figtree, 'Segoe UI', sans-serif";
+    Chart.defaults.font.size = 12.5;
+    Chart.defaults.color = "#7A6A5B";
+    Chart.defaults.plugins.tooltip.backgroundColor = "#2B1B0F";
+    Chart.defaults.plugins.tooltip.titleColor = "#E9B949";
+    Chart.defaults.plugins.tooltip.padding = 10;
+    Chart.defaults.plugins.tooltip.cornerRadius = 10;
+
+    const axes = {
+        x: { grid: { display: false }, border: { color: GRILLE } },
+        y: { beginAtZero: true, ticks: { precision: 0 }, grid: { color: GRILLE }, border: { display: false } },
+    };
+
+    // 1. Graphique des Rôles
+    const elRoles = document.getElementById("chart-roles");
+    if (elRoles) {
+        new Chart(elRoles, {
+            type: "bar",
+            data: {
+                labels: g.roles.labels,
+                datasets: [{
+                    data: g.roles.data,
+                    backgroundColor: COULEURS_ROLES,
+                    borderRadius: 6,
+                    borderSkipped: "start",
+                    maxBarThickness: 32
+                }]
+            },
+            options: {
+                indexAxis: "y",
+                maintainAspectRatio: false,
+                plugins: {
+                    legend: { display: false },
+                    tooltip: { callbacks: { label: c => ` ${c.raw} utilisateur(s)` } }
+                },
+                scales: {
+                    x: { beginAtZero: true, ticks: { precision: 0 }, grid: { color: GRILLE } },
+                    y: { grid: { display: false }, border: { color: GRILLE } }
+                }
+            }
+        });
+    }
+
+    // 2. Graphique des Statuts
+    const elStatuts = document.getElementById("chart-statuts");
+    if (elStatuts) {
+        new Chart(elStatuts, {
+            type: "bar",
+            data: {
+                labels: g.statuts.labels,
+                datasets: [{
+                    data: g.statuts.data,
+                    backgroundColor: COULEURS_STATUT,
+                    borderRadius: 6,
+                    borderSkipped: "start",
+                    maxBarThickness: 32
+                }]
+            },
+            options: {
+                indexAxis: "y",
+                maintainAspectRatio: false,
+                plugins: {
+                    legend: { display: false },
+                    tooltip: { callbacks: { label: c => ` ${c.raw} compte(s)` } }
+                },
+                scales: {
+                    x: { beginAtZero: true, ticks: { precision: 0 }, grid: { color: GRILLE } },
+                    y: { grid: { display: false }, border: { color: GRILLE } }
+                }
+            }
+        });
+    }
+
+    // 3. Graphique de l'Évolution mensuelle
+    const elEvolution = document.getElementById("chart-evolution");
+    if (elEvolution) {
+        new Chart(elEvolution, {
+            type: "line",
+            data: {
+                labels: g.evolution.labels,
+                datasets: [{
+                    label: "Nouvelles inscriptions",
+                    data: g.evolution.data,
+                    borderColor: SERIE_1,
+                    backgroundColor: "rgba(233, 185, 73, 0.15)",
+                    fill: true,
+                    borderWidth: 2.5,
+                    pointRadius: 5,
+                    pointBackgroundColor: "#E9B949",
+                    pointBorderColor: "#2B1B0F",
+                    pointBorderWidth: 1.5,
+                    tension: 0.35
+                }]
+            },
+            options: {
+                maintainAspectRatio: false,
+                plugins: {
+                    legend: {
+                        position: "top",
+                        align: "start",
+                        labels: { usePointStyle: true, pointStyle: "circle", boxWidth: 8, boxHeight: 8, padding: 14 }
+                    },
+                    tooltip: { callbacks: { label: c => ` ${c.raw} nouvel/nouveaux inscrit(s)` } }
+                },
+                scales: axes
+            }
+        });
+    }
+})();
+</script>
+{% endblock %}

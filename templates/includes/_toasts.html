@@ -1,0 +1,10 @@
+{# Messages Django affichés en toasts. extra_tags="son-..." déclenche un effet sonore (voir beeflow.js) #}
+<div class="toasts" aria-live="polite">
+    {% for message in messages %}
+    <div class="toast is-{{ message.level_tag|default:'info' }}" role="{% if message.level_tag == 'error' %}alert{% else %}status{% endif %}"{% if message.extra_tags %} data-son="{{ message.extra_tags }}"{% endif %}>
+        <span class="hex">{% if message.level_tag == 'success' %}{% include "includes/icon.html" with i="check" %}{% elif message.level_tag == 'error' or message.level_tag == 'warning' %}{% include "includes/icon.html" with i="alert" %}{% else %}{% include "includes/icon.html" with i="bell" %}{% endif %}</span>
+        <div class="toast-body">{{ message }}</div>
+        <button type="button" class="toast-close" aria-label="Fermer">{% include "includes/icon.html" with i="x" class="ico-sm" %}</button>
+    </div>
+    {% endfor %}
+</div>
