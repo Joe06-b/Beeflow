@@ -1,0 +1,109 @@
+{% extends "layouts/base_backoffice.html" %}
+{% load static %}
+
+{% block title %}Gestion des ruches | BeeFlow administration{% endblock %}
+{% block extra_css %}<link rel="stylesheet" href="{% static 'css/ruche.css' %}">{% endblock %}
+{% block extra_js %}<script src="{% static 'js/ruches_filters.js' %}" defer></script>{% endblock %}
+
+{% block content %}
+{% include "ruches/_onglets.html" with onglet="liste" %}
+
+<form method="get" action="{% url 'ruches:liste' %}" class="toolbar" role="search" data-ruches-filters>
+  <div class="search">
+    {% include "includes/icon.html" with i="search" %}
+    <input class="bf-input" type="search" name="q" value="{{ filtres.q }}" placeholder="Code, type ou race…" aria-label="Rechercher une ruche">
+  </div>
+  <select class="bf-select" name="type" aria-label="Filtrer par type" data-ruches-filter>
+    <option value="">Tous les types</option>
+    {% for valeur, libelle in types_ruches %}
+      <option value="{{ valeur }}"{% if filtres.type == valeur %} selected{% endif %}>{{ libelle }}</option>
+    {% endfor %}
+  </select>
+  <select class="bf-select" name="etat" aria-label="Filtrer par état" data-ruches-filter>
+    <option value="">Tous les états</option>
+    {% for valeur, libelle in etats %}
+      <option value="{{ valeur }}"{% if filtres.etat == valeur %} selected{% endif %}>{{ libelle }}</option>
+    {% endfor %}
+  </select>
+  <select class="bf-select" name="tri" aria-label="Trier les ruches" data-ruches-filter>
+    <option value="code"{% if filtres.tri == "code" %} selected{% endif %}>Code A–Z</option>
+    <option value="code_desc"{% if filtres.tri == "code_desc" %} selected{% endif %}>Code Z–A</option>
+    <option value="date_desc"{% if filtres.tri == "date_desc" %} selected{% endif %}>Installation récente</option>
+    <option value="date"{% if filtres.tri == "date" %} selected{% endif %}>Installation ancienne</option>
+    <option value="population_desc"{% if filtres.tri == "population_desc" %} selected{% endif %}>Population décroissante</option>
+    <option value="population"{% if filtres.tri == "population" %} selected{% endif %}>Population croissante</option>
+  </select>
+  <div class="toolbar-actions">
+    <button type="submit" class="btn btn-dark">{% include "includes/icon.html" with i="filter" %} Filtrer</button>
+    <a href="{% url 'ruches:liste' %}" class="icon-btn" title="Effacer les filtres" aria-label="Effacer les filtres">{% include "includes/icon.html" with i="x" %}</a>
+  </div>
+</form>
+
+<section class="table-card">
+  <div class="table-card-head">
+    <span>{{ nb_resultats }} résultat{{ nb_resultats|pluralize }}, page {{ page_obj.number }} sur {{ page_obj.paginator.num_pages }}</span>
+  </div>
+
+  {% if ruches %}
+  <div class="table-scroll">
+    <table class="table rch-table">
+      <thead>
+        <tr>
+          <th>Code</th><th>Type</th><th>Race</th><th>Installation</th>
+          <th>Reine</th><th>Population</th><th>État</th><th><span class="sr-only">Actions</span></th>
+        </tr>
+      </thead>
+      <tbody>
+        {% for ruche in ruches %}
+        <tr>
+          <td><span class="hive-id">{{ ruche.code_ruche }}</span></td>
+          <td>{{ ruche.type_ruche }}</td>
+          <td>{{ ruche.race_abeilles }}</td>
+          <td>{{ ruche.date_installation|date:"d/m/Y" }}</td>
+          <td>
+            <span class="badge {% if ruche.presence_reine %}is-good{% else %}is-bad{% endif %}">
+              {{ ruche.presence_reine|yesno:"Oui,Non" }}
+            </span>
+          </td>
+          <td class="rch-number">{{ ruche.nombre_abeilles }}</td>
+          <td><span class="badge {{ ruche.etat_css }}">{{ ruche.get_etat_predit_display }}</span></td>
+          <td>
+            <div class="actions">
+              <a href="{% url 'ruches:detail' ruche.pk %}" class="icon-btn" title="Voir" aria-label="Voir la ruche {{ ruche.code_ruche }}">{% include "includes/icon.html" with i="eye" %}</a>
+              <a href="{% url 'ruches:historique' %}?q={{ ruche.code_ruche|urlencode }}" class="icon-btn" title="Historique" aria-label="Historique de la ruche {{ ruche.code_ruche }}">{% include "includes/icon.html" with i="history" %}</a>
+              <a href="{% url 'ruches:modifier' ruche.pk %}" class="icon-btn" title="Modifier" aria-label="Modifier la ruche {{ ruche.code_ruche }}">{% include "includes/icon.html" with i="edit" %}</a>
+              <a href="{% url 'ruches:supprimer' ruche.pk %}" class="icon-btn danger" title="Supprimer" aria-label="Supprimer la ruche {{ ruche.code_ruche }}">{% include "includes/icon.html" with i="trash" %}</a>
+            </div>
+          </td>
+        </tr>
+        {% endfor %}
+      </tbody>
+    </table>
+  </div>
+  {% else %}
+  <div class="empty">
+    <span class="hex">{% include "includes/icon.html" with i="hive" %}</span>
+    <h3>Aucune ruche à afficher</h3>
+    <p>Effacez les filtres ou ajoutez la première ruche de votre exploitation.</p>
+    <a href="{% url 'ruches:ajouter' %}" class="btn btn-honey">{% include "includes/icon.html" with i="plus" %} Ajouter une ruche</a>
+  </div>
+  {% endif %}
+
+  {% if page_obj.has_other_pages %}
+  <nav class="pagination" aria-label="Pagination">
+    {% if page_obj.has_previous %}
+      <a href="?{% if params %}{{ params }}&{% endif %}page=1" aria-label="Première page">{% include "includes/icon.html" with i="chevrons-left" %}</a>
+      <a href="?{% if params %}{{ params }}&{% endif %}page={{ page_obj.previous_page_number }}" aria-label="Page précédente">{% include "includes/icon.html" with i="chevron-left" %}</a>
+    {% endif %}
+    {% for numero in page_obj.paginator.page_range %}
+      {% if numero == page_obj.number %}<span class="is-current" aria-current="page">{{ numero }}</span>
+      {% elif numero > page_obj.number|add:"-3" and numero < page_obj.number|add:"3" %}<a href="?{% if params %}{{ params }}&{% endif %}page={{ numero }}">{{ numero }}</a>{% endif %}
+    {% endfor %}
+    {% if page_obj.has_next %}
+      <a href="?{% if params %}{{ params }}&{% endif %}page={{ page_obj.next_page_number }}" aria-label="Page suivante">{% include "includes/icon.html" with i="chevron-right" %}</a>
+      <a href="?{% if params %}{{ params }}&{% endif %}page={{ page_obj.paginator.num_pages }}" aria-label="Dernière page">{% include "includes/icon.html" with i="chevrons-right" %}</a>
+    {% endif %}
+  </nav>
+  {% endif %}
+</section>
+{% endblock %}

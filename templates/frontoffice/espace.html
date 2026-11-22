@@ -17,7 +17,7 @@
            puis cliquez sur la face de devant pour ouvrir le module.</p>
 
         <nav class="espace-list" aria-label="Modules">
-            <button type="button" data-face="0">{% include "includes/icon.html" with i="hive" %}<span>Gestion des ruches</span><em>Bientôt</em></button>
+            <button type="button" data-face="0">{% include "includes/icon.html" with i="hive" %}<span>Gestion des ruches</span></button>
             <button type="button" data-face="1">{% include "includes/icon.html" with i="leaf" %}<span>Environnement</span><em>Bientôt</em></button>
             <button type="button" data-face="2">{% include "includes/icon.html" with i="sanitaire" %}<span>Suivi sanitaire</span></button>
             <button type="button" data-face="3">{% include "includes/icon.html" with i="jar" %}<span>Production</span><em>Bientôt</em></button>
@@ -33,12 +33,11 @@
             <div class="hive" id="hive">
                 <div class="hive-cap hive-cap-top"><img src="{% static 'img/logo.svg' %}" alt=""></div>
                 <div class="hive-cap hive-cap-bottom"></div>
-
-                <a class="face" href="#" data-soon data-title="Gestion des ruches">
+                <a class="face face-live" href="{% url 'ruches_front:liste' %}">
                     <span class="face-chip">{% include "includes/icon.html" with i="hive" %}</span>
                     <h3>Gestion des ruches</h3>
                     <p>Reines, populations, emplacements et état de chaque ruche.</p>
-                    <span class="face-foot is-soon">Bientôt disponible</span>
+                    <span class="face-foot">Ouvrir mes ruches {% include "includes/icon.html" with i="arrow-right" %}</span>
                 </a>
                 <a class="face" href="#" data-soon data-title="Environnement">
                     <span class="face-chip">{% include "includes/icon.html" with i="leaf" %}</span>

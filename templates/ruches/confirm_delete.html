@@ -1,0 +1,26 @@
+{% extends "layouts/base_backoffice.html" %}
+{% load static %}
+
+{% block title %}Supprimer {{ ruche.code_ruche }} | BeeFlow administration{% endblock %}
+{% block extra_css %}<link rel="stylesheet" href="{% static 'css/ruche.css' %}">{% endblock %}
+
+{% block content %}
+<section class="panel rch-confirm">
+  <span class="hex rch-confirm-icon">{% include "includes/icon.html" with i="trash" %}</span>
+  <h1>Supprimer la ruche {{ ruche.code_ruche }} ?</h1>
+  <p class="muted">Cette action est définitive. Les informations de cette ruche seront effacées.</p>
+
+  <dl class="rch-confirm-facts">
+    <div><dt>Type</dt><dd>{{ ruche.type_ruche }}</dd></div>
+    <div><dt>Race</dt><dd>{{ ruche.race_abeilles }}</dd></div>
+    <div><dt>Population</dt><dd>{{ ruche.nombre_abeilles }} abeilles</dd></div>
+    <div><dt>État</dt><dd>{{ ruche.get_etat_predit_display }}</dd></div>
+  </dl>
+
+  <form method="post" class="rch-confirm-actions">
+    {% csrf_token %}
+    <a href="{% url 'ruches:detail' ruche.pk %}" class="btn btn-ghost">Annuler</a>
+    <button type="submit" class="btn btn-danger">{% include "includes/icon.html" with i="trash" %} Supprimer définitivement</button>
+  </form>
+</section>
+{% endblock %}

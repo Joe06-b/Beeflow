@@ -1,0 +1,52 @@
+{% extends "layouts/base_backoffice.html" %}
+{% load static %}
+
+{% block title %}Ruche {{ ruche.code_ruche }} | BeeFlow administration{% endblock %}
+{% block extra_css %}<link rel="stylesheet" href="{% static 'css/ruche.css' %}">{% endblock %}
+
+{% block content %}
+<nav class="breadcrumb rch-crumb" aria-label="Fil d'Ariane">
+  <a href="{% url 'ruches:liste' %}">{% include "includes/icon.html" with i="arrow-left" %} Gestion des ruches</a>
+  <span>/</span><span aria-current="page">{{ ruche.code_ruche }}</span>
+</nav>
+
+<header class="page-head rch-detail-head">
+  <div class="rch-title-with-icon">
+    <span class="hex hex-honey">{% include "includes/icon.html" with i="hive" %}</span>
+    <div><span class="muted small">Ruche n° {{ ruche.id_ruche }}</span><h1>{{ ruche.code_ruche }}</h1><p>{{ ruche.type_ruche }} · {{ ruche.race_abeilles }}</p></div>
+  </div>
+  <div class="page-actions">
+    <a href="{% url 'ruches:historique' %}?q={{ ruche.code_ruche|urlencode }}" class="btn btn-ghost">{% include "includes/icon.html" with i="history" %} Historique</a>
+    <a href="{% url 'ruches:modifier' ruche.pk %}" class="btn btn-honey">{% include "includes/icon.html" with i="edit" %} Modifier</a>
+    <a href="{% url 'ruches:supprimer' ruche.pk %}" class="btn btn-danger-ghost">{% include "includes/icon.html" with i="trash" %} Supprimer</a>
+  </div>
+</header>
+
+<div class="rch-detail-grid">
+  <section class="panel">
+    <div class="panel-head"><h2>{% include "includes/icon.html" with i="list" %} Informations générales</h2></div>
+    <dl class="rch-facts">
+      <div><dt>Code</dt><dd><span class="hive-id">{{ ruche.code_ruche }}</span></dd></div>
+      <div><dt>Type de ruche</dt><dd>{{ ruche.type_ruche }}</dd></div>
+      <div><dt>Race des abeilles</dt><dd>{{ ruche.race_abeilles }}</dd></div>
+      <div><dt>Date d'installation</dt><dd>{{ ruche.date_installation|date:"d/m/Y" }}</dd></div>
+      <div><dt>Nombre d'abeilles</dt><dd>{{ ruche.nombre_abeilles }}</dd></div>
+      <div><dt>Présence de la reine</dt><dd><span class="badge {% if ruche.presence_reine %}is-good{% else %}is-neutral{% endif %}">{{ ruche.presence_reine|yesno:"Oui,Non" }}</span></dd></div>
+    </dl>
+  </section>
+
+  <aside class="stack">
+    <section class="panel rch-status-panel">
+      <span class="muted small">État prédit</span>
+      <span class="badge {{ ruche.etat_css }}">{{ ruche.get_etat_predit_display }}</span>
+    </section>
+    <section class="panel">
+      <div class="panel-head"><h2>{% include "includes/icon.html" with i="hub" %} Rattachements</h2></div>
+      <dl class="rch-facts rch-facts-compact">
+        <div><dt>user_id</dt><dd>{{ ruche.user_id|default:"Non renseigné" }}</dd></div>
+        <div><dt>idZone</dt><dd>{{ ruche.idZone|default:"Non renseigné" }}</dd></div>
+      </dl>
+    </section>
+  </aside>
+</div>
+{% endblock %}

@@ -1,0 +1,128 @@
+{% extends "layouts/base_backoffice.html" %}
+{% load static %}
+
+{% block title %}Statistiques des ruches | BeeFlow administration{% endblock %}
+{% block extra_css %}<link rel="stylesheet" href="{% static 'css/ruche.css' %}">{% endblock %}
+
+{% block content %}
+{% include "ruches/_onglets.html" with onglet="stats" %}
+
+<section class="kpis rch-stats-kpis" aria-label="Indicateurs des ruches">
+  <div class="kpi">
+    <span class="hex hex-honey">{% include "includes/icon.html" with i="hive" %}</span>
+    <div><div class="kpi-value">{{ stats.total }}</div><div class="kpi-label">Ruches enregistrées</div></div>
+  </div>
+  <div class="kpi is-good">
+    <span class="hex">{% include "includes/icon.html" with i="check" %}</span>
+    <div><div class="kpi-value">{{ stats.nb_bon }}</div><div class="kpi-label">Ruches en bon état</div></div>
+  </div>
+  <div class="kpi is-warn">
+    <span class="hex">{% include "includes/icon.html" with i="alert" %}</span>
+    <div><div class="kpi-value">{{ stats.nb_surveillance }}</div><div class="kpi-label">Ruches à surveiller</div></div>
+  </div>
+  <div class="kpi is-bad">
+    <span class="hex">{% include "includes/icon.html" with i="sanitaire" %}</span>
+    <div><div class="kpi-value">{{ stats.nb_risque }}</div><div class="kpi-label">Ruches à risque élevé</div></div>
+  </div>
+  <div class="kpi">
+    <span class="hex">{% include "includes/icon.html" with i="users" %}</span>
+    <div><div class="kpi-value">{{ stats.population_totale }}</div><div class="kpi-label">Abeilles estimées</div></div>
+  </div>
+  <div class="kpi">
+    <span class="hex">{% include "includes/icon.html" with i="chart" %}</span>
+    <div><div class="kpi-value">{{ stats.population_moyenne }}</div><div class="kpi-label">Moyenne par ruche</div></div>
+  </div>
+  <div class="kpi">
+    <span class="hex">{% include "includes/icon.html" with i="check" %}</span>
+    <div><div class="kpi-value">{{ stats.taux_avec_reine }}<small>%</small></div><div class="kpi-label">Avec reine</div></div>
+  </div>
+</section>
+
+{% if stats.total %}
+<div class="grid-2">
+  <section class="panel">
+    <div class="panel-head"><h2>{% include "includes/icon.html" with i="chart" %} Répartition par état</h2></div>
+    <div class="rch-chart rch-chart-short"><canvas id="chart-etat" role="img" aria-label="Répartition des ruches par état"></canvas></div>
+    <div class="rch-state-legend">
+      <span class="rch-legend-good">Bon</span>
+      <span class="rch-legend-watch">À surveiller</span>
+      <span class="rch-legend-risk">Risque élevé</span>
+    </div>
+  </section>
+  <section class="panel">
+    <div class="panel-head"><h2>{% include "includes/icon.html" with i="hive" %} Répartition par type</h2></div>
+    <div class="rch-chart rch-chart-short"><canvas id="chart-type" role="img" aria-label="Répartition des ruches par type"></canvas></div>
+  </section>
+</div>
+
+<div class="grid-2">
+  <section class="panel">
+    <div class="panel-head"><h2>{% include "includes/icon.html" with i="users" %} Répartition par race</h2></div>
+    <div class="rch-chart"><canvas id="chart-race" role="img" aria-label="Répartition des ruches par race"></canvas></div>
+  </section>
+  <section class="panel">
+    <div class="panel-head"><h2>{% include "includes/icon.html" with i="calendar" %} Dernières installations</h2></div>
+    <div class="table-scroll">
+      <table class="table">
+        <thead><tr><th>Ruche</th><th>Type</th><th>Date</th><th>État</th></tr></thead>
+        <tbody>
+          {% for ruche in stats.dernieres_ruches %}
+          <tr>
+            <td><a href="{% url 'ruches:detail' ruche.pk %}" class="hive-id">{{ ruche.code_ruche }}</a></td>
+            <td>{{ ruche.type_ruche }}</td>
+            <td>{{ ruche.date_installation|date:"d/m/Y" }}</td>
+            <td><span class="badge {{ ruche.etat_css }}">{{ ruche.get_etat_predit_display }}</span></td>
+          </tr>
+          {% endfor %}
+        </tbody>
+      </table>
+    </div>
+  </section>
+</div>
+{% else %}
+<section class="panel empty">
+  <span class="hex">{% include "includes/icon.html" with i="chart" %}</span>
+  <h3>Pas encore de statistiques</h3>
+  <p>Les statistiques apparaîtront dès l'ajout de la première ruche.</p>
+  <a href="{% url 'ruches:ajouter' %}" class="btn btn-honey">{% include "includes/icon.html" with i="plus" %} Ajouter une ruche</a>
+</section>
+{% endif %}
+
+{{ graphiques|json_script:"donnees-ruches" }}
+{% endblock %}
+
+{% block extra_js %}
+<script src="{% static 'vendor/chart.umd.js' %}"></script>
+<script>
+(function () {
+  const source = document.getElementById("donnees-ruches");
+  if (!source || typeof Chart === "undefined" || !document.getElementById("chart-etat")) return;
+  const donnees = JSON.parse(source.textContent);
+  const COULEURS_ETAT = ["#3F7A4A", "#E0A526", "#A93C30"];
+  const COULEURS_MIEL = ["#9C5A2E", "#C98A00", "#E9B949", "#6E8B3D", "#855C0B", "#D7A86E"];
+  const GRILLE = "#EFE6D6";
+
+  Chart.defaults.font.family = "Figtree, 'Segoe UI', sans-serif";
+  Chart.defaults.color = "#7A6A5B";
+
+  function graphiqueBarres(id, serie, couleurs) {
+    new Chart(document.getElementById(id), {
+      type: "bar",
+      data: { labels: serie.labels, datasets: [{ data: serie.data, backgroundColor: couleurs, borderRadius: 7, maxBarThickness: 34 }] },
+      options: {
+        maintainAspectRatio: false,
+        plugins: { legend: { display: false } },
+        scales: {
+          x: { grid: { display: false }, border: { color: GRILLE } },
+          y: { beginAtZero: true, ticks: { precision: 0 }, grid: { color: GRILLE }, border: { display: false } },
+        },
+      },
+    });
+  }
+
+  graphiqueBarres("chart-etat", donnees.etat, COULEURS_ETAT);
+  graphiqueBarres("chart-type", donnees.type, COULEURS_MIEL);
+  graphiqueBarres("chart-race", donnees.race, COULEURS_MIEL);
+})();
+</script>
+{% endblock %}

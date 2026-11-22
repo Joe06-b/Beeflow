@@ -35,4 +35,6 @@ urlpatterns = [
     path("dashboard/",DashboardView.as_view(),name="dashboard"),
     path("suivis/", include("SuiviSanitaireApp.urls")),
     path("dashboard/suivis/", include("SuiviSanitaireApp.urls_backoffice")),
+    path("ruches/", include("rucheapp.urls_frontoffice")),
+    path("dashboard/ruches/", include("rucheapp.urls")),
 ]
