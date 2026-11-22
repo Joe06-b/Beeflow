@@ -40,6 +40,7 @@ INSTALLED_APPS = [
     'UtilisateursApp',
     'SuiviSanitaireApp',
     'rucheapp',
+    'ProduitApp',
 ]
 
 MIDDLEWARE = [
@@ -148,3 +149,5 @@ MAILERS = {
 }
 
 DEFAULT_FROM_EMAIL = "beeflow.apiculture@gmail.com"
+MEDIA_URL = "/media/"
+MEDIA_ROOT = BASE_DIR / "media"

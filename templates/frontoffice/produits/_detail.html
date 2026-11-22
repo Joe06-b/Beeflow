@@ -1,0 +1,41 @@
+{# Contenu de la fiche produit. Utilisé en front office ET en back office. #}
+<div class="grid-aside">
+  <div class="stack">
+    <section class="panel">
+      <div class="panel-head"><h2>{% include "includes/icon.html" with i="jar" %} Caractéristiques</h2></div>
+      <dl class="pr-facts">
+        <div><dt>Catégorie</dt><dd>{{ produit.get_categorie_produit_display }}</dd></div>
+        <div><dt>Origine florale</dt><dd>{{ produit.origine_florale|default:'<span class="muted">—</span>' }}</dd></div>
+        <div><dt>Quantité</dt><dd>{{ produit.quantite|floatformat:"-2" }} {{ produit.get_unite_display }}</dd></div>
+        <div><dt>Prix</dt><dd>{{ produit.prix }} TND</dd></div>
+        <div><dt>État</dt><dd>{% include "frontoffice/produits/_etat.html" with p=produit %}</dd></div>
+        <div><dt>Ajouté le</dt><dd>{{ produit.created_at|date:"d/m/Y H:i" }}</dd></div>
+      </dl>
+    </section>
+
+    <section class="panel">
+      <div class="panel-head"><h2>{% include "includes/icon.html" with i="note" %} Description sensorielle</h2></div>
+      {% if produit.description_sensorielle %}<p>{{ produit.description_sensorielle|linebreaksbr }}</p>
+      {% else %}<p class="muted">Aucune description renseignée.</p>{% endif %}
+    </section>
+  </div>
+
+  <aside class="panel sticky pr-aside" aria-label="Résumé">
+    <div class="pr-photo">
+      {% if produit.photo_produit %}<img src="{{ produit.photo_produit.url }}" alt="{{ produit }}">
+      {% else %}<span class="hex">{% include "includes/icon.html" with i="jar" %}</span>{% endif %}
+    </div>
+    <div class="pr-summary-row">
+      <span class="muted small">État du produit</span>
+      {% include "frontoffice/produits/_etat.html" with p=produit %}
+    </div>
+    <div class="pr-price">
+      <span class="muted small">Prix unitaire</span>
+      <strong>{{ produit.prix }} TND</strong>
+    </div>
+    <div class="pr-barcode">
+      <img src="{% url 'produits_front:code_barre_image' produit.pk %}" alt="Code-barres EAN-13 {{ produit.code_barre }}">
+      <span>Code-barres EAN-13</span>
+    </div>
+  </aside>
+</div>

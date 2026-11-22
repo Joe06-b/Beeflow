@@ -1,0 +1,16 @@
+{% if page.has_other_pages %}
+<nav class="pagination {{ extra_class }}" aria-label="Pagination">
+  {% if page.has_previous %}
+    <a href="?{% if params %}{{ params }}&{% endif %}page=1" aria-label="Première page">{% include "includes/icon.html" with i="chevrons-left" %}</a>
+    <a href="?{% if params %}{{ params }}&{% endif %}page={{ page.previous_page_number }}" aria-label="Page précédente">{% include "includes/icon.html" with i="chevron-left" %}</a>
+  {% endif %}
+  {% for n in page.paginator.page_range %}
+    {% if n == page.number %}<span class="is-current" aria-current="page">{{ n }}</span>
+    {% elif n > page.number|add:"-3" and n < page.number|add:"3" %}<a href="?{% if params %}{{ params }}&{% endif %}page={{ n }}">{{ n }}</a>{% endif %}
+  {% endfor %}
+  {% if page.has_next %}
+    <a href="?{% if params %}{{ params }}&{% endif %}page={{ page.next_page_number }}" aria-label="Page suivante">{% include "includes/icon.html" with i="chevron-right" %}</a>
+    <a href="?{% if params %}{{ params }}&{% endif %}page={{ page.paginator.num_pages }}" aria-label="Dernière page">{% include "includes/icon.html" with i="chevrons-right" %}</a>
+  {% endif %}
+</nav>
+{% endif %}

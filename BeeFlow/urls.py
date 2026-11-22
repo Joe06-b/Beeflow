@@ -1,6 +1,5 @@
 """
 URL configuration for BeeFlow project.
-
 The `urlpatterns` list routes URLs to views. For more information please see:
     https://docs.djangoproject.com/en/6.1/topics/http/urls/
 Examples:
@@ -16,7 +15,9 @@ Including another URLconf
 """
 from django.contrib import admin
 from django.urls import path, include
+from django.conf.urls.static import static
 from django.views.generic import TemplateView
+from BeeFlow import settings
 from UtilisateursApp import views as user_views
 from .views import EspaceView,DashboardView
 
@@ -37,4 +38,11 @@ urlpatterns = [
     path("dashboard/suivis/", include("SuiviSanitaireApp.urls_backoffice")),
     path("ruches/", include("rucheapp.urls_frontoffice")),
     path("dashboard/ruches/", include("rucheapp.urls")),
+    
+    path("produits/", include("ProduitApp.urls")),
+        path("dashboard/produits/", include("ProduitApp.urls_backoffice")),
 ]
+    
+    # Photos des produits (en développement)
+if settings.DEBUG:
+    urlpatterns += static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)

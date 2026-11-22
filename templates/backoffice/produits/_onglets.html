@@ -1,0 +1,6 @@
+<div class="pr-bo-tabs">
+  <nav class="tabs" aria-label="Sections de la production">
+    <a href="{% url 'produits:liste' %}" class="{% if onglet == 'liste' %}is-active{% endif %}" {% if onglet == 'liste' %}aria-current="page"{% endif %}>{% include "includes/icon.html" with i="jar" %} Gestion de production</a>
+    <a href="{% url 'produits:statistiques' %}" class="{% if onglet == 'stats' %}is-active{% endif %}" {% if onglet == 'stats' %}aria-current="page"{% endif %}>{% include "includes/icon.html" with i="chart" %} Statistiques</a>
+  </nav>
+</div>

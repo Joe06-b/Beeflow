@@ -22,12 +22,10 @@
         <a href="{% url 'suivi_sanitaire_bo:liste' %}" class="{% if active_page == 'sanitaire' %}active{% endif %}">
             {% include "includes/icon.html" with i="sanitaire" %} Suivi sanitaire
         </a>
-        <a href="#" data-soon data-title="Production" title="Bientôt disponible"
-            class="{% if active_page == 'production' %}active{% endif %}">
+        <a href="{% url 'produits:liste' %}" class="{% if active_page == 'production' %}active{% endif %}">
             {% include "includes/icon.html" with i="jar" %} Production
         </a>
-        <a href="#" data-soon data-title="Gestion du stock" title="Bientôt disponible"
-            class="{% if active_page == 'stock' %}active{% endif %}">
+        <a href="#" data-soon data-title="Gestion du stock" title="Bientôt disponible" class="{% if active_page == 'stock' %}active{% endif %}">
             {% include "includes/icon.html" with i="box" %} Gestion du stock
         </a>
     </nav>

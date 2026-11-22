@@ -1,0 +1,10 @@
+{# Aide affichée à côté du formulaire : les règles vérifiées à l'enregistrement (clean() du modèle) #}
+<div class="panel">
+  <div class="panel-head"><h2>{% include "includes/icon.html" with i="check" %} Avant d'enregistrer</h2></div>
+  <ul class="pr-rules">
+    <li>{% include "includes/icon.html" with i="box" class="ico-sm" %} Un produit disponible doit avoir une quantité supérieure à 0.</li>
+    <li>{% include "includes/icon.html" with i="alert" class="ico-sm" %} Un produit en rupture de stock doit avoir une quantité égale à 0.</li>
+    <li>{% include "includes/icon.html" with i="droplet" class="ico-sm" %} La quantité et le prix ne peuvent pas être négatifs.</li>
+    <li>{% include "includes/icon.html" with i="note" class="ico-sm" %} Le code-barres EAN-13 est généré automatiquement.</li>
+  </ul>
+</div>

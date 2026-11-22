@@ -1,0 +1,44 @@
+{% extends "layouts/base_backoffice.html" %}
+{% block title %}BeeFlow | Produits{% endblock %}
+{% block content %}
+<section class="section">
+    <div class="section-head">
+        <h2>📦 Produits ({{ produits|length }})</h2>
+        <a href="{% url 'produits:ajouter' %}" class="btn btn-honey">+ Ajouter un produit</a>
+    </div>
+    <div class="table-container">
+        <table>
+            <thead>
+                <tr>
+                    <th>Photo</th><th>Catégorie</th><th>Origine</th><th>Qté</th><th>Prix</th><th>État</th><th>Actions</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for produit in produits %}
+                <tr>
+                    <td>
+                        {% if produit.photo_produit %}<img src="{{ produit.photo_produit.url }}" class="thumb">
+                        {% else %}<span class="thumb thumb-empty">🍯</span>{% endif %}
+                    </td>
+                    <td><a href="{% url 'produits:detail' produit.pk %}">{{ produit.get_categorie_produit_display }}</a></td>
+                    <td>{{ produit.origine_florale|default:"—" }}</td>
+                    <td>{{ produit.quantite|floatformat:"-2" }} {{ produit.get_unite_display }}</td>
+                    <td>{{ produit.prix }} TND</td>
+                    <td>
+                        <span class="status{% if produit.etat == 'rupture_stock' %} danger{% elif produit.etat == 'archive' %} warning{% endif %}">
+                            {{ produit.get_etat_display }}
+                        </span>
+                    </td>
+                    <td class="row-actions">
+                        <a href="{% url 'produits:modifier' produit.pk %}">Modifier</a>
+                        <a href="{% url 'produits:supprimer' produit.pk %}" class="link-danger">Supprimer</a>
+                    </td>
+                </tr>
+                {% empty %}
+                <tr><td colspan="7">Aucun produit enregistré.</td></tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+</section>
+{% endblock %}

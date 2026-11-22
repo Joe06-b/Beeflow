@@ -52,11 +52,11 @@
                     <span class="face-status" id="faceSanitaire" data-url="{% url 'suivi_sanitaire:alertes_compte' %}"></span>
                     <span class="face-foot">Ouvrir le module {% include "includes/icon.html" with i="arrow-right" %}</span>
                 </a>
-                <a class="face" href="#" data-soon data-title="Production">
+                <a class="face face-live" href="{% url 'produits_front:liste' %}">
                     <span class="face-chip">{% include "includes/icon.html" with i="jar" %}</span>
                     <h3>Production</h3>
-                    <p>Récoltes de miel et rendement de chaque ruche.</p>
-                    <span class="face-foot is-soon">Bientôt disponible</span>
+                    <p>Produits apicoles : stock, prix, états et codes-barres.</p>
+                    <span class="face-foot">Ouvrir le module {% include "includes/icon.html" with i="arrow-right" %}</span>
                 </a>
                 <a class="face" href="#" data-soon data-title="Gestion du stock">
                     <span class="face-chip">{% include "includes/icon.html" with i="box" %}</span>

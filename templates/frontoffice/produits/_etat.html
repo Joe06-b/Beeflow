@@ -1,0 +1,2 @@
+{# Badge de l'état d'un produit (disponible / rupture de stock / archivé) #}
+<span class="badge {% if p.etat == 'rupture_stock' %}is-bad{% elif p.etat == 'archive' %}is-warn{% else %}is-good{% endif %}">{{ p.get_etat_display }}</span>

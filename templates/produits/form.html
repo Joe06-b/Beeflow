@@ -1,0 +1,15 @@
+{% extends "layouts/base_backoffice.html" %}
+{% block title %}BeeFlow | Formulaire{% endblock %}
+{% block content %}
+<section class="section">
+    <h2>{% if object %}✏️ Modifier{% else %}➕ Ajouter{% endif %} un produit</h2>
+    <form method="post" enctype="multipart/form-data" class="form-produit">
+        {% csrf_token %}
+        {{ form.as_p }}
+        <div class="form-actions">
+            <button type="submit" class="btn btn-honey">Enregistrer</button>
+            <a href="{% url 'produits:liste' %}" class="btn btn-outline">Annuler</a>
+        </div>
+    </form>
+</section>
+{% endblock %}
