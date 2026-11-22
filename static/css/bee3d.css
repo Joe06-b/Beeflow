@@ -1,0 +1,104 @@
+/* ==========================================================================
+   EXPLORER UNE MALADIE EN 3D — abeille anatomique (Three.js)
+   ========================================================================== */
+.tabs a.is-disabled { color: #B3A493; cursor: not-allowed; }
+.b3d-soon { font-size: 11px; font-weight: 600; padding: 1px 7px; border-radius: 999px; background: #E6DCCB; color: var(--muted); }
+.b3d-autre { width: auto; min-width: 220px; }
+
+.b3d-layout { display: grid; grid-template-columns: minmax(0, 1fr) 360px; gap: 22px; align-items: start; }
+
+/* Scène */
+.b3d-viewer {
+    position: relative; height: min(72vh, 680px); min-height: 460px; border-radius: var(--r-lg); overflow: hidden;
+    background:
+        radial-gradient(circle at 50% 42%, rgba(233, 185, 73, .26), transparent 55%),
+        url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='22.52' height='39.00'%3E%3Cpath d='M11.26 0.00L22.52 6.50L22.52 19.50L11.26 26.00L-0.00 19.50L0.00 6.50ZM0.00 19.50L11.26 26.00L11.26 39.00L0.00 45.50L-11.26 39.00L-11.26 26.00ZM22.52 19.50L33.77 26.00L33.77 39.00L22.52 45.50L11.26 39.00L11.26 26.00ZM11.26 39.00L22.52 45.50L22.52 58.50L11.26 65.00L-0.00 58.50L0.00 45.50Z' fill='none' stroke='%23E9B949' stroke-opacity='.07' stroke-width='1.2'/%3E%3C/svg%3E"),
+        linear-gradient(170deg, #3A2414, #22150B);
+    box-shadow: var(--shadow);
+    touch-action: none;
+}
+.b3d-canvas, .b3d-canvas canvas { position: absolute; inset: 0; width: 100%; height: 100%; display: block; }
+.b3d-canvas canvas { cursor: grab; }
+.b3d-canvas canvas:active { cursor: grabbing; }
+
+.b3d-loading { position: absolute; inset: 0; display: grid; place-content: center; justify-items: center; gap: 12px; color: #CDB89A; font-size: 14px; }
+.b3d-loading .hex { animation: b3d-pulse 1.2s ease-in-out infinite; }
+@keyframes b3d-pulse { 50% { transform: scale(1.12); } }
+.b3d-fallback { position: absolute; inset: 0; display: grid; place-content: center; justify-items: center; gap: 14px; padding: 30px; color: #E2CFB2; text-align: center; }
+.b3d-fallback .atlas-stage { width: min(420px, 80vw); background: none; }
+
+/* Points cliquables posés sur l'abeille */
+.b3d-hotspots { position: absolute; inset: 0; pointer-events: none; }
+.b3d-hot {
+    position: absolute; left: 0; top: 0; pointer-events: auto;
+    display: inline-flex; align-items: center; gap: 8px; padding: 0; border: 0; background: none;
+    transform: translate(-50%, -50%); transition: opacity .25s;
+    font: 600 12.5px var(--font-body); color: var(--wax); white-space: nowrap;
+}
+.b3d-hot::before {
+    content: ""; width: 18px; height: 20px; flex-shrink: 0; clip-path: var(--hex);
+    background: var(--honey); box-shadow: 0 0 0 0 rgba(233, 185, 73, .6);
+    animation: b3d-ping 2.2s ease-out infinite;
+}
+.b3d-hot span { padding: 4px 9px; border-radius: 8px; background: rgba(43, 27, 15, .82); border: 1px solid rgba(233, 185, 73, .3); opacity: 0; transform: translateX(-4px); transition: opacity .2s, transform .2s; }
+.b3d-hot:hover span, .b3d-hot:focus-visible span, .b3d-hot.is-selected span { opacity: 1; transform: none; }
+.b3d-hot.is-hit::before { background: #E0574A; }
+.b3d-hot.is-hit span { border-color: rgba(224, 87, 74, .6); }
+.b3d-hot.is-selected::before { background: var(--wax); outline: 3px solid var(--honey); }
+.b3d-hot.is-behind { opacity: .3; }
+.b3d-hot[hidden] { display: none; }
+@keyframes b3d-ping { 0% { filter: drop-shadow(0 0 0 rgba(233, 185, 73, .9)); } 70%, 100% { filter: drop-shadow(0 0 7px rgba(233, 185, 73, 0)); } }
+
+/* Barre d'outils */
+.b3d-toolbar { position: absolute; left: 14px; right: 14px; bottom: 14px; display: flex; align-items: center; gap: 8px; flex-wrap: wrap; pointer-events: none; }
+.b3d-tool {
+    pointer-events: auto; display: inline-flex; align-items: center; gap: 7px; padding: 8px 12px; border-radius: 999px;
+    border: 1px solid rgba(233, 185, 73, .3); background: rgba(43, 27, 15, .7); color: #E2CFB2; font-size: 13px; font-weight: 600;
+    backdrop-filter: blur(6px); transition: border-color .2s, color .2s, background-color .2s;
+}
+.b3d-tool .ico { width: 17px; height: 17px; }
+.b3d-tool:hover { border-color: var(--honey); color: var(--honey); }
+.b3d-tool[aria-pressed="true"] { background: var(--honey); color: var(--propolis); border-color: var(--honey); }
+.b3d-hint { margin-left: auto; color: #A8927A; font-size: 12.5px; }
+
+/* Panneau latéral */
+.b3d-side { display: flex; flex-direction: column; gap: 14px; position: sticky; top: 92px; }
+.b3d-side .panel { margin: 0; }
+.b3d-switch { display: grid; grid-template-columns: 1fr 1fr; gap: 4px; padding: 4px; border-radius: 14px; background: #EFE6D4; }
+.b3d-switch button { display: inline-flex; align-items: center; justify-content: center; gap: 8px; padding: 10px; border: 0; border-radius: 10px; background: none; font-weight: 600; font-size: 14px; color: var(--brown-2); transition: background-color .2s, color .2s; }
+.b3d-switch button .ico { width: 17px; height: 17px; }
+.b3d-switch button.is-active[data-etat="saine"] { background: var(--white); color: var(--good); box-shadow: 0 2px 8px -3px rgba(64, 40, 23, .3); }
+.b3d-switch button.is-active[data-etat="atteinte"] { background: var(--white); color: var(--bad); box-shadow: 0 2px 8px -3px rgba(64, 40, 23, .3); }
+
+.b3d-info h2 { font-size: 21px; margin-bottom: 4px; }
+.b3d-info .b3d-kicker { font-size: 12.5px; font-weight: 600; color: var(--honey-ink); margin-bottom: 4px; display: flex; align-items: center; gap: 6px; }
+.b3d-info p { font-size: 14px; margin-top: 10px; color: var(--ink); }
+.b3d-info .b3d-watch { color: var(--muted); }
+.b3d-info .notice { margin: 14px 0 0; font-size: 13.5px; }
+.b3d-info .notice.is-good { align-items: center; }
+
+.b3d-parts { display: grid; grid-template-columns: 1fr 1fr; gap: 6px; }
+.b3d-part {
+    display: flex; align-items: center; gap: 8px; padding: 9px 10px; border-radius: 10px;
+    border: 1px solid var(--line); background: var(--white); font-size: 13.5px; font-weight: 600; color: var(--brown-2); text-align: left;
+    transition: border-color .2s, background-color .2s;
+}
+.b3d-part i { width: 10px; height: 11px; clip-path: var(--hex); background: var(--honey); flex-shrink: 0; }
+.b3d-part.is-hit i { background: var(--bad); }
+.b3d-part.is-hit em { margin-left: auto; font-style: normal; font-size: 11px; color: var(--bad); }
+.b3d-part:hover { border-color: var(--honey); }
+.b3d-part.is-selected { border-color: var(--propolis); background: var(--wax); color: var(--propolis); }
+
+.b3d-summary { display: flex; align-items: center; justify-content: space-between; gap: 10px; flex-wrap: wrap; padding: 0 4px; }
+
+@media (max-width: 1100px) {
+    .b3d-layout { grid-template-columns: 1fr; }
+    .b3d-side { position: static; }
+}
+@media (max-width: 560px) {
+    .b3d-viewer { height: 62vh; min-height: 380px; }
+    .b3d-hint, .b3d-tool span { display: none; }
+    .b3d-autre { min-width: 0; width: 100%; }
+}
+
+.b3d-loading[hidden], .b3d-fallback[hidden] { display: none; }

@@ -1,0 +1,282 @@
+/* ==========================================================================
+   BEEFLOW — MODULE UTILISATEURS (FORMULAIRE AJOUT & MODIFICATION)
+   Design harmonisé avec le Suivi Sanitaire et la charte BeeFlow.
+   Préserve les sélecteurs JS (.card-body, [data-role-field], etc.)
+   ========================================================================== */
+
+/* ---------- Fil d'Ariane ---------- */
+.user-bo-crumb {
+    margin-bottom: 18px;
+    display: flex;
+    align-items: center;
+}
+
+.user-bo-crumb a {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    font-size: 13.5px;
+    font-weight: 600;
+    color: var(--muted);
+    text-decoration: none;
+    transition: color .2s;
+}
+
+.user-bo-crumb a:hover {
+    color: var(--honey-ink);
+}
+
+/* ---------- Carte / Panneau du formulaire ---------- */
+.card, .panel.user-form-panel {
+    background: var(--white);
+    border: 1px solid var(--line);
+    border-radius: var(--r-lg);
+    box-shadow: var(--shadow);
+    overflow: hidden;
+    margin-bottom: 28px;
+}
+
+/* En-tête */
+.card-header, .bo-card-head {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 20px 28px;
+    background: var(--wax);
+    border-bottom: 1px solid var(--line);
+}
+
+.card-header h2, .bo-card-head h2 {
+    font-family: var(--font-display);
+    font-size: 20px;
+    font-weight: 700;
+    color: var(--propolis);
+    margin: 0;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+}
+
+/* Corps du formulaire */
+.card-body {
+    padding: 28px;
+}
+
+.card-body form {
+    display: block;
+}
+
+.user-form-layout { align-items: start; }
+.user-form-sidebar { min-width: 0; }
+.user-form-actions { display: flex; flex-direction: column; gap: 10px; padding: 18px; }
+.user-form-actions .btn { width: 100%; justify-content: center; }
+
+.user-rules-panel { padding: 18px; background: var(--white); border: 1px solid var(--line); border-radius: var(--r-lg); box-shadow: var(--shadow); transition: border-color .3s, box-shadow .3s; }
+.user-rules-panel.is-complete { border-color: #CFE3CD; box-shadow: 0 0 0 4px rgba(63, 122, 74, .08); }
+.user-rules-head { display: flex; align-items: center; justify-content: space-between; gap: 12px; margin-bottom: 10px; }
+.user-rules-head h2 { margin: 0; font-family: var(--font-display); font-size: 17px; color: var(--propolis); }
+.user-rules-score { font-weight: 700; color: var(--muted); padding: 2px 10px; border-radius: 999px; background: #F1ECE3; }
+.user-rules-score:empty { display: none; }
+.user-rules-score.is-complete { background: var(--good-bg); color: var(--good); }
+.user-rules { list-style: none; display: flex; flex-direction: column; gap: 6px; padding: 0; margin: 0; color: var(--muted); }
+.user-rules li { display: flex; gap: 10px; align-items: center; padding: 8px 10px; border-radius: 12px; }
+.user-rule-icon { width: 26px; height: 29px; flex-shrink: 0; display: grid; place-items: center; clip-path: var(--hex); background: #F1ECE3; color: var(--muted); }
+.user-rule-icon .ico { width: 14px; height: 14px; margin: 0; }
+.user-rules li.is-ok { background: var(--good-bg); color: #2C5935; } .user-rules li.is-ok .user-rule-icon { background: var(--good); color: var(--white); }
+.user-rules li.is-pending { background: var(--warn-bg); color: #6E4703; } .user-rules li.is-pending .user-rule-icon { background: #E0A526; color: var(--white); }
+.user-rules li.is-bad { background: var(--bad-bg); color: #7E2C23; } .user-rules li.is-bad .user-rule-icon { background: var(--bad); color: var(--white); }
+.user-rules-legend { display: flex; gap: 14px; flex-wrap: wrap; margin: 14px 0 0; padding-top: 12px; border-top: 1px solid var(--line-2); font-size: 12px; color: var(--muted); }
+.user-rules-legend span { display: inline-flex; align-items: center; gap: 6px; }
+.user-rules-legend i { width: 10px; height: 11px; clip-path: var(--hex); display: inline-block; }
+.user-rules-legend i.is-ok { background: var(--good); } .user-rules-legend i.is-pending { background: #E0A526; } .user-rules-legend i.is-bad { background: var(--bad); }
+
+/* Grille des champs */
+.card-body form .row {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    gap: 20px 24px;
+}
+
+@media (max-width: 768px) {
+    .card-body form .row {
+        grid-template-columns: 1fr;
+    }
+}
+
+.card-body form .row > div {
+    display: flex;
+    flex-direction: column;
+}
+
+/* Fieldset & Sections */
+.form-section-title {
+    grid-column: 1 / -1;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    font-family: var(--font-display);
+    font-size: 16px;
+    font-weight: 700;
+    color: var(--propolis);
+    padding: 14px 0 8px;
+    margin-top: 10px;
+    border-bottom: 1px solid var(--line-2);
+}
+
+.form-section-title:first-child {
+    margin-top: 0;
+    padding-top: 0;
+}
+
+.form-section-title .ico {
+    color: var(--honey-ink);
+}
+
+/* Labels */
+.card-body form label {
+    display: inline-flex;
+    align-items: center;
+    gap: 4px;
+    margin-bottom: 7px;
+    font-size: 13.5px;
+    font-weight: 600;
+    color: var(--propolis);
+}
+
+.req {
+    color: var(--bad);
+    font-weight: 700;
+}
+
+/* Champs de saisie */
+.card-body form input,
+.card-body form select,
+.card-body form textarea {
+    width: 100%;
+    padding: 10px 14px;
+    border: 1px solid var(--line);
+    border-radius: var(--r-sm);
+    background: var(--paper);
+    font-family: var(--font-body);
+    font-size: 14px;
+    color: var(--ink);
+    outline: none;
+    transition: border-color .2s, box-shadow .2s, background-color .2s;
+    box-sizing: border-box;
+}
+
+.card-body form select {
+    cursor: var(--cursor-pointer);
+}
+
+.card-body form input:focus,
+.card-body form select:focus,
+.card-body form textarea:focus {
+    border-color: var(--honey) !important;
+    background-color: var(--white) !important;
+    box-shadow: var(--ring) !important;
+}
+
+/* Textes d'aide */
+.card-body form .form-text,
+.card-body form small.text-muted {
+    font-size: 12.5px;
+    color: var(--muted);
+    margin-top: 5px;
+}
+
+/* Erreurs de validation */
+.card-body form .text-danger,
+.card-body form .errorlist,
+.card-body form .bf-field-error {
+    color: var(--bad) !important;
+    font-size: 12.5px;
+    font-weight: 500;
+    margin-top: 6px;
+    list-style: none;
+    padding: 0;
+}
+
+.card-body form .errorlist li {
+    display: flex;
+    align-items: center;
+    gap: 4px;
+}
+
+.card-body form .errorlist li::before {
+    content: "⚠️";
+    font-size: 11px;
+}
+
+/* Alerte globale */
+.alert-danger {
+    background: var(--bad-bg);
+    border: 1px solid #F8CFC9;
+    color: var(--bad);
+    padding: 14px 18px;
+    border-radius: var(--r);
+    font-size: 14px;
+    margin-bottom: 22px;
+}
+
+/* Séparateur & Actions */
+.card-body form hr {
+    border: none;
+    border-top: 1px solid var(--line-2);
+    margin: 26px 0 20px;
+    grid-column: 1 / -1;
+}
+
+.form-actions-bar {
+    grid-column: 1 / -1;
+    display: flex;
+    align-items: center;
+    justify-content: flex-end;
+    gap: 12px;
+    flex-wrap: wrap;
+}
+
+/* Boutons */
+.btn-honey {
+    background: var(--honey);
+    color: var(--propolis);
+    border: 1px solid transparent;
+    padding: 10px 22px;
+    border-radius: var(--r-sm);
+    font-family: var(--font-body);
+    font-size: 14px;
+    font-weight: 600;
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    cursor: var(--cursor-pointer);
+    text-decoration: none;
+    transition: background-color .2s, box-shadow .2s, transform .1s;
+}
+
+.btn-honey:hover {
+    background: var(--honey-2);
+    box-shadow: 0 4px 12px rgba(233, 185, 73, .35);
+}
+
+.btn-ghost {
+    background: transparent;
+    color: var(--ink);
+    border: 1px solid var(--line);
+    padding: 10px 20px;
+    border-radius: var(--r-sm);
+    font-family: var(--font-body);
+    font-size: 14px;
+    font-weight: 600;
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    cursor: var(--cursor-pointer);
+    text-decoration: none;
+    transition: background-color .2s, border-color .2s;
+}
+
+.btn-ghost:hover {
+    background: var(--wax);
+    border-color: var(--brown-2);
+}

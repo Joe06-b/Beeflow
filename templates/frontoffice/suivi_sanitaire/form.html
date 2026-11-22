@@ -1,0 +1,45 @@
+{% extends "layouts/base_frontoffice.html" %}
+{% load static %}
+
+{% block title %}{{ titre }} | BeeFlow{% endblock %}
+{% block extra_css %}<link rel="stylesheet" href="{% static 'css/suivi_sanitaire.css' %}?v=9">{% endblock %}
+
+{% block content %}
+<div class="container page">
+
+  <nav class="breadcrumb" aria-label="Fil d'Ariane">
+    <a href="{% url 'espace' %}">{% include "includes/icon.html" with i="hub" %} Mon espace</a>
+    {% include "includes/icon.html" with i="chevron-right" %}
+    <a href="{% url 'suivi_sanitaire:liste' %}">Suivi sanitaire</a>
+    {% include "includes/icon.html" with i="chevron-right" %}
+    <span aria-current="page">{% if mode == "ajout" %}Nouveau suivi{% else %}Modifier{% endif %}</span>
+  </nav>
+
+  <header class="page-head">
+    <div>
+      <h1>{{ titre }}</h1>
+      <p>Les champs marqués <span class="req">*</span> sont obligatoires.</p>
+    </div>
+  </header>
+
+  <div class="grid-aside">
+    <form method="post" class="panel ss-form" id="suivi-form" novalidate{% if mode == "ajout" %} autocomplete="off" data-vider-si-abandon{% endif %}>
+      {% csrf_token %}
+      {% include "frontoffice/suivi_sanitaire/_form_sections.html" %}
+    </form>
+
+    <div class="sticky stack">
+      <div class="panel ss-form-actions">
+        <button type="submit" form="suivi-form" class="btn btn-honey">
+          {% include "includes/icon.html" with i="check" %}
+          {% if mode == "ajout" %}Enregistrer le suivi{% else %}Enregistrer les modifications{% endif %}
+        </button>
+        <a href="{% if suivi %}{% url 'suivi_sanitaire:detail' suivi.pk %}{% else %}{% url 'suivi_sanitaire:liste' %}{% endif %}" class="btn btn-ghost">Annuler</a>
+      </div>
+      {% include "frontoffice/suivi_sanitaire/_regles.html" %}
+    </div>
+  </div>
+
+</div>
+{# Pas de notification d'alerte ici : on ne dérange pas l'apiculteur pendant la saisie #}
+{% endblock %}

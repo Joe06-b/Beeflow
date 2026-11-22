@@ -1,0 +1,187 @@
+/* ==========================================================================
+   BEEFLOW — MODULE UTILISATEURS (CONFIRMATION DE SUPPRESSION)
+   Design harmonisé avec le Suivi Sanitaire et la charte BeeFlow.
+   ========================================================================== */
+
+/* ---------- Fil d'Ariane ---------- */
+.user-bo-crumb {
+    margin-bottom: 18px;
+    display: flex;
+    align-items: center;
+}
+
+.user-bo-crumb a {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    font-size: 13.5px;
+    font-weight: 600;
+    color: var(--muted);
+    text-decoration: none;
+    transition: color .2s;
+}
+
+.user-bo-crumb a:hover {
+    color: var(--honey-ink);
+}
+
+/* ---------- Panneau de confirmation centré ---------- */
+.card, .panel.user-confirm-panel {
+    background: var(--white);
+    border: 1px solid var(--line);
+    border-radius: var(--r-lg);
+    box-shadow: var(--shadow);
+    max-width: 720px;
+    margin: 0 auto 30px;
+    padding: 38px clamp(20px, 4vw, 44px);
+    text-align: center;
+}
+
+/* Hexagone de danger */
+.user-confirm-icon {
+    width: 64px;
+    height: 72px;
+    margin: 0 auto 18px;
+    background: var(--bad-bg);
+    color: var(--bad);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    clip-path: var(--hex);
+}
+
+.user-confirm-icon .ico {
+    width: 28px;
+    height: 28px;
+}
+
+.user-confirm-panel h1 {
+    font-family: var(--font-display);
+    font-size: 24px;
+    font-weight: 700;
+    color: var(--propolis);
+    margin-bottom: 10px;
+}
+
+.user-confirm-panel > p.muted {
+    color: var(--muted);
+    font-size: 14.5px;
+    margin-bottom: 24px;
+    max-width: 520px;
+    margin-left: auto;
+    margin-right: auto;
+}
+
+/* Récapitulatif de l'utilisateur à supprimer */
+.user-confirm-summary {
+    background: var(--wax);
+    border: 1px solid var(--line);
+    border-radius: var(--r);
+    padding: 18px 22px;
+    margin-bottom: 24px;
+    text-align: left;
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    gap: 12px 20px;
+}
+
+@media (max-width: 560px) {
+    .user-confirm-summary {
+        grid-template-columns: 1fr;
+    }
+}
+
+.user-confirm-item {
+    display: flex;
+    flex-direction: column;
+    gap: 3px;
+}
+
+.user-confirm-item dt {
+    font-size: 12px;
+    font-weight: 600;
+    color: var(--muted);
+    text-transform: uppercase;
+    letter-spacing: .4px;
+}
+
+.user-confirm-item dd {
+    font-size: 14px;
+    font-weight: 600;
+    color: var(--propolis);
+    margin: 0;
+}
+
+/* Alerte définitive */
+.user-confirm-alert {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+    background: var(--bad-bg);
+    border: 1px solid #F8CFC9;
+    color: var(--bad);
+    padding: 12px 18px;
+    border-radius: var(--r-sm);
+    font-size: 13.5px;
+    font-weight: 600;
+    margin-bottom: 26px;
+}
+
+.user-confirm-alert .ico {
+    width: 18px;
+    height: 18px;
+}
+
+/* Boutons d'action */
+.user-confirm-actions {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 12px;
+    flex-wrap: wrap;
+}
+
+.btn-danger {
+    background: var(--bad);
+    color: var(--white);
+    border: 1px solid transparent;
+    padding: 10px 22px;
+    border-radius: var(--r-sm);
+    font-family: var(--font-body);
+    font-size: 14px;
+    font-weight: 600;
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    cursor: var(--cursor-pointer);
+    text-decoration: none;
+    transition: background-color .2s, box-shadow .2s;
+}
+
+.btn-danger:hover {
+    background: #8F3025;
+    box-shadow: 0 4px 14px rgba(169, 60, 48, .35);
+}
+
+.btn-ghost {
+    background: transparent;
+    color: var(--ink);
+    border: 1px solid var(--line);
+    padding: 10px 20px;
+    border-radius: var(--r-sm);
+    font-family: var(--font-body);
+    font-size: 14px;
+    font-weight: 600;
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    cursor: var(--cursor-pointer);
+    text-decoration: none;
+    transition: all .2s;
+}
+
+.btn-ghost:hover {
+    background: var(--wax);
+    border-color: var(--brown-2);
+}

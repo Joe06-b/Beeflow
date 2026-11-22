@@ -1,0 +1,4 @@
+<div class="grav" aria-label="Gravité {{ m.gravite }} sur 5">
+  <span class="grav-cells" aria-hidden="true">{% for n in m.gravite_range|default:"12345" %}<i class="{% if forloop.counter <= m.gravite %}on{% endif %}"></i>{% endfor %}</span>
+  <span class="grav-label">{% if m.gravite == 5 %}Gravité très élevée{% elif m.gravite == 4 %}Gravité élevée{% elif m.gravite == 3 %}Gravité moyenne{% elif m.gravite == 2 %}Gravité faible{% else %}Gravité très faible{% endif %}</span>
+</div>

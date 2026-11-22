@@ -1,0 +1,31 @@
+{% extends "layouts/base_backoffice.html" %}
+{% load static %}
+
+{% block title %}{{ page_title }} | BeeFlow administration{% endblock %}
+{% block extra_css %}<link rel="stylesheet" href="{% static 'css/suivi_sanitaire.css' %}?v=9">{% endblock %}
+
+{% block content %}
+<nav class="breadcrumb ss-bo-crumb" aria-label="Fil d'Ariane">
+  <a href="{% url 'suivi_sanitaire_bo:liste' %}">{% include "includes/icon.html" with i="arrow-left" %} Gestion des suivis</a>
+</nav>
+
+<div class="grid-aside">
+  <form method="post" class="panel ss-form" id="suivi-form" novalidate{% if mode == "ajout" %} autocomplete="off" data-vider-si-abandon{% endif %}>
+    {% csrf_token %}
+    {% include "frontoffice/suivi_sanitaire/_form_sections.html" %}
+  </form>
+
+  <div class="sticky stack">
+    <div class="panel ss-form-actions">
+      <button type="submit" form="suivi-form" class="btn btn-honey">{% include "includes/icon.html" with i="check" %} Enregistrer</button>
+      {% if mode == "ajout" %}
+      <button type="submit" form="suivi-form" name="enregistrer_et_ajouter" class="btn btn-ghost">{% include "includes/icon.html" with i="plus" %} Enregistrer et en ajouter un autre</button>
+      {% else %}
+      <a href="{% url 'suivi_sanitaire_bo:supprimer' suivi.pk %}" class="btn btn-danger-ghost">{% include "includes/icon.html" with i="trash" %} Supprimer ce suivi</a>
+      {% endif %}
+      <a href="{% url 'suivi_sanitaire_bo:liste' %}" class="btn btn-ghost">Annuler</a>
+    </div>
+    {% include "frontoffice/suivi_sanitaire/_regles.html" %}
+  </div>
+</div>
+{% endblock %}

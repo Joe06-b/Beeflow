@@ -1,0 +1,24 @@
+{# Fiche de l'atlas affichée dans le détail d'un suivi quand la maladie est reconnue #}
+<section class="panel atlas-mini">
+  <div class="panel-head">
+    <h2>{% include "includes/icon.html" with i="microbe" %} Fiche : {{ m.nom }}</h2>
+    <div class="page-actions">
+      <a href="{% url 'suivi_sanitaire:maladie_3d' m.slug %}" class="btn btn-honey btn-sm">{% include "includes/icon.html" with i="eye" %} Explorer en 3D</a>
+      <a href="{% url 'suivi_sanitaire:maladie_evolution' m.slug %}" class="btn btn-ghost btn-sm">{% include "includes/icon.html" with i="hive" %} Évolution</a>
+      <a href="{% url 'suivi_sanitaire:atlas' %}#{{ m.slug }}" class="btn btn-ghost btn-sm">Ouvrir dans l'atlas</a>
+    </div>
+  </div>
+  <div class="atlas-mini-grid">
+    <div class="atlas-stage atlas-mini-stage" data-tilt>{% include "frontoffice/suivi_sanitaire/maladies/_illu.html" %}</div>
+    <div>
+      <p class="atlas-sci">{{ m.nom_scientifique }}</p>
+      {% include "frontoffice/suivi_sanitaire/_gravite.html" %}
+      <p class="atlas-resume">{{ m.resume }}</p>
+      {% if m.a_signaler %}<p class="notice is-bad atlas-signal">{% include "includes/icon.html" with i="bell" %} <span>Maladie à signaler aux services vétérinaires.</span></p>{% endif %}
+    </div>
+  </div>
+  <div class="grid-2 atlas-mini-lists">
+    <div><h4>{% include "includes/icon.html" with i="eye" class="ico-sm" %} Symptômes à repérer</h4><ul>{% for s in m.symptomes %}<li>{{ s }}</li>{% endfor %}</ul></div>
+    <div><h4>{% include "includes/icon.html" with i="flask" class="ico-sm" %} Que faire</h4><ul>{% for s in m.conduite %}<li>{{ s }}</li>{% endfor %}</ul></div>
+  </div>
+</section>

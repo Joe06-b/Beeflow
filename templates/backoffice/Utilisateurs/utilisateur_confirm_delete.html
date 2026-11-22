@@ -1,0 +1,74 @@
+{% extends "layouts/base_backoffice.html" %}
+{% load static %}
+
+{% block title %}BeeFlow | Supprimer un utilisateur — {{ utilisateur.username }}{% endblock %}
+
+{% block extra_css %}
+<link rel="stylesheet" href="{% static 'css/Utilisateurs/utilisateur_confirm_delete.css' %}">
+{% endblock %}
+
+{% block content %}
+<!-- Grande barre en marron du haut -->
+<section class="welcome">
+    <h1>Gestion des utilisateurs</h1>
+    <p>Confirmation de la suppression d'un utilisateur de BeeFlow.</p>
+</section>
+
+<!-- Fil d'Ariane -->
+<nav class="breadcrumb user-bo-crumb" aria-label="Fil d'Ariane">
+    <a href="{% url 'utilisateurs:liste' %}">
+        {% include "includes/icon.html" with i="arrow-left" %} Gestion des utilisateurs
+    </a>
+</nav>
+
+<!-- Panneau de confirmation centré -->
+<section class="panel user-confirm-panel">
+
+    <div class="user-confirm-icon">
+        {% include "includes/icon.html" with i="trash" %}
+    </div>
+
+    <h1>Supprimer cet utilisateur ?</h1>
+    <p class="muted">
+        Cette action est définitive et irréversible. L'accès au compte sera immédiatement révoqué et toutes les informations associées seront supprimées.
+    </p>
+
+    <div class="user-confirm-summary">
+        <div class="user-confirm-item">
+            <dt>Nom d'utilisateur</dt>
+            <dd>{{ utilisateur.username }}</dd>
+        </div>
+
+        <div class="user-confirm-item">
+            <dt>Nom complet</dt>
+            <dd>{{ utilisateur.first_name }} {{ utilisateur.last_name|default:"—" }}</dd>
+        </div>
+
+        <div class="user-confirm-item">
+            <dt>Adresse e-mail</dt>
+            <dd>{{ utilisateur.email }}</dd>
+        </div>
+
+        <div class="user-confirm-item">
+            <dt>Rôle</dt>
+            <dd>{{ utilisateur.get_role_display|default:utilisateur.role }}</dd>
+        </div>
+    </div>
+
+    <div class="user-confirm-alert">
+        {% include "includes/icon.html" with i="alert" %}
+        <span>Attention : cette suppression est définitive.</span>
+    </div>
+
+    <form method="post" class="user-confirm-actions">
+        {% csrf_token %}
+        <a href="{% url 'utilisateurs:liste' %}" class="btn btn-ghost">
+            Annuler
+        </a>
+        <button type="submit" class="btn btn-danger">
+            {% include "includes/icon.html" with i="trash" %} Supprimer définitivement
+        </button>
+    </form>
+
+</section>
+{% endblock %}

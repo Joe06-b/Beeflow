@@ -1,0 +1,188 @@
+{% extends "layouts/base_backoffice.html" %}
+{% load static %}
+
+{% block title %}BeeFlow | Liste des utilisateurs{% endblock %}
+
+{% block extra_css %}
+<link rel="stylesheet" href="{% static 'css/Utilisateurs/utilisateur_list.css' %}">
+{% endblock %}
+
+{% block content %}
+<!-- Grande barre en marron du haut -->
+<section class="welcome">
+    <h1>Gestion des utilisateurs</h1>
+    <p>Consultez, filtrez et gérez les utilisateurs de BeeFlow.</p>
+</section>
+
+<!-- Onglets : Gestion des utilisateurs & Statistiques -->
+{% include "backoffice/Utilisateurs/_onglets.html" with onglet="liste" %}
+
+<!-- Barre d'outils / Recherche & Filtres -->
+<form method="get" class="toolbar" role="search">
+    <div class="search">
+        {% include "includes/icon.html" with i="search" %}
+        <input type="text" name="username" placeholder="Rechercher (nom, e-mail...)" value="{{ request.GET.username|default:'' }}">
+    </div>
+
+    <!-- Filtre par Rôle -->
+    <select name="role" aria-label="Filtrer par rôle">
+        <option value="">Tous les rôles</option>
+        <option value="admin" {% if request.GET.role == 'admin' %}selected{% endif %}>Administrateur</option>
+        <option value="apiculteur" {% if request.GET.role == 'apiculteur' %}selected{% endif %}>Apiculteur</option>
+        <option value="responsable" {% if request.GET.role == 'responsable' %}selected{% endif %}>Responsable prod. & stock</option>
+    </select>
+
+    <!-- Filtre par Sexe -->
+    <select name="sexe" aria-label="Filtrer par sexe">
+        <option value="">Tous les sexes</option>
+        <option value="homme" {% if request.GET.sexe == 'homme' %}selected{% endif %}>Homme</option>
+        <option value="femme" {% if request.GET.sexe == 'femme' %}selected{% endif %}>Femme</option>
+    </select>
+
+    <!-- Filtre par Statut -->
+    <select name="statut" aria-label="Filtrer par statut">
+        <option value="">Tous les statuts</option>
+        <option value="actif" {% if request.GET.statut == 'actif' %}selected{% endif %}>Actif</option>
+        <option value="inactif" {% if request.GET.statut == 'inactif' %}selected{% endif %}>Inactif</option>
+        <option value="suspendu" {% if request.GET.statut == 'suspendu' %}selected{% endif %}>Suspendu</option>
+    </select>
+
+    <!-- Tri -->
+    <select name="tri" aria-label="Trier par">
+        <option value="">Tri : Plus récents</option>
+        <option value="ancien" {% if request.GET.tri == 'ancien' %}selected{% endif %}>Plus anciens</option>
+        <option value="nom_asc" {% if request.GET.tri == 'nom_asc' %}selected{% endif %}>Nom (A → Z)</option>
+        <option value="nom_desc" {% if request.GET.tri == 'nom_desc' %}selected{% endif %}>Nom (Z → A)</option>
+        <option value="statut_asc" {% if request.GET.tri == 'statut_asc' or request.GET.tri_statut == 'asc' %}selected{% endif %}>Statut (A → Z)</option>
+        <option value="statut_desc" {% if request.GET.tri == 'statut_desc' or request.GET.tri_statut == 'desc' %}selected{% endif %}>Statut (Z → A)</option>
+    </select>
+
+    <div class="toolbar-actions">
+        <button type="submit" class="btn btn-dark">
+            {% include "includes/icon.html" with i="filter" %} Filtrer
+        </button>
+        {% if filtres_actifs %}
+        <a href="{% url 'utilisateurs:liste' %}" class="icon-btn" title="Effacer tous les filtres" aria-label="Effacer les filtres">
+            {% include "includes/icon.html" with i="x" %}
+        </a>
+        {% endif %}
+    </div>
+</form>
+
+<!-- Carte de la table -->
+<div class="table-card">
+    <div class="table-card-head">
+        <span>{{ utilisateurs|length }} utilisateur{{ utilisateurs|length|pluralize }}{% if is_paginated %}, page {{ page_obj.number }} sur {{ page_obj.paginator.num_pages }}{% endif %}</span>
+    </div>
+
+    {% if utilisateurs %}
+    <div class="table-scroll">
+        <table class="table">
+            <thead>
+                <tr>
+                    <th>Nom d'utilisateur</th>
+                    <th>Nom complet</th>
+                    <th>Email</th>
+                    <th>Téléphone</th>
+                    <th>Sexe</th>
+                    <th>Rôle</th>
+                    <th>Statut</th>
+                    <th>Date de création</th>
+                    <th class="text-center"><span class="sr-only">Actions</span>Actions</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for utilisateur in utilisateurs %}
+                <tr>
+                    <td>
+                        <span class="table-user-name">
+                            <strong>{{ utilisateur.username }}</strong>
+                        </span>
+                    </td>
+                    <td>{{ utilisateur.first_name }} {{ utilisateur.last_name|default:"—" }}</td>
+                    <td>
+                        <a href="mailto:{{ utilisateur.email }}" class="table-user-mail">{{ utilisateur.email }}</a>
+                    </td>
+                    <td>{{ utilisateur.telephone|default:"—" }}</td>
+                    <td>
+                        {% if utilisateur.sexe == 'homme' %}
+                            Homme
+                        {% elif utilisateur.sexe == 'femme' %}
+                            Femme
+                        {% else %}
+                            —
+                        {% endif %}
+                    </td>
+                    <td>
+                        {% if utilisateur.role == 'admin' %}
+                            <span class="role-badge role-admin">{% include "includes/icon.html" with i="lock" class="ico-sm" %} Admin</span>
+                        {% elif utilisateur.role == 'apiculteur' %}
+                            <span class="role-badge role-apiculteur">{% include "includes/icon.html" with i="hive" class="ico-sm" %} Apiculteur</span>
+                        {% elif utilisateur.role == 'responsable' %}
+                            <span class="role-badge role-responsable">{% include "includes/icon.html" with i="box" class="ico-sm" %} Responsable</span>
+                        {% else %}
+                            <span class="badge">{{ utilisateur.role }}</span>
+                        {% endif %}
+                    </td>
+                    <td>
+                        {% if utilisateur.statut == 'actif' %}
+                            <span class="badge lvl-actif">Actif</span>
+                        {% elif utilisateur.statut == 'inactif' %}
+                            <span class="badge lvl-inactif">Inactif</span>
+                        {% elif utilisateur.statut == 'suspendu' %}
+                            <span class="badge lvl-suspendu">Suspendu</span>
+                        {% else %}
+                            <span class="badge">{{ utilisateur.statut }}</span>
+                        {% endif %}
+                    </td>
+                    <td>{{ utilisateur.created_at|date:"d/m/Y H:i" }}</td>
+                    <td class="text-center">
+                        <div class="actions">
+                            <a href="{% url 'utilisateurs:detail' utilisateur.pk %}" class="icon-btn" title="Détails" aria-label="Détails de {{ utilisateur.username }}">
+                                {% include "includes/icon.html" with i="eye" %}
+                            </a>
+                            <a href="{% url 'utilisateurs:modifier' utilisateur.pk %}" class="icon-btn" title="Modifier" aria-label="Modifier {{ utilisateur.username }}">
+                                {% include "includes/icon.html" with i="edit" %}
+                            </a>
+                            <a href="{% url 'utilisateurs:supprimer' utilisateur.pk %}" class="icon-btn danger" title="Supprimer" aria-label="Supprimer {{ utilisateur.username }}">
+                                {% include "includes/icon.html" with i="trash" %}
+                            </a>
+                        </div>
+                    </td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+    {% else %}
+    <div class="empty">
+        <span class="hex">{% include "includes/icon.html" with i="users" %}</span>
+        <h3>Aucun utilisateur trouvé</h3>
+        <p>Modifiez vos critères de recherche ou ajoutez un premier utilisateur.</p>
+        <a href="{% url 'utilisateurs:ajouter' %}" class="btn btn-honey">
+            {% include "includes/icon.html" with i="plus" %} Ajouter un utilisateur
+        </a>
+    </div>
+    {% endif %}
+
+    {% if is_paginated and page_obj.has_other_pages %}
+    <nav class="pagination" aria-label="Pagination">
+        {% if page_obj.has_previous %}
+            <a href="?{{ params }}&page=1" aria-label="Première page">{% include "includes/icon.html" with i="chevrons-left" %}</a>
+            <a href="?{{ params }}&page={{ page_obj.previous_page_number }}" aria-label="Page précédente">{% include "includes/icon.html" with i="chevron-left" %}</a>
+        {% endif %}
+        {% for n in page_obj.paginator.page_range %}
+            {% if n == page_obj.number %}
+                <span class="is-current" aria-current="page">{{ n }}</span>
+            {% elif n > page_obj.number|add:"-3" and n < page_obj.number|add:"3" %}
+                <a href="?{{ params }}&page={{ n }}">{{ n }}</a>
+            {% endif %}
+        {% endfor %}
+        {% if page_obj.has_next %}
+            <a href="?{{ params }}&page={{ page_obj.next_page_number }}" aria-label="Page suivante">{% include "includes/icon.html" with i="chevron-right" %}</a>
+            <a href="?{{ params }}&page={{ page_obj.paginator.num_pages }}" aria-label="Dernière page">{% include "includes/icon.html" with i="chevrons-right" %}</a>
+        {% endif %}
+    </nav>
+    {% endif %}
+</div>
+{% endblock %}

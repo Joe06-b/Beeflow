@@ -1,0 +1,70 @@
+{% extends "layouts/base_backoffice.html" %}
+
+{% block title %}BeeFlow | Tableau de bord{% endblock %}
+
+{% block content %}
+
+<section class="welcome">
+    <h1>Bienvenue sur BeeFlow</h1>
+    <p>Voici l'état de votre rucher aujourd'hui.</p>
+</section>
+
+<section class="kpis">
+    <div class="kpi">
+        <span class="hex hex-honey">{% include "includes/icon.html" with i="hive" %}</span>
+        <div><div class="kpi-value counter" data-target="48">0</div><div class="kpi-label">Ruches enregistrées</div></div>
+    </div>
+    <div class="kpi is-bad">
+        <span class="hex">{% include "includes/icon.html" with i="sanitaire" %}</span>
+        <div><div class="kpi-value counter" data-target="5">0</div><div class="kpi-label">Contrôles à surveiller</div></div>
+    </div>
+    <div class="kpi">
+        <span class="hex">{% include "includes/icon.html" with i="jar" %}</span>
+        <div><div class="kpi-value"><span class="counter" data-target="320">0</span><small>kg</small></div><div class="kpi-label">Production annuelle</div></div>
+    </div>
+    <div class="kpi">
+        <span class="hex">{% include "includes/icon.html" with i="box" %}</span>
+        <div><div class="kpi-value counter" data-target="125">0</div><div class="kpi-label">Articles en stock</div></div>
+    </div>
+</section>
+
+<section class="content-grid">
+    <div class="section">
+        <h2>{% include "includes/icon.html" with i="chart" %} Évolution de la production</h2>
+        <div class="chart">
+            <div class="bar" data-height="45%"  title="Janvier"></div>
+            <div class="bar" data-height="65%"  title="Février"></div>
+            <div class="bar" data-height="55%"  title="Mars"></div>
+            <div class="bar" data-height="85%"  title="Avril"></div>
+            <div class="bar" data-height="70%"  title="Mai"></div>
+            <div class="bar" data-height="100%" title="Juin"></div>
+        </div>
+        <div class="chart-labels">
+            <span>Jan</span><span>Fév</span><span>Mar</span><span>Avr</span><span>Mai</span><span>Juin</span>
+        </div>
+    </div>
+
+    <div class="section">
+        <h2>{% include "includes/icon.html" with i="bell" %} Alertes récentes</h2>
+        <div class="alert danger">{% include "includes/icon.html" with i="sanitaire" %} Ruche R-02 : contrôle sanitaire en retard.</div>
+        <div class="alert">{% include "includes/icon.html" with i="box" %} Stock de traitement bientôt épuisé.</div>
+        <div class="alert success">{% include "includes/icon.html" with i="leaf" %} Conditions environnementales favorables.</div>
+        <a href="{% url 'suivi_sanitaire_bo:liste' %}" class="btn btn-link">Voir le suivi sanitaire</a>
+    </div>
+</section>
+
+<section class="table-card">
+    <div class="table-card-head"><h2>{% include "includes/icon.html" with i="hive" %} Dernières ruches enregistrées</h2></div>
+    <div class="table-scroll">
+        <table class="table">
+            <thead><tr><th>Code ruche</th><th>Emplacement</th><th>État</th><th>Population</th></tr></thead>
+            <tbody>
+                <tr><td><span class="hive-id">R-001</span></td><td>Zone Nord</td><td><span class="badge is-good">Bon</span></td><td class="num">25 000</td></tr>
+                <tr><td><span class="hive-id">R-002</span></td><td>Zone Sud</td><td><span class="badge is-warn">À surveiller</span></td><td class="num">20 000</td></tr>
+                <tr><td><span class="hive-id">R-003</span></td><td>Zone Est</td><td><span class="badge is-good">Bon</span></td><td class="num">18 000</td></tr>
+            </tbody>
+        </table>
+    </div>
+</section>
+
+{% endblock %}
