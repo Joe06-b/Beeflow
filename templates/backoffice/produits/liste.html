@@ -1,0 +1,80 @@
+{% extends "layouts/base_backoffice.html" %}
+{% load static %}
+
+{% block title %}Gestion des produits | BeeFlow administration{% endblock %}
+{% block extra_css %}<link rel="stylesheet" href="{% static 'css/produits.css' %}">{% endblock %}
+
+{% block content %}
+{% include "backoffice/produits/_onglets.html" with onglet="liste" %}
+<div class="pr-bo-head">
+  <p>Catalogue des produits apicoles.</p>
+  <div class="page-actions">
+    <a href="{% url 'produits:ajouter' %}" class="btn btn-honey">{% include "includes/icon.html" with i="plus" %} Ajouter un produit</a>
+  </div>
+</div>
+
+{% url 'produits:liste' as reset_url %}
+{% include "frontoffice/produits/_toolbar.html" %}
+
+<section class="table-card">
+  <div class="table-card-head">
+    <span>{{ total_count }} produit{{ total_count|pluralize }} trouvé{{ total_count|pluralize }}, page {{ page.number }} sur {{ page.paginator.num_pages }}</span>
+  </div>
+
+  {% if page.object_list %}
+  <div class="table-scroll">
+    <table class="table">
+      <thead>
+        <tr>
+          <th>ID</th><th>Photo</th><th>Catégorie</th><th>Origine</th><th>Quantité</th><th>Prix</th><th>Code-barres</th><th>État</th><th><span class="sr-only">Actions</span></th>
+        </tr>
+      </thead>
+      <tbody>
+        {% for produit in page %}
+        <tr>
+          <td class="num">#{{ produit.pk }}</td>
+          <td>
+            {% if produit.photo_produit %}<img src="{{ produit.photo_produit.url }}" class="pr-thumb" alt="{{ produit }}" loading="lazy">
+            {% else %}<span class="pr-thumb">{% include "includes/icon.html" with i="jar" %}</span>{% endif %}
+          </td>
+          <td><a href="{% url 'produits:detail' produit.pk %}" class="pr-link">{{ produit.get_categorie_produit_display }}</a></td>
+          <td>{{ produit.origine_florale|default:'<span class="muted">—</span>' }}</td>
+          <td class="num">{{ produit.quantite|floatformat:"-2" }} {{ produit.get_unite_display }}</td>
+          <td class="num">{{ produit.prix }} TND</td>
+          <td>
+            <a href="{% url 'produits:detail' produit.pk %}" class="pr-barcode-mini">
+              <img src="{% url 'produits:code_barre_image' produit.pk %}" alt="Code-barres {{ produit.code_barre }}" loading="lazy">
+              <small>EAN-13</small>
+            </a>
+          </td>
+          <td>{% include "frontoffice/produits/_etat.html" with p=produit %}</td>
+          <td>
+            <div class="actions">
+              <a href="{% url 'produits:detail' produit.pk %}" class="icon-btn" title="Consulter" aria-label="Consulter le produit {{ produit.pk }}">{% include "includes/icon.html" with i="eye" %}</a>
+              <a href="{% url 'produits:modifier' produit.pk %}" class="icon-btn" title="Modifier" aria-label="Modifier le produit {{ produit.pk }}">{% include "includes/icon.html" with i="edit" %}</a>
+              <a href="{% url 'produits:supprimer' produit.pk %}" class="icon-btn danger" title="Supprimer" aria-label="Supprimer le produit {{ produit.pk }}">{% include "includes/icon.html" with i="trash" %}</a>
+            </div>
+          </td>
+        </tr>
+        {% endfor %}
+      </tbody>
+    </table>
+  </div>
+  {% else %}
+  <div class="empty">
+    <span class="hex">{% include "includes/icon.html" with i="jar" %}</span>
+    {% if nb_total %}
+      <h3>Aucun produit ne correspond à votre recherche</h3>
+      <p>Modifiez la recherche ou réinitialisez les filtres pour revoir tous les produits.</p>
+      <a href="{% url 'produits:liste' %}" class="btn btn-ghost">{% include "includes/icon.html" with i="x" %} Réinitialiser</a>
+    {% else %}
+      <h3>Aucun produit à afficher</h3>
+      <p>Ajoutez un premier produit apicole au catalogue.</p>
+      <a href="{% url 'produits:ajouter' %}" class="btn btn-honey">{% include "includes/icon.html" with i="plus" %} Ajouter un produit</a>
+    {% endif %}
+  </div>
+  {% endif %}
+
+  {% include "frontoffice/produits/_pagination.html" %}
+</section>
+{% endblock %}

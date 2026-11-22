@@ -1,0 +1,123 @@
+/* ==========================================================================
+   MODULE SUIVI SANITAIRE — styles propres au module
+   Tout le reste (boutons, tableaux, formulaires, badges…) vient de beeflow.css.
+   Préfixe "ss-" pour ne jamais entrer en conflit avec les modules de l'équipe.
+   ========================================================================== */
+
+/* Niveaux : état de santé et niveau de risque → couleur du badge */
+.lvl-bon, .lvl-faible { background: var(--good-bg); color: var(--good); }
+.lvl-moyen { background: var(--warn-bg); color: var(--warn); }
+.lvl-critique, .lvl-eleve { background: var(--bad-bg); color: var(--bad); }
+
+.kpis-3 { --kpi-cols: 3; }
+.ss-count { min-width: 22px; height: 22px; padding: 0 6px; border-radius: 999px; background: var(--bad); color: var(--white); font-size: 12px; display: inline-grid; place-items: center; }
+.ss-late { display: inline-block; margin-left: 6px; padding: 1px 7px; border-radius: 6px; background: var(--bad-bg); color: var(--bad); font-size: 12px; font-weight: 700; }
+.ss-legend { display: inline-flex; align-items: center; gap: 8px; font-size: 12.5px; }
+.ss-dot-alert { width: 4px; height: 16px; border-radius: 2px; background: var(--bad); display: inline-block; }
+.ss-block { width: 100%; }
+.ss-mt { margin-top: 26px; }
+.req { color: var(--bad); }
+.table tr.is-selected { background: #FFF6DE; }
+
+/* ---------- Détail d'un suivi ---------- */
+.ss-facts > div { display: grid; grid-template-columns: 170px 1fr; gap: 16px; padding: 12px 0; border-top: 1px solid var(--line-2); }
+.ss-facts > div:first-child { border-top: none; padding-top: 0; }
+.ss-facts dt { color: var(--muted); font-size: 13.5px; }
+.ss-facts dd { font-weight: 500; }
+.ss-facts-row { display: grid; grid-template-columns: repeat(3, 1fr); gap: 12px; }
+.ss-facts-row > div { display: block; padding: 14px 16px; border: 1px solid var(--line-2); border-radius: var(--r); background: #FFFCF6; }
+.ss-facts-row > div:first-child { padding-top: 14px; border-top: 1px solid var(--line-2); }
+.ss-facts-row dt { margin-bottom: 4px; }
+
+.ss-summary { display: flex; flex-direction: column; gap: 16px; }
+.ss-summary-row { display: flex; align-items: center; justify-content: space-between; gap: 12px; }
+.ss-next { display: flex; flex-direction: column; gap: 4px; padding: 16px; border-radius: var(--r); background: var(--wax); border: 1px solid var(--line); }
+.ss-next strong { font-family: var(--font-display); font-size: 22px; color: var(--propolis); }
+.ss-next span:last-child { font-size: 13.5px; color: var(--good); font-weight: 600; }
+.ss-next.is-late { background: var(--bad-bg); border-color: #F0CFC9; }
+.ss-next.is-late span:last-child { color: var(--bad); }
+
+/* Historique : une vraie séquence dans le temps → frise */
+.ss-timeline { list-style: none; position: relative; padding-left: 22px; }
+.ss-timeline::before { content: ""; position: absolute; left: 6px; top: 6px; bottom: 6px; width: 2px; background: var(--line); }
+.ss-timeline li { position: relative; padding: 6px 0; }
+.ss-timeline a { display: flex; align-items: center; gap: 12px; padding: 8px 12px; border-radius: 12px; flex-wrap: wrap; }
+.ss-timeline a:hover { background: var(--wax); }
+.ss-timeline-dot { position: absolute; left: -22px; top: 16px; width: 14px; height: 16px; clip-path: var(--hex); }
+.ss-timeline-dot.lvl-bon { background: var(--good); }
+.ss-timeline-dot.lvl-moyen { background: #D9A13A; }
+.ss-timeline-dot.lvl-critique { background: var(--bad); }
+
+/* ---------- Formulaire ---------- */
+.ss-form { padding: 8px 26px 10px; }
+.ss-fieldset { border: none; padding: 20px 0 6px; border-top: 1px solid var(--line-2); }
+.ss-fieldset:first-of-type { border-top: none; }
+.ss-fieldset legend { float: left; width: 100%; display: flex; align-items: center; gap: 12px; font-family: var(--font-display); font-size: 17px; font-weight: 650; color: var(--propolis); padding: 14px 0 16px; }
+.ss-fieldset legend + * { clear: both; }
+.ss-form-actions { display: flex; flex-direction: column; gap: 10px; }
+.ss-form-actions .btn { width: 100%; }
+.ss-rules { list-style: none; display: flex; flex-direction: column; gap: 12px; font-size: 13.5px; color: var(--muted); }
+.ss-rules li { display: flex; gap: 10px; align-items: flex-start; }
+.ss-rules .ico { color: var(--honey-ink); margin-top: 2px; }
+.ss-bo-crumb { margin-bottom: 16px; }
+
+/* ---------- Confirmation de suppression ---------- */
+.ss-confirm { text-align: center; padding: 36px clamp(20px, 4vw, 44px); }
+.ss-confirm-bo { max-width: 860px; margin: 0 auto; }
+.ss-confirm-icon { width: 64px; height: 72px; margin: 0 auto 16px; background: var(--bad-bg); color: var(--bad); }
+.ss-confirm-icon .ico { width: 28px; height: 28px; }
+.ss-confirm h1 { font-size: 26px; margin-bottom: 10px; }
+.ss-confirm > p { margin: 0 auto 22px; }
+.ss-confirm-facts { text-align: left; margin-bottom: 24px; }
+.ss-confirm-table { text-align: left; border: 1px solid var(--line); border-radius: var(--r); margin-bottom: 24px; }
+.ss-confirm-actions { display: flex; justify-content: center; gap: 10px; flex-wrap: wrap; }
+
+/* ---------- Alertes ---------- */
+.ss-alert-block { margin-bottom: 18px; }
+.ss-alert-block.is-bad .table-card-head h2 .ico { color: var(--bad); }
+.ss-alert-block.is-warn .table-card-head h2 .ico { color: var(--warn); }
+.ss-ok { display: flex; align-items: center; gap: 10px; padding: 18px 20px; color: var(--good); font-weight: 600; }
+
+/* ---------- Back office ---------- */
+.bo-head { display: flex; align-items: center; justify-content: space-between; gap: 14px; flex-wrap: wrap; margin-bottom: 18px; }
+.bo-head .tabs { margin-bottom: 0; }
+
+/* ---------- Statistiques ---------- */
+.ss-kpis-2rows .kpi:nth-child(n+4) { border-top: 1px solid var(--line-2); }
+.ss-kpis-2rows .kpi:nth-child(4) { border-left: none; }
+.ss-chart { position: relative; height: 300px; }
+.ss-chart-short { height: 190px; margin-bottom: 18px; }
+.ss-details summary { margin-top: 16px; color: var(--honey-ink); font-weight: 600; font-size: 14px; }
+.ss-details .table-scroll { margin-top: 12px; border: 1px solid var(--line); border-radius: var(--r); }
+.ss-rank { list-style: none; display: flex; flex-direction: column; gap: 12px; }
+.ss-rank li { display: grid; grid-template-columns: 140px 1fr 36px; align-items: center; gap: 12px; font-size: 14px; }
+.ss-rank strong { text-align: right; font-variant-numeric: tabular-nums; }
+.ss-rank-bar { height: 10px; border-radius: 999px; background: #F3ECDF; overflow: hidden; }
+.ss-rank-bar i { display: block; height: 100%; width: var(--w); border-radius: 999px; background: linear-gradient(90deg, var(--honey), #C98A00); }
+
+/* ---------- Notification sonore (carte en bas à droite) ---------- */
+.ss-notif {
+    position: fixed; right: 20px; bottom: 20px; z-index: 8000; width: min(390px, calc(100vw - 40px));
+    display: flex; gap: 14px; align-items: flex-start; padding: 16px 12px 16px 16px;
+    background: var(--white); border: 1px solid var(--line); border-radius: 18px; box-shadow: var(--shadow-lg);
+    animation: ss-notif-in .45s cubic-bezier(.2, .8, .2, 1);
+}
+.ss-notif-icon { width: 42px; height: 48px; }
+.ss-notif.is-urgent .ss-notif-icon { background: var(--bad-bg); color: var(--bad); animation: ss-buzz .9s ease-in-out 2; }
+.ss-notif.is-soon .ss-notif-icon { background: var(--warn-bg); color: var(--warn); }
+.ss-notif-body { flex: 1; font-size: 14px; }
+.ss-notif-body strong { font-family: var(--font-display); font-size: 16px; color: var(--propolis); }
+.ss-notif.is-urgent .ss-notif-body strong { color: var(--bad); }
+.ss-notif-body p { color: var(--muted); margin: 4px 0 6px; }
+.ss-notif-tools { display: flex; flex-direction: column; gap: 2px; }
+@keyframes ss-notif-in { from { opacity: 0; transform: translateY(16px); } }
+@keyframes ss-buzz { 0%, 100% { transform: rotate(0); } 20% { transform: rotate(-10deg); } 40% { transform: rotate(9deg); } 60% { transform: rotate(-6deg); } 80% { transform: rotate(4deg); } }
+
+/* ---------- Responsive ---------- */
+@media (max-width: 860px) {
+    .ss-facts > div { grid-template-columns: 1fr; gap: 4px; }
+    .ss-facts-row { grid-template-columns: 1fr; }
+    .ss-kpis-2rows .kpi:nth-child(4) { border-left: 1px solid var(--line-2); }
+    .ss-notif { right: 12px; left: 12px; bottom: 12px; width: auto; }
+    .ss-rank li { grid-template-columns: 110px 1fr 30px; }
+}

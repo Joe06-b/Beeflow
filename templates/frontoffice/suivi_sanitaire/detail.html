@@ -1,0 +1,119 @@
+{% extends "layouts/base_frontoffice.html" %}
+{% load static %}
+
+{% block title %}Suivi n°{{ suivi.id_suivi }} | BeeFlow{% endblock %}
+{% block extra_css %}<link rel="stylesheet" href="{% static 'css/suivi_sanitaire.css' %}">{% endblock %}
+
+{% block content %}
+<div class="container page">
+
+  <nav class="breadcrumb" aria-label="Fil d'Ariane">
+    <a href="{% url 'espace' %}">{% include "includes/icon.html" with i="hub" %} Mon espace</a>
+    {% include "includes/icon.html" with i="chevron-right" %}
+    <a href="{% url 'suivi_sanitaire:liste' %}">Suivi sanitaire</a>
+    {% include "includes/icon.html" with i="chevron-right" %}
+    <span aria-current="page">Suivi n°{{ suivi.id_suivi }}</span>
+  </nav>
+
+  <header class="page-head">
+    <div>
+      <h1>Contrôle de la ruche {{ suivi.get_id_ruche_display }}</h1>
+      <p>Suivi n°{{ suivi.id_suivi }}, effectué le {{ suivi.date_suivi|date:"j F Y" }}.</p>
+    </div>
+    <div class="page-actions">
+      <a href="{% url 'suivi_sanitaire:modifier' suivi.pk %}" class="btn btn-ghost">{% include "includes/icon.html" with i="edit" %} Modifier</a>
+      <a href="{% url 'suivi_sanitaire:supprimer' suivi.pk %}" class="btn btn-danger-ghost">{% include "includes/icon.html" with i="trash" %} Supprimer</a>
+    </div>
+  </header>
+
+  {% if suivi.est_en_alerte %}
+  <div class="notice is-bad">
+    {% include "includes/icon.html" with i="alert" %}
+    <div>
+      <strong>Ce suivi demande votre attention</strong>
+      {% if suivi.est_critique %}État critique ou risque élevé.{% endif %}
+      {% if suivi.controle_en_retard %}Le contrôle prévu le {{ suivi.date_prochain_controle|date:"d/m/Y" }} n'a pas encore été fait.{% endif %}
+    </div>
+  </div>
+  {% endif %}
+
+  <div class="grid-aside">
+    <div class="stack">
+
+      <section class="panel">
+        <div class="panel-head"><h2>{% include "includes/icon.html" with i="microbe" %} Diagnostic</h2></div>
+        <dl class="ss-facts">
+          <div><dt>Maladie détectée</dt><dd>{{ suivi.maladie_detectee|default:'<span class="muted">Aucune</span>' }}</dd></div>
+          <div><dt>Symptômes</dt><dd>{{ suivi.symptomes|linebreaksbr|default:'<span class="muted">Non renseignés</span>' }}</dd></div>
+          <div><dt>Observation</dt><dd>{{ suivi.observation|linebreaksbr|default:'<span class="muted">Aucune observation</span>' }}</dd></div>
+        </dl>
+      </section>
+
+      <section class="panel">
+        <div class="panel-head"><h2>{% include "includes/icon.html" with i="flask" %} Traitement</h2></div>
+        {% if suivi.type_traitement %}
+        <dl class="ss-facts ss-facts-row">
+          <div><dt>Produit</dt><dd>{{ suivi.type_traitement }}</dd></div>
+          <div><dt>Dose</dt><dd>{{ suivi.dose|default:"—" }}</dd></div>
+          <div><dt>Date du traitement</dt><dd>{{ suivi.date_traitement|date:"d/m/Y"|default:"—" }}</dd></div>
+        </dl>
+        {% else %}
+        <p class="muted">Aucun traitement n'a été appliqué lors de ce contrôle.</p>
+        {% endif %}
+      </section>
+
+      <section class="panel">
+        <div class="panel-head">
+          <h2>{% include "includes/icon.html" with i="history" %} Historique de la ruche {{ suivi.get_id_ruche_display }}</h2>
+          <a href="{% url 'suivi_sanitaire:ajouter' %}?ruche={{ suivi.id_ruche }}" class="btn btn-ghost btn-sm">{% include "includes/icon.html" with i="plus" %} Nouveau suivi</a>
+        </div>
+        {% if historique %}
+        <ol class="ss-timeline">
+          {% for h in historique %}
+          <li>
+            <span class="ss-timeline-dot lvl-{{ h.etat_sante|lower }}"></span>
+            <a href="{% url 'suivi_sanitaire:detail' h.pk %}">
+              <strong>{{ h.date_suivi|date:"d/m/Y" }}</strong>
+              <span class="badge lvl-{{ h.etat_sante|lower }}">{{ h.get_etat_sante_display }}</span>
+              <span class="muted">{{ h.maladie_detectee|default:"Aucune maladie" }}</span>
+            </a>
+          </li>
+          {% endfor %}
+        </ol>
+        {% else %}
+        <p class="muted">C'est le seul suivi enregistré pour cette ruche.</p>
+        {% endif %}
+      </section>
+    </div>
+
+    <aside class="panel sticky ss-summary" aria-label="Résumé">
+      <div class="ss-summary-row">
+        <span class="muted small">État de santé</span>
+        <span class="badge lvl-{{ suivi.etat_sante|lower }}">{{ suivi.get_etat_sante_display }}</span>
+      </div>
+      <div class="ss-summary-row">
+        <span class="muted small">Niveau de risque</span>
+        <span class="badge lvl-{{ suivi.niveau_risque|lower }}">{{ suivi.get_niveau_risque_display }}</span>
+      </div>
+      <div class="ss-next {% if suivi.controle_en_retard %}is-late{% endif %}">
+        <span class="muted small">Prochain contrôle</span>
+        {% if suivi.date_prochain_controle %}
+          <strong>{{ suivi.date_prochain_controle|date:"j F Y" }}</strong>
+          {% if suivi.controle_en_retard %}
+            <span>En retard de {{ suivi.jours_de_retard }} jour{{ suivi.jours_de_retard|pluralize }}</span>
+          {% elif suivi.jours_avant_controle == 0 %}
+            <span>Aujourd'hui</span>
+          {% else %}
+            <span>Dans {{ suivi.jours_avant_controle }} jour{{ suivi.jours_avant_controle|pluralize }}</span>
+          {% endif %}
+        {% else %}
+          <strong>Non prévu</strong>
+        {% endif %}
+      </div>
+      <a href="{% url 'suivi_sanitaire:ajouter' %}?ruche={{ suivi.id_ruche }}" class="btn btn-honey ss-block">{% include "includes/icon.html" with i="plus" %} Enregistrer un nouveau contrôle</a>
+    </aside>
+  </div>
+
+</div>
+{% include "frontoffice/suivi_sanitaire/_notification.html" %}
+{% endblock %}

@@ -1,0 +1,32 @@
+{% extends "layouts/base_frontoffice.html" %}
+{% load static %}
+
+{% block title %}Produit #{{ produit.pk }} | BeeFlow{% endblock %}
+{% block extra_css %}<link rel="stylesheet" href="{% static 'css/produits.css' %}">{% endblock %}
+
+{% block content %}
+<div class="container page">
+
+  <nav class="breadcrumb" aria-label="Fil d'Ariane">
+    <a href="{% url 'espace' %}">{% include "includes/icon.html" with i="hub" %} Mon espace</a>
+    {% include "includes/icon.html" with i="chevron-right" %}
+    <a href="{% url 'produits_front:liste' %}">Gestion des produits</a>
+    {% include "includes/icon.html" with i="chevron-right" %}
+    <span aria-current="page">Produit #{{ produit.pk }}</span>
+  </nav>
+
+  <header class="page-head">
+    <div>
+      <h1>{{ produit.get_categorie_produit_display }}{% if produit.origine_florale %} · {{ produit.origine_florale }}{% endif %}</h1>
+      <p>Produit #{{ produit.pk }}, ajouté le {{ produit.created_at|date:"j F Y" }}.</p>
+    </div>
+    <div class="page-actions">
+      <a href="{% url 'produits_front:modifier' produit.pk %}" class="btn btn-ghost">{% include "includes/icon.html" with i="edit" %} Modifier</a>
+      <a href="{% url 'produits_front:supprimer' produit.pk %}" class="btn btn-danger-ghost">{% include "includes/icon.html" with i="trash" %} Supprimer</a>
+    </div>
+  </header>
+
+  {% include "frontoffice/produits/_detail.html" %}
+
+</div>
+{% endblock %}

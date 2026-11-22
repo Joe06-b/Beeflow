@@ -1,0 +1,133 @@
+{% with nom_admin=request.user.username|default:"Admin" %}
+<header class="topbar">
+    <div class="topbar-left">
+        <button class="menu-toggle icon-btn" type="button" data-toggle-menu aria-label="Ouvrir le menu">
+            {% include "includes/icon.html" with i="menu" %}
+        </button>
+        <h2 id="pageTitle">{{ page_title|default:"Tableau de bord" }}</h2>
+    </div>
+
+    <div class="topbar-right">
+        <div class="date" id="currentDate"></div>
+
+        <!-- Compte de l'administrateur : menu déroulant -->
+        <div class="account" data-dropdown>
+            <button type="button" class="profile" data-dropdown-toggle aria-haspopup="menu" aria-expanded="false">
+                <span class="hex">{% include "includes/icon.html" with i="user" %}</span>
+                <span>{{ nom_admin }}</span>
+                {% include "includes/icon.html" with i="chevron-down" class="ico-sm account-caret" %}
+            </button>
+            <div class="account-menu" role="menu" hidden>
+                <div class="account-head">
+                    <strong>{{ nom_admin }}</strong>
+                    <span>Administrateur</span>
+                </div>
+                <button type="button" role="menuitem" data-modal-open="modal-compte">
+                    {% include "includes/icon.html" with i="edit" %} Modifier mon compte
+                </button>
+                <button type="button" role="menuitem" class="is-danger" data-modal-open="modal-supprimer-compte">
+                    {% include "includes/icon.html" with i="user-x" %} Supprimer mon compte
+                </button>
+            </div>
+        </div>
+    </div>
+</header>
+
+<!-- ============================================================
+     MODIFIER MON COMPTE
+     INTÉGRATION : le module utilisateurs (travail de l'équipe) fournira
+     la vue ; il suffira de mettre son URL dans action="" et de retirer
+     data-demo. Les noms des champs (name="...") sont ceux de User.
+     ============================================================ -->
+<dialog class="modal" id="modal-compte" aria-labelledby="modal-compte-titre">
+    <form method="post" action="" class="modal-box" data-demo data-account-form novalidate>
+        {% csrf_token %}
+        <div class="modal-head">
+            <div>
+                <h2 id="modal-compte-titre">Modifier mon compte</h2>
+                <p>Gérez vos informations personnelles.</p>
+            </div>
+            <button type="button" class="icon-btn" data-modal-close aria-label="Fermer">{% include "includes/icon.html" with i="x" %}</button>
+        </div>
+
+        <div class="modal-body">
+            <div class="form-row">
+                <div class="field">
+                    <label for="acc-username">Nom d'utilisateur <span class="req">*</span></label>
+                    <input class="bf-input" id="acc-username" name="username" value="{{ request.user.username|default:'' }}" placeholder="Nom d'utilisateur" required autocomplete="username">
+                </div>
+                <div class="field">
+                    <label for="acc-email">Adresse e-mail</label>
+                    <input class="bf-input" id="acc-email" name="email" type="email" value="{{ request.user.email|default:'' }}" placeholder="nom@exemple.com" autocomplete="email">
+                </div>
+            </div>
+            <div class="form-row">
+                <div class="field">
+                    <label for="acc-prenom">Prénom</label>
+                    <input class="bf-input" id="acc-prenom" name="first_name" value="{{ request.user.first_name|default:'' }}" placeholder="Prénom" autocomplete="given-name">
+                </div>
+                <div class="field">
+                    <label for="acc-nom">Nom</label>
+                    <input class="bf-input" id="acc-nom" name="last_name" value="{{ request.user.last_name|default:'' }}" placeholder="Nom" autocomplete="family-name">
+                </div>
+            </div>
+            <div class="form-row">
+                <div class="field">
+                    <label for="acc-naissance">Date de naissance</label>
+                    <input class="bf-input" id="acc-naissance" name="date_naissance" type="date">
+                </div>
+                <div class="field">
+                    <label for="acc-tel">Téléphone</label>
+                    <input class="bf-input" id="acc-tel" name="telephone" type="tel" placeholder="Numéro de téléphone" autocomplete="tel">
+                </div>
+            </div>
+
+            <fieldset class="modal-section">
+                <legend>{% include "includes/icon.html" with i="lock" class="ico-sm" %} Mot de passe</legend>
+                <div class="field">
+                    <label for="acc-mdp">Mot de passe actuel <span class="req">*</span></label>
+                    <input class="bf-input" id="acc-mdp" name="old_password" type="password" placeholder="Obligatoire pour enregistrer" required autocomplete="current-password">
+                </div>
+                <div class="form-row">
+                    <div class="field">
+                        <label for="acc-mdp1">Nouveau mot de passe</label>
+                        <input class="bf-input" id="acc-mdp1" name="new_password1" type="password" placeholder="Laisser vide pour le garder" autocomplete="new-password">
+                    </div>
+                    <div class="field">
+                        <label for="acc-mdp2">Confirmer le mot de passe</label>
+                        <input class="bf-input" id="acc-mdp2" name="new_password2" type="password" placeholder="Retaper le nouveau mot de passe" autocomplete="new-password">
+                    </div>
+                </div>
+            </fieldset>
+            <p class="field-error" data-form-error hidden></p>
+        </div>
+
+        <div class="modal-foot">
+            <button type="button" class="btn btn-ghost" data-modal-close>Annuler</button>
+            <button type="submit" class="btn btn-honey">{% include "includes/icon.html" with i="check" %} Enregistrer les modifications</button>
+        </div>
+    </form>
+</dialog>
+
+<!-- ============================================================
+     SUPPRIMER MON COMPTE (même principe d'intégration)
+     ============================================================ -->
+<dialog class="modal modal-sm" id="modal-supprimer-compte" aria-labelledby="modal-suppr-titre">
+    <form method="post" action="" class="modal-box" data-demo data-delete-account-form novalidate>
+        {% csrf_token %}
+        <div class="modal-body modal-center">
+            <span class="hex modal-danger-icon">{% include "includes/icon.html" with i="user-x" %}</span>
+            <h2 id="modal-suppr-titre">Supprimer mon compte ?</h2>
+            <p class="muted">Le compte <strong>{{ nom_admin }}</strong> sera définitivement supprimé. Vous serez déconnecté et ne pourrez plus accéder à l'administration.</p>
+            <div class="field">
+                <label for="del-mdp">Confirmez avec votre mot de passe</label>
+                <input class="bf-input" id="del-mdp" name="password" type="password" placeholder="Mot de passe" required autocomplete="current-password">
+            </div>
+        </div>
+        <div class="modal-foot">
+            <button type="button" class="btn btn-ghost" data-modal-close>Annuler</button>
+            <button type="submit" class="btn btn-danger" disabled>{% include "includes/icon.html" with i="trash" %} Supprimer mon compte</button>
+        </div>
+    </form>
+</dialog>
+{% endwith %}

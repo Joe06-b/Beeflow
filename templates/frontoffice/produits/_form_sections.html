@@ -1,0 +1,30 @@
+{# Champs du formulaire, regroupés par thème. Utilisé en front office ET en back office. #}
+{% if form.non_field_errors %}
+<div class="notice is-bad">{% include "includes/icon.html" with i="alert" %}<div>{{ form.non_field_errors }}</div></div>
+{% endif %}
+
+<fieldset class="pr-fieldset">
+  <legend><span class="hex hex-sm">{% include "includes/icon.html" with i="jar" %}</span> Identification</legend>
+  <div class="form-row">
+    {% include "frontoffice/produits/_champ.html" with field=form.categorie_produit %}
+    {% include "frontoffice/produits/_champ.html" with field=form.origine_florale %}
+  </div>
+</fieldset>
+
+<fieldset class="pr-fieldset">
+  <legend><span class="hex hex-sm">{% include "includes/icon.html" with i="box" %}</span> Stock et prix</legend>
+  <div class="form-row">
+    {% include "frontoffice/produits/_champ.html" with field=form.quantite %}
+    {% include "frontoffice/produits/_champ.html" with field=form.unite %}
+  </div>
+  <div class="form-row">
+    {% include "frontoffice/produits/_champ.html" with field=form.prix %}
+    {% include "frontoffice/produits/_champ.html" with field=form.etat %}
+  </div>
+</fieldset>
+
+<fieldset class="pr-fieldset">
+  <legend><span class="hex hex-sm">{% include "includes/icon.html" with i="note" %}</span> Présentation</legend>
+  {% include "frontoffice/produits/_champ.html" with field=form.photo_produit %}
+  {% include "frontoffice/produits/_champ.html" with field=form.description_sensorielle %}
+</fieldset>

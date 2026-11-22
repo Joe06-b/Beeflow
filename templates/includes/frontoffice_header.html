@@ -1,0 +1,19 @@
+{% load static %}
+<header class="front-header">
+    <a href="{% url 'accueil' %}" class="front-logo" aria-label="BeeFlow, accueil">
+        <img src="{% static 'img/logo.svg' %}" alt="" class="logo-img">Bee<span>Flow</span>
+    </a>
+
+    <button class="front-burger icon-btn" type="button" data-toggle-front aria-expanded="false" aria-label="Ouvrir le menu">
+        {% include "includes/icon.html" with i="menu" %}
+    </button>
+
+    <nav class="front-nav" aria-label="Navigation principale">
+        <a href="{% url 'accueil' %}#fonctionnalites">Fonctionnalités</a>
+        <a href="{% url 'accueil' %}#apropos">À propos</a>
+        <a href="{% url 'accueil' %}#contact">Contact</a>
+        <a href="{% url 'espace' %}" class="btn btn-honey btn-sm">
+            {% include "includes/icon.html" with i="hub" %} Mon espace
+        </a>
+    </nav>
+</header>

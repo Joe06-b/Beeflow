@@ -1,0 +1,10 @@
+{# Aide affichée à côté du formulaire : les règles vérifiées à l'enregistrement (clean() du modèle) #}
+<div class="panel">
+  <div class="panel-head"><h2>{% include "includes/icon.html" with i="check" %} Avant d'enregistrer</h2></div>
+  <ul class="ss-rules">
+    <li>{% include "includes/icon.html" with i="calendar" class="ico-sm" %} La date du suivi ne peut pas être dans le futur.</li>
+    <li>{% include "includes/icon.html" with i="flask" class="ico-sm" %} Un traitement doit avoir une dose et une date.</li>
+    <li>{% include "includes/icon.html" with i="clock" class="ico-sm" %} Le prochain contrôle se place après la date du suivi.</li>
+    <li>{% include "includes/icon.html" with i="alert" class="ico-sm" %} Un état critique ne peut pas avoir un risque faible.</li>
+  </ul>
+</div>

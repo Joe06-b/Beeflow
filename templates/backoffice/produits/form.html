@@ -1,0 +1,30 @@
+{% extends "layouts/base_backoffice.html" %}
+{% load static %}
+
+{% block title %}{{ page_title }} | BeeFlow administration{% endblock %}
+{% block extra_css %}<link rel="stylesheet" href="{% static 'css/produits.css' %}">{% endblock %}
+
+{% block content %}
+<nav class="breadcrumb pr-bo-crumb" aria-label="Fil d'Ariane">
+  <a href="{% url 'produits:liste' %}">{% include "includes/icon.html" with i="arrow-left" %} Gestion des produits</a>
+</nav>
+
+<div class="grid-aside">
+  <form method="post" enctype="multipart/form-data" class="panel pr-form" id="produit-form" novalidate>
+    {% csrf_token %}
+    {% include "frontoffice/produits/_form_sections.html" %}
+  </form>
+
+  <div class="sticky stack">
+    <div class="panel pr-form-actions">
+      <button type="submit" form="produit-form" class="btn btn-honey">{% include "includes/icon.html" with i="check" %} Enregistrer</button>
+      {% if mode == "modification" %}
+      <a href="{% url 'produits:supprimer' produit.pk %}" class="btn btn-danger-ghost">{% include "includes/icon.html" with i="trash" %} Supprimer ce produit</a>
+      {% endif %}
+      <a href="{% url 'produits:liste' %}" class="btn btn-ghost">Annuler</a>
+    </div>
+    {% include "frontoffice/produits/_regles.html" %}
+  </div>
+</div>
+{% endblock %}
+{% block extra_js %}<script src="{% static 'js/produits_form.js' %}"></script>{% endblock %}

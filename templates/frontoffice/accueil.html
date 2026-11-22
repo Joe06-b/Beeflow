@@ -1,0 +1,77 @@
+{% extends "layouts/base_frontoffice.html" %}
+{% load static %}
+
+{% block title %}BeeFlow | Gestion apicole{% endblock %}
+
+{% block content %}
+
+<!-- HERO : photo de l'apiculteur (page d'entrée / connexion du site) -->
+<section class="hero">
+    <div class="hero-text">
+        <span class="hero-badge"><img src="{% static 'img/logo.svg' %}" alt="">Plateforme de gestion apicole</span>
+        <h1>Votre rucher, suivi ruche par ruche.</h1>
+        <p>Santé des colonies, traitements, production de miel et stock :
+           BeeFlow réunit tout le travail de l'apiculteur dans un seul espace.</p>
+        <div class="hero-cta">
+            <a href="{% url 'espace' %}" class="btn btn-honey">{% include "includes/icon.html" with i="login" %} Accéder à mon espace</a>
+            <a href="#fonctionnalites" class="btn btn-outline">Voir les modules</a>
+        </div>
+
+        <div class="hero-points">
+            <div>{% include "includes/icon.html" with i="hive" %} Suivi des ruches</div>
+            <div>{% include "includes/icon.html" with i="sanitaire" %} Santé des colonies</div>
+            <div>{% include "includes/icon.html" with i="jar" %} Production de miel</div>
+        </div>
+    </div>
+</section>
+
+<!-- MODULES -->
+<section class="front-section" id="fonctionnalites">
+    <div class="section-head">
+        <h2 class="front-title">Tout votre rucher, une seule ruche</h2>
+        <p class="front-lead">Dans votre espace, chaque module est une face de la ruche : un clic suffit pour passer de la santé des colonies à la production.</p>
+    </div>
+    <div class="features">
+        <article class="feature">
+            <span class="hex hex-honey">{% include "includes/icon.html" with i="hive" %}</span>
+            <h3>Gestion des ruches</h3>
+            <p>Enregistrez chaque ruche, sa reine, sa population et son emplacement.</p>
+        </article>
+        <article class="feature">
+            <span class="hex">{% include "includes/icon.html" with i="leaf" %}</span>
+            <h3>Environnement</h3>
+            <p>Suivez la flore mellifère et les conditions autour du rucher.</p>
+        </article>
+        <article class="feature">
+            <span class="hex">{% include "includes/icon.html" with i="sanitaire" %}</span>
+            <h3>Suivi sanitaire</h3>
+            <p>Contrôles, maladies, traitements et rappels des prochains contrôles.</p>
+        </article>
+        <article class="feature">
+            <span class="hex">{% include "includes/icon.html" with i="jar" %}</span>
+            <h3>Production</h3>
+            <p>Récoltes de miel et rendement de chaque ruche au fil des saisons.</p>
+        </article>
+        <article class="feature">
+            <span class="hex">{% include "includes/icon.html" with i="box" %}</span>
+            <h3>Gestion du stock</h3>
+            <p>Pots, cadres et traitements disponibles, avec alerte de rupture.</p>
+        </article>
+        <article class="feature">
+            <span class="hex hex-dark">{% include "includes/icon.html" with i="bell" %}</span>
+            <h3>Alertes et rappels</h3>
+            <p>Une notification, avec un son, quand un contrôle sanitaire approche ou est en retard.</p>
+        </article>
+    </div>
+</section>
+
+<!-- À PROPOS -->
+<section class="front-section alt" id="apropos">
+    <div class="section-head">
+        <h2 class="front-title">À propos de BeeFlow</h2>
+        <p class="front-lead">BeeFlow aide les apiculteurs à digitaliser leur activité pour mieux protéger les colonies
+           et améliorer la production. Le projet est développé en équipe avec Django.</p>
+    </div>
+</section>
+
+{% endblock %}

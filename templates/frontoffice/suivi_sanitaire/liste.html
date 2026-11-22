@@ -1,0 +1,118 @@
+{% extends "layouts/base_frontoffice.html" %}
+{% load static %}
+
+{% block title %}Suivi sanitaire | BeeFlow{% endblock %}
+{% block extra_css %}<link rel="stylesheet" href="{% static 'css/suivi_sanitaire.css' %}">{% endblock %}
+
+{% block content %}
+<div class="container page">
+
+  <nav class="breadcrumb" aria-label="Fil d'Ariane">
+    <a href="{% url 'espace' %}">{% include "includes/icon.html" with i="hub" %} Mon espace</a>
+    {% include "includes/icon.html" with i="chevron-right" %}
+    <span aria-current="page">Suivi sanitaire</span>
+  </nav>
+
+  <header class="page-head">
+    <div>
+      <h1>Suivi sanitaire</h1>
+      <p>Contrôles, maladies et traitements de vos ruches.</p>
+    </div>
+    <div class="page-actions">
+      <a href="{% url 'suivi_sanitaire:alertes' %}" class="btn btn-ghost">
+        {% include "includes/icon.html" with i="bell" %} Alertes
+        {% if nb_retard %}<span class="ss-count">{{ nb_retard }}</span>{% endif %}
+      </a>
+      <a href="{% url 'suivi_sanitaire:ajouter' %}" class="btn btn-honey">{% include "includes/icon.html" with i="plus" %} Nouveau suivi</a>
+    </div>
+  </header>
+
+  <section class="kpis kpis-3" aria-label="Résumé">
+    <div class="kpi">
+      <span class="hex hex-honey">{% include "includes/icon.html" with i="list" %}</span>
+      <div><div class="kpi-value">{{ nb_total }}</div><div class="kpi-label">Suivis enregistrés</div></div>
+    </div>
+    <div class="kpi is-bad">
+      <span class="hex">{% include "includes/icon.html" with i="sanitaire" %}</span>
+      <div><div class="kpi-value">{{ nb_critiques }}</div><div class="kpi-label">Critiques ou à risque élevé</div></div>
+    </div>
+    <div class="kpi is-warn">
+      <span class="hex">{% include "includes/icon.html" with i="clock" %}</span>
+      <div><div class="kpi-value">{{ nb_retard }}</div><div class="kpi-label">Contrôles en retard</div></div>
+    </div>
+  </section>
+
+  <form method="get" class="toolbar" role="search">
+    <div class="search">{% include "includes/icon.html" with i="search" %}{{ form.q }}</div>
+    {{ form.ruche }}
+    {{ form.etat_sante }}
+    {{ form.niveau_risque }}
+    {{ form.tri }}
+    <div class="toolbar-actions">
+      <button type="submit" class="btn btn-dark">{% include "includes/icon.html" with i="filter" %} Filtrer</button>
+      <a href="{% url 'suivi_sanitaire:liste' %}" class="icon-btn" title="Effacer les filtres" aria-label="Effacer les filtres">{% include "includes/icon.html" with i="x" %}</a>
+    </div>
+  </form>
+
+  <section class="table-card">
+    <div class="table-card-head">
+      <span>{{ nb_resultats }} suivi{{ nb_resultats|pluralize }} sur {{ nb_total }}</span>
+      <span class="ss-legend"><i class="ss-dot-alert"></i> Ligne marquée : suivi en alerte</span>
+    </div>
+
+    {% if suivis %}
+    <div class="table-scroll">
+      <table class="table">
+        <thead>
+          <tr>
+            <th>N°</th><th>Ruche</th><th>Date</th><th>État</th><th>Maladie</th>
+            <th>Traitement</th><th>Prochain contrôle</th><th>Risque</th><th><span class="sr-only">Actions</span></th>
+          </tr>
+        </thead>
+        <tbody>
+          {% for s in suivis %}
+          <tr class="{% if s.est_en_alerte %}is-alert{% endif %}">
+            <td class="num">{{ s.id_suivi }}</td>
+            <td><span class="hive-id">{{ s.get_id_ruche_display }}</span></td>
+            <td>{{ s.date_suivi|date:"d/m/Y" }}</td>
+            <td><span class="badge lvl-{{ s.etat_sante|lower }}">{{ s.get_etat_sante_display }}</span></td>
+            <td>{{ s.maladie_detectee|default:'<span class="muted">Aucune</span>' }}</td>
+            <td>{{ s.type_traitement|default:'<span class="muted">Aucun</span>' }}</td>
+            <td>
+              {% if s.date_prochain_controle %}
+                {{ s.date_prochain_controle|date:"d/m/Y" }}
+                {% if s.controle_en_retard %}<span class="ss-late">+{{ s.jours_de_retard }} j</span>{% endif %}
+              {% else %}<span class="muted">Non prévu</span>{% endif %}
+            </td>
+            <td><span class="badge lvl-{{ s.niveau_risque|lower }}">{{ s.get_niveau_risque_display }}</span></td>
+            <td>
+              <div class="actions">
+                <a href="{% url 'suivi_sanitaire:detail' s.pk %}" class="icon-btn" title="Voir le détail" aria-label="Voir le suivi {{ s.id_suivi }}">{% include "includes/icon.html" with i="eye" %}</a>
+                <a href="{% url 'suivi_sanitaire:modifier' s.pk %}" class="icon-btn" title="Modifier" aria-label="Modifier le suivi {{ s.id_suivi }}">{% include "includes/icon.html" with i="edit" %}</a>
+                <a href="{% url 'suivi_sanitaire:supprimer' s.pk %}" class="icon-btn danger" title="Supprimer" aria-label="Supprimer le suivi {{ s.id_suivi }}">{% include "includes/icon.html" with i="trash" %}</a>
+              </div>
+            </td>
+          </tr>
+          {% endfor %}
+        </tbody>
+      </table>
+    </div>
+    {% else %}
+    <div class="empty">
+      <span class="hex">{% include "includes/icon.html" with i="sanitaire" %}</span>
+      {% if nb_total %}
+        <h3>Aucun suivi ne correspond à ces filtres</h3>
+        <p>Modifiez la recherche ou effacez les filtres pour revoir tous les suivis.</p>
+        <a href="{% url 'suivi_sanitaire:liste' %}" class="btn btn-ghost">{% include "includes/icon.html" with i="x" %} Effacer les filtres</a>
+      {% else %}
+        <h3>Aucun suivi pour l'instant</h3>
+        <p>Enregistrez votre première visite sanitaire pour commencer l'historique de vos ruches.</p>
+        <a href="{% url 'suivi_sanitaire:ajouter' %}" class="btn btn-honey">{% include "includes/icon.html" with i="plus" %} Nouveau suivi</a>
+      {% endif %}
+    </div>
+    {% endif %}
+  </section>
+
+</div>
+{% include "frontoffice/suivi_sanitaire/_notification.html" %}
+{% endblock %}

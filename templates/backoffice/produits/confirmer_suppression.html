@@ -1,0 +1,28 @@
+{% extends "layouts/base_backoffice.html" %}
+{% load static %}
+
+{% block title %}{{ page_title }} | BeeFlow administration{% endblock %}
+{% block extra_css %}<link rel="stylesheet" href="{% static 'css/produits.css' %}">{% endblock %}
+
+{% block content %}
+<section class="panel pr-confirm pr-confirm-bo">
+  <span class="hex pr-confirm-icon">{% include "includes/icon.html" with i="trash" %}</span>
+  <h1>Supprimer ce produit ?</h1>
+  <p class="muted">Confirmez-vous la suppression de <strong>{{ produit }}</strong> ? Cette action est définitive.</p>
+
+  <div class="pr-confirm-card">
+    {% if produit.photo_produit %}<img src="{{ produit.photo_produit.url }}" alt="" class="pr-thumb">
+    {% else %}<span class="pr-thumb">{% include "includes/icon.html" with i="jar" %}</span>{% endif %}
+    <div>
+      <strong>{{ produit.get_categorie_produit_display }}{% if produit.origine_florale %} · {{ produit.origine_florale }}{% endif %}</strong>
+      <span class="muted small">Produit #{{ produit.pk }} · {{ produit.quantite|floatformat:"-2" }} {{ produit.get_unite_display }} · {{ produit.prix }} TND</span>
+    </div>
+  </div>
+
+  <form method="post" class="pr-confirm-actions">
+    {% csrf_token %}
+    <a href="{% url 'produits:liste' %}" class="btn btn-ghost">Annuler</a>
+    <button type="submit" class="btn btn-danger">{% include "includes/icon.html" with i="trash" %} Oui, supprimer</button>
+  </form>
+</section>
+{% endblock %}

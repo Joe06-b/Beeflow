@@ -1,0 +1,47 @@
+{# Champs du formulaire, regroupés par étape de la visite. Utilisé en front office ET en back office. #}
+{% if form.non_field_errors %}
+<div class="notice is-bad">{% include "includes/icon.html" with i="alert" %}<div>{{ form.non_field_errors }}</div></div>
+{% endif %}
+
+<fieldset class="ss-fieldset">
+  <legend><span class="hex hex-sm">{% include "includes/icon.html" with i="hive" %}</span> Ruche et date</legend>
+  <div class="form-row">
+    {% include "frontoffice/suivi_sanitaire/_champ.html" with field=form.id_ruche %}
+    {% include "frontoffice/suivi_sanitaire/_champ.html" with field=form.date_suivi %}
+  </div>
+</fieldset>
+
+<fieldset class="ss-fieldset">
+  <legend><span class="hex hex-sm">{% include "includes/icon.html" with i="sanitaire" %}</span> État observé</legend>
+  <div class="form-row">
+    {% include "frontoffice/suivi_sanitaire/_champ.html" with field=form.etat_sante %}
+    {% include "frontoffice/suivi_sanitaire/_champ.html" with field=form.niveau_risque %}
+  </div>
+</fieldset>
+
+<fieldset class="ss-fieldset">
+  <legend><span class="hex hex-sm">{% include "includes/icon.html" with i="microbe" %}</span> Diagnostic</legend>
+  {% include "frontoffice/suivi_sanitaire/_champ.html" with field=form.maladie_detectee %}
+  <div class="form-row">
+    {% include "frontoffice/suivi_sanitaire/_champ.html" with field=form.symptomes %}
+    {% include "frontoffice/suivi_sanitaire/_champ.html" with field=form.observation %}
+  </div>
+</fieldset>
+
+<fieldset class="ss-fieldset">
+  <legend><span class="hex hex-sm">{% include "includes/icon.html" with i="flask" %}</span> Traitement</legend>
+  <div class="form-row">
+    {% include "frontoffice/suivi_sanitaire/_champ.html" with field=form.type_traitement %}
+    {% include "frontoffice/suivi_sanitaire/_champ.html" with field=form.dose %}
+  </div>
+  <div class="form-row">
+    {% include "frontoffice/suivi_sanitaire/_champ.html" with field=form.date_traitement %}
+  </div>
+</fieldset>
+
+<fieldset class="ss-fieldset">
+  <legend><span class="hex hex-sm">{% include "includes/icon.html" with i="calendar" %}</span> Prochain contrôle</legend>
+  <div class="form-row">
+    {% include "frontoffice/suivi_sanitaire/_champ.html" with field=form.date_prochain_controle %}
+  </div>
+</fieldset>

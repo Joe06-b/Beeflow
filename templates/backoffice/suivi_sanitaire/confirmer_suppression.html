@@ -1,0 +1,45 @@
+{% extends "layouts/base_backoffice.html" %}
+{% load static %}
+
+{% block title %}{{ page_title }} | BeeFlow administration{% endblock %}
+{% block extra_css %}<link rel="stylesheet" href="{% static 'css/suivi_sanitaire.css' %}">{% endblock %}
+
+{% block content %}
+<section class="panel ss-confirm ss-confirm-bo">
+  <span class="hex ss-confirm-icon">{% include "includes/icon.html" with i="trash" %}</span>
+  <h1>{% if multiple %}Supprimer {{ suivis|length }} suivi{{ suivis|length|pluralize }} ?{% else %}Supprimer ce suivi ?{% endif %}</h1>
+  <p class="muted">Cette action est définitive : les diagnostics et traitements listés ci-dessous seront effacés.</p>
+
+  <div class="table-scroll ss-confirm-table">
+    <table class="table">
+      <thead><tr><th>N°</th><th>Ruche</th><th>Date</th><th>État</th><th>Maladie</th></tr></thead>
+      <tbody>
+        {% for s in suivis %}
+        <tr>
+          <td class="num">{{ s.id_suivi }}</td>
+          <td><span class="hive-id">{{ s.get_id_ruche_display }}</span></td>
+          <td>{{ s.date_suivi|date:"d/m/Y" }}</td>
+          <td><span class="badge lvl-{{ s.etat_sante|lower }}">{{ s.get_etat_sante_display }}</span></td>
+          <td>{{ s.maladie_detectee|default:'<span class="muted">Aucune</span>' }}</td>
+        </tr>
+        {% endfor %}
+      </tbody>
+    </table>
+  </div>
+
+  {% if multiple %}
+  <form method="post" action="{% url 'suivi_sanitaire_bo:supprimer_selection' %}" class="ss-confirm-actions">
+    {% csrf_token %}
+    {% for s in suivis %}<input type="hidden" name="ids" value="{{ s.pk }}">{% endfor %}
+    <a href="{% url 'suivi_sanitaire_bo:liste' %}" class="btn btn-ghost">Annuler</a>
+    <button type="submit" name="confirmer" value="1" class="btn btn-danger">{% include "includes/icon.html" with i="trash" %} Supprimer définitivement</button>
+  </form>
+  {% else %}
+  <form method="post" class="ss-confirm-actions">
+    {% csrf_token %}
+    <a href="{% url 'suivi_sanitaire_bo:liste' %}" class="btn btn-ghost">Annuler</a>
+    <button type="submit" class="btn btn-danger">{% include "includes/icon.html" with i="trash" %} Supprimer définitivement</button>
+  </form>
+  {% endif %}
+</section>
+{% endblock %}

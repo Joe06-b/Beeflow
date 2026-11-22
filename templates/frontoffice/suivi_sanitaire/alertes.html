@@ -1,0 +1,59 @@
+{% extends "layouts/base_frontoffice.html" %}
+{% load static %}
+
+{% block title %}Alertes sanitaires | BeeFlow{% endblock %}
+{% block extra_css %}<link rel="stylesheet" href="{% static 'css/suivi_sanitaire.css' %}">{% endblock %}
+
+{% block content %}
+<div class="container page">
+
+  <nav class="breadcrumb" aria-label="Fil d'Ariane">
+    <a href="{% url 'espace' %}">{% include "includes/icon.html" with i="hub" %} Mon espace</a>
+    {% include "includes/icon.html" with i="chevron-right" %}
+    <a href="{% url 'suivi_sanitaire:liste' %}">Suivi sanitaire</a>
+    {% include "includes/icon.html" with i="chevron-right" %}
+    <span aria-current="page">Alertes</span>
+  </nav>
+
+  <header class="page-head">
+    <div>
+      <h1>Alertes sanitaires</h1>
+      <p>Situation au {{ aujourd_hui|date:"j F Y" }}.</p>
+    </div>
+    <div class="page-actions">
+      <a href="{% url 'suivi_sanitaire:liste' %}" class="btn btn-ghost">{% include "includes/icon.html" with i="list" %} Tous les suivis</a>
+    </div>
+  </header>
+
+  <section class="kpis kpis-3">
+    <div class="kpi is-bad">
+      <span class="hex">{% include "includes/icon.html" with i="sanitaire" %}</span>
+      <div><div class="kpi-value">{{ critiques|length }}</div><div class="kpi-label">Critiques ou à risque élevé</div></div>
+    </div>
+    <div class="kpi is-warn">
+      <span class="hex">{% include "includes/icon.html" with i="clock" %}</span>
+      <div><div class="kpi-value">{{ en_retard|length }}</div><div class="kpi-label">Contrôles en retard</div></div>
+    </div>
+    <div class="kpi">
+      <span class="hex">{% include "includes/icon.html" with i="calendar" %}</span>
+      <div><div class="kpi-value">{{ proches|length }}</div><div class="kpi-label">Contrôles dans les 7 jours</div></div>
+    </div>
+  </section>
+
+  <section class="table-card ss-alert-block is-bad">
+    <div class="table-card-head"><h2>{% include "includes/icon.html" with i="sanitaire" %} Ruches en état critique ou à risque élevé</h2></div>
+    {% include "frontoffice/suivi_sanitaire/_table_alertes.html" with liste=critiques vide="Aucune ruche en état critique." %}
+  </section>
+
+  <section class="table-card ss-alert-block is-warn">
+    <div class="table-card-head"><h2>{% include "includes/icon.html" with i="clock" %} Contrôles en retard</h2></div>
+    {% include "frontoffice/suivi_sanitaire/_table_alertes.html" with liste=en_retard vide="Tous les contrôles sont à jour." %}
+  </section>
+
+  <section class="table-card ss-alert-block">
+    <div class="table-card-head"><h2>{% include "includes/icon.html" with i="calendar" %} Contrôles prévus dans les 7 prochains jours</h2></div>
+    {% include "frontoffice/suivi_sanitaire/_table_alertes.html" with liste=proches vide="Aucun contrôle prévu cette semaine." %}
+  </section>
+
+</div>
+{% endblock %}

@@ -1,0 +1,26 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    {% include "includes/_head.html" %}
+    <title>{% block title %}BeeFlow | Administration{% endblock %}</title>
+    {% block extra_css %}{% endblock %}
+</head>
+<body class="backoffice" data-icons="{% static 'img/icons.svg' %}">
+
+    {% include "includes/backoffice_sidebar.html" %}
+
+    <main class="main">
+        {% include "includes/backoffice_header.html" %}
+
+        {% block content %}{% endblock %}
+
+        {% include "includes/backoffice_footer.html" %}
+    </main>
+
+    {% include "includes/_toasts.html" %}
+
+    <script src="{% static 'js/beeflow.js' %}"></script>
+    {% block extra_js %}{% endblock %}
+</body>
+</html>

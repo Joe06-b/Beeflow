@@ -1,0 +1,28 @@
+{% extends "layouts/base_frontoffice.html" %}
+{% load static %}
+
+{% block title %}Supprimer le suivi n°{{ suivi.id_suivi }} | BeeFlow{% endblock %}
+{% block extra_css %}<link rel="stylesheet" href="{% static 'css/suivi_sanitaire.css' %}">{% endblock %}
+
+{% block content %}
+<div class="container-narrow page">
+  <section class="panel ss-confirm">
+    <span class="hex ss-confirm-icon">{% include "includes/icon.html" with i="trash" %}</span>
+    <h1>Supprimer le suivi n°{{ suivi.id_suivi }} ?</h1>
+    <p class="muted">Le suivi de la ruche <strong>{{ suivi.get_id_ruche_display }}</strong> du {{ suivi.date_suivi|date:"d/m/Y" }}
+       sera définitivement effacé, avec son diagnostic et son traitement.</p>
+
+    <dl class="ss-facts ss-facts-row ss-confirm-facts">
+      <div><dt>État</dt><dd><span class="badge lvl-{{ suivi.etat_sante|lower }}">{{ suivi.get_etat_sante_display }}</span></dd></div>
+      <div><dt>Maladie</dt><dd>{{ suivi.maladie_detectee|default:"Aucune" }}</dd></div>
+      <div><dt>Traitement</dt><dd>{{ suivi.type_traitement|default:"Aucun" }}</dd></div>
+    </dl>
+
+    <form method="post" class="ss-confirm-actions">
+      {% csrf_token %}
+      <a href="{% url 'suivi_sanitaire:detail' suivi.pk %}" class="btn btn-ghost">Garder le suivi</a>
+      <button type="submit" class="btn btn-danger">{% include "includes/icon.html" with i="trash" %} Supprimer définitivement</button>
+    </form>
+  </section>
+</div>
+{% endblock %}
