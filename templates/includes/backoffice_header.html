@@ -1,0 +1,11 @@
+<header class="topbar">
+    <div class="topbar-left">
+        <button class="menu-toggle" type="button" data-toggle-menu>☰</button>
+        <h2 id="pageTitle">{{ page_title|default:"Tableau de bord" }}</h2>
+    </div>
+
+    <div class="topbar-right">
+        <div class="date" id="currentDate"></div>
+        <div class="profile">👤 {{ request.user.username|default:"Apiculteur" }}</div>
+    </div>
+</header>

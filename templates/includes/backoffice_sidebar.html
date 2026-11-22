@@ -1,0 +1,35 @@
+{% load static %}
+<aside class="sidebar" id="sidebar">
+
+    <div class="logo"><img src="{% static 'img/logo.svg' %}" alt="" class="logo-img">Bee<span>Flow</span></div>
+
+    <div class="menu-title">Menu principal</div>
+    <nav class="menu">
+        <a href="{% url 'dashboard' %}" class="{% if active_page == 'dashboard' %}active{% endif %}">
+            <span>🏠</span> Tableau de bord
+        </a>
+        <a href="#" data-soon class="{% if active_page == 'ruches' %}active{% endif %}">
+            <span>🐝</span> Gestion des ruches
+        </a>
+        <a href="#" data-soon class="{% if active_page == 'environnement' %}active{% endif %}">
+            <span>🌿</span> Environnement
+        </a>
+        <a href="#" data-soon class="{% if active_page == 'sanitaire' %}active{% endif %}">
+            <span>🩺</span> Suivi sanitaire
+        </a>
+        <a href="#" data-soon class="{% if active_page == 'production' %}active{% endif %}">
+            <span>🍯</span> Production
+        </a>
+        <a href="{% url 'stock_liste' %}" class="{% if active_page == 'stock' %}active{% endif %}">
+            <span>📦</span> Gestion du stock
+        </a>
+    </nav>
+
+    <div class="menu-title">Compte</div>
+    <nav class="menu">
+        <a href="#" data-soon><span>👤</span> Mon profil</a>
+        <a href="#" data-soon><span>⚙️</span> Paramètres</a>
+        <a href="{% url 'accueil' %}"><span>🚪</span> Déconnexion</a>
+    </nav>
+
+</aside>

@@ -1,0 +1,99 @@
+{% extends "layouts/base_frontoffice.html" %}
+{% load static %}
+
+{% block title %}BeeFlow | Le rucher, en harmonie{% endblock %}
+{% block extra_css %}<link rel="stylesheet" href="{% static 'css/accueil.css' %}">{% endblock %}
+
+{% block content %}
+<section class="home-hero">
+    <div class="home-hero-copy">
+        <span class="home-kicker"><span aria-hidden="true">&#128029;</span> Votre espace apicole</span>
+        <h1>Le soin des abeilles.<br><em>La s&eacute;r&eacute;nit&eacute; au quotidien.</em></h1>
+        <p class="home-hero-lead">Ruches, suivi sanitaire, r&eacute;coltes et r&eacute;serves : BeeFlow rassemble les rep&egrave;res essentiels de votre activit&eacute; apicole.</p>
+        <div class="home-hero-actions">
+            <a href="{% url 'dashboard' %}" class="home-button home-button-dark">Entrer dans mon espace <span aria-hidden="true">&rarr;</span></a>
+            <a href="{% url 'stock_disponibilite' %}" class="home-text-link">Voir les disponibilit&eacute;s</a>
+        </div>
+        <div class="home-hero-note"><span class="home-note-mark" aria-hidden="true">&#10003;</span><span>Un seul espace pour suivre votre rucher et votre miellerie.</span></div>
+    </div>
+
+    <div class="home-hero-art">
+        <div class="home-image-frame">
+            <img src="{% static 'img/hero.jpg' %}" alt="Apiculteur observant un cadre de ruche" fetchpriority="high">
+            <span class="home-image-tag"><span aria-hidden="true">&#127855;</span> Au rythme de la ruche</span>
+        </div>
+        <div class="home-glance-card">
+            <div class="home-glance-heading"><span>Votre activit&eacute;</span><span class="home-live-dot" aria-hidden="true"></span></div>
+            <div class="home-glance-row"><span class="home-glance-icon">&#128029;</span><span><strong>Rucher</strong><small>Suivi des colonies</small></span><b>01</b></div>
+            <div class="home-glance-row"><span class="home-glance-icon">&#127807;</span><span><strong>Sant&eacute;</strong><small>Visites et pr&eacute;vention</small></span><b>02</b></div>
+            <div class="home-glance-row"><span class="home-glance-icon">&#127855;</span><span><strong>Miellerie</strong><small>R&eacute;coltes et r&eacute;serves</small></span><b>03</b></div>
+        </div>
+        <div class="home-honey-seal" aria-hidden="true"><span>&#10022;</span><small>fait avec<br>la nature</small></div>
+    </div>
+</section>
+
+<div class="home-ribbon" aria-label="Les grands rep&egrave;res du suivi apicole">
+    <span>Observer</span><i aria-hidden="true"></i><span>Pr&eacute;server</span><i aria-hidden="true"></i><span>R&eacute;colter</span><i aria-hidden="true"></i><span>Organiser</span>
+</div>
+
+<section class="home-section home-features" id="fonctionnalites">
+    <div class="home-section-heading">
+        <span class="home-kicker home-kicker-muted">UN RUCHER PLUS LISIBLE</span>
+        <h2>Tout commence par <em>les bons rep&egrave;res.</em></h2>
+        <p>Retrouvez au m&ecirc;me endroit les informations qui vous aident &agrave; prendre soin de vos colonies et &agrave; organiser la miellerie.</p>
+    </div>
+    <div class="home-feature-grid">
+        <article class="home-feature-card">
+            <span class="home-feature-number">01</span><span class="home-feature-icon" aria-hidden="true">&#128029;</span>
+            <h3>Vos ruches</h3><p>Gardez une vue claire sur vos colonies et leurs emplacements.</p>
+            <span class="home-feature-rule"></span>
+        </article>
+        <article class="home-feature-card">
+            <span class="home-feature-number">02</span><span class="home-feature-icon" aria-hidden="true">&#127807;</span>
+            <h3>Le suivi sanitaire</h3><p>Retrouvez les visites, observations et actions de pr&eacute;vention.</p>
+            <span class="home-feature-rule"></span>
+        </article>
+        <article class="home-feature-card">
+            <span class="home-feature-number">03</span><span class="home-feature-icon" aria-hidden="true">&#127855;</span>
+            <h3>Les r&eacute;coltes</h3><p>Suivez les productions de la ruche jusqu&rsquo;&agrave; la miellerie.</p>
+            <span class="home-feature-rule"></span>
+        </article>
+        <article class="home-feature-card home-feature-card-stock">
+            <span class="home-feature-number">04</span><span class="home-feature-icon" aria-hidden="true">&#9638;</span>
+            <h3>Les r&eacute;serves</h3><p>Consultez les produits disponibles et tenez le stock &agrave; jour.</p>
+            <a href="{% url 'stock_disponibilite' %}" class="home-feature-link">Explorer le stock <span aria-hidden="true">&rarr;</span></a>
+        </article>
+    </div>
+</section>
+
+<section class="home-about" id="apropos">
+    <div class="home-about-art" aria-hidden="true">
+        <div class="home-hive-graphic"><span>&#11042;</span><span>&#11042;</span><span>&#11042;</span><span>&#11042;</span><span>&#11042;</span><span>&#11042;</span><span>&#11042;</span></div>
+        <div class="home-about-caption"><strong>Au plus pr&egrave;s du vivant</strong><span>Une apiculture attentive, une gestion claire.</span></div>
+    </div>
+    <div class="home-about-copy">
+        <span class="home-kicker home-kicker-muted">L&rsquo;ESPRIT BEEFLOW</span>
+        <h2>Moins de dispersion.<br><em>Plus de temps au rucher.</em></h2>
+        <p>BeeFlow accompagne les apiculteurs dans le suivi quotidien de leur activit&eacute;. Les informations sont organis&eacute;es pour vous aider &agrave; garder le fil, saison apr&egrave;s saison.</p>
+        <div class="home-about-points">
+            <div><span>01</span><p><strong>Observer</strong><small>Noter ce qui se passe dans les ruches.</small></p></div>
+            <div><span>02</span><p><strong>Comprendre</strong><small>Retrouver facilement l&rsquo;historique et les alertes.</small></p></div>
+            <div><span>03</span><p><strong>Agir</strong><small>Organiser les r&eacute;serves et les prochaines &eacute;tapes.</small></p></div>
+        </div>
+    </div>
+</section>
+
+<section class="home-stock-cta">
+    <div class="home-cta-mark" aria-hidden="true">&#127855;</div>
+    <div><span class="home-kicker">LA MIELLERIE</span><h2>Un oeil sur les r&eacute;serves ?</h2><p>Consultez la disponibilit&eacute; des produits ou ouvrez la gestion du stock.</p></div>
+    <div class="home-cta-actions">
+        <a href="{% url 'stock_disponibilite' %}" class="home-button home-button-light">Voir les produits <span aria-hidden="true">&rarr;</span></a>
+        <a href="{% url 'stock_gestion_frontoffice' %}" class="home-cta-secondary">G&eacute;rer le stock</a>
+    </div>
+</section>
+
+<section class="home-bottom-note">
+    <span class="home-bottom-bee" aria-hidden="true">&#128029;</span>
+    <p>Chaque ruche a son rythme. <strong>BeeFlow vous aide &agrave; garder le v&ocirc;tre.</strong></p>
+</section>
+{% endblock %}

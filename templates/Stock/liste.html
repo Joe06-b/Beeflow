@@ -1,0 +1,91 @@
+{% extends "layouts/base_backoffice.html" %}
+{% load static %}
+
+{% block title %}BeeFlow | Gestion du stock{% endblock %}
+{% block extra_css %}<link rel="stylesheet" href="{% static 'css/stock.css' %}">{% endblock %}
+
+{% block content %}
+<section class="welcome stock-list-welcome">
+    <div>
+        <span class="stock-eyebrow">MIELLERIE · RÉSERVES</span>
+        <h1>Gestion du stock</h1>
+        <p>Suivez vos produits apicoles, leurs niveaux et les alertes de réapprovisionnement.</p>
+    </div>
+    <div class="stock-welcome-actions">
+        <a href="{% url 'stock_disponibilite' %}" class="stock-secondary-button">Voir le front office</a>
+        <a href="{% url 'stock_tableau_de_bord' %}" class="stock-secondary-button">Voir le tableau de bord</a>
+        <a href="{% url 'stock_ajouter' %}" class="btn btn-honey">＋ Ajouter un stock</a>
+    </div>
+</section>
+
+{% for message in messages %}
+    <div class="alert {{ message.tags }}" role="status">{{ message }}</div>
+{% endfor %}
+
+<section class="stats stock-kpis" aria-label="Indicateurs du stock">
+    <article class="card"><div class="icon">📦</div><h3>Lignes de stock</h3><h1>{{ nb_stocks }}</h1><small>Entrées enregistrées</small></article>
+    <article class="card"><div class="icon">🍯</div><h3>Quantité totale</h3>
+        <p class="stock-total-amount">{% for total in quantites_totales %}<strong>{{ total.quantite|floatformat:2 }}</strong> {{ total.unite }}{% if not forloop.last %}<span> · </span>{% endif %}{% empty %}0{% endfor %}</p>
+        <small>Présentée par unité de mesure</small>
+    </article>
+    <article class="card"><div class="icon">⚠️</div><h3>Alertes de stock</h3><h1>{{ nb_alertes }}</h1><small>{{ nb_epuises }} stock{{ nb_epuises|pluralize }} épuisé{{ nb_epuises|pluralize }}</small></article>
+    <article class="card"><div class="icon">📊</div><h3>Remplissage moyen</h3><h1>{{ taux_moyen }}%</h1><small>Sur l’ensemble des lignes</small></article>
+</section>
+
+<section class="section stock-list-section">
+    <div class="stock-section-heading">
+        <div><span class="stock-eyebrow stock-eyebrow-dark">SUIVI DES RÉSERVES</span><h2>Stocks enregistrés</h2></div>
+        <span class="stock-total-pill">{{ nb_stocks }} ligne{{ nb_stocks|pluralize }}</span>
+    </div>
+
+    <div class="stock-toolbar">
+        <label class="stock-search" for="stockSearch"><span aria-hidden="true">⌕</span><input id="stockSearch" type="search" placeholder="Rechercher produit ou emplacement" autocomplete="off"></label>
+        <label class="visually-hidden" for="stockProductFilter">Filtrer par produit</label>
+        <select class="stock-filter" id="stockProductFilter">
+            <option value="all">Tous les produits</option>
+            {% for code, label in types_produit %}<option value="{{ code }}">{{ label }}</option>{% endfor %}
+        </select>
+        <label class="visually-hidden" for="stockFilter">Filtrer par état</label>
+        <select class="stock-filter" id="stockFilter">
+            <option value="all">Tous les états</option>
+            <option value="disponible">Disponible</option>
+            <option value="bientot_epuise">Bientôt épuisé</option>
+            <option value="epuise">Épuisé</option>
+        </select>
+    </div>
+
+    <div class="table-container stock-table-wrap">
+        <table class="stock-table">
+            <thead>
+                <tr>
+                    <th><button class="stock-sort-button" type="button" data-sort-key="product">Produit <span aria-hidden="true">↕</span></button></th>
+                    <th><button class="stock-sort-button" type="button" data-sort-key="quantity">Quantité <span aria-hidden="true">↕</span></button></th>
+                    <th><button class="stock-sort-button" type="button" data-sort-key="fill">Remplissage <span aria-hidden="true">↕</span></button></th>
+                    <th>Seuil d’alerte</th>
+                    <th><button class="stock-sort-button" type="button" data-sort-key="location">Emplacement <span aria-hidden="true">↕</span></button></th>
+                    <th>État</th>
+                    <th><span class="visually-hidden">Actions</span></th>
+                </tr>
+            </thead>
+            <tbody id="stockTableBody">
+                {% for s in stocks %}
+                <tr data-stock-row data-product="{{ s.produit }}" data-state="{{ s.etat_disponibilite }}" data-sort-product="{{ s.libelle_produit }}" data-sort-quantity="{{ s.quantite }}" data-sort-fill="{{ s.taux_remplissage }}" data-sort-location="{{ s.emplacement }}">
+                    <td><div class="stock-product-cell"><span class="stock-product-icon" aria-hidden="true">{{ s.icone }}</span><span class="stock-product-name">{{ s.libelle_produit }}</span></div></td>
+                    <td><strong class="stock-quantity">{{ s.quantite|floatformat:2 }} <span>{{ s.get_unite_display }}</span></strong></td>
+                    <td><div class="stock-fill-cell"><div class="stock-progress" role="progressbar" aria-label="Taux de remplissage" aria-valuemin="0" aria-valuemax="100" aria-valuenow="{{ s.taux_remplissage }}"><span class="stock-progress-bar {% if s.etat_disponibilite != 'disponible' %}is-low{% endif %}" style="width: {{ s.taux_remplissage }}%"></span></div><span class="stock-fill-value">{{ s.taux_remplissage }}%</span></div></td>
+                    <td>{{ s.seuil_alerte|floatformat:2 }} {{ s.get_unite_display }}</td>
+                    <td>{{ s.emplacement|default:"Non précisé" }}</td>
+                    <td>{% include "Stock/includes/disponibilite.html" with etat=s.etat_disponibilite %}</td>
+                    <td><div class="stock-row-actions"><a class="stock-icon-button" href="{% url 'stock_detail' s.pk %}" aria-label="Voir le détail de {{ s.libelle_produit }}" title="Détail">⌕</a><a class="stock-icon-button" href="{% url 'stock_modifier' s.pk %}" aria-label="Modifier {{ s.libelle_produit }}" title="Modifier">✎</a><a class="stock-icon-button stock-icon-button-delete" href="{% url 'stock_supprimer' s.pk %}" aria-label="Supprimer {{ s.libelle_produit }}" title="Supprimer">⌫</a></div></td>
+                </tr>
+                {% empty %}
+                <tr class="stock-empty-row"><td colspan="7"><div class="stock-empty-state"><span aria-hidden="true">🍯</span><h3>Aucun stock enregistré</h3><p>Ajoutez votre première réserve pour commencer le suivi.</p><a href="{% url 'stock_ajouter' %}" class="btn btn-honey">Ajouter un stock</a></div></td></tr>
+                {% endfor %}
+                <tr id="stockNoResults" class="stock-no-results" hidden><td colspan="7">Aucun stock ne correspond à vos filtres.</td></tr>
+            </tbody>
+        </table>
+    </div>
+</section>
+{% endblock %}
+
+{% block extra_js %}<script src="{% static 'js/stock.js' %}"></script>{% endblock %}

@@ -1,0 +1,14 @@
+{% load static %}
+<header class="front-header">
+    <a href="{% url 'accueil' %}" class="front-logo">
+        <img src="{% static 'img/logo.svg' %}" alt="" class="logo-img">Bee<span>Flow</span>
+    </a>
+
+    <nav class="front-nav">
+        <a href="{% url 'stock_disponibilite' %}">Disponibilit&eacute;</a>
+        <a href="{% url 'accueil' %}#fonctionnalites">Fonctionnalités</a>
+        <a href="{% url 'accueil' %}#apropos">À propos</a>
+        <a href="{% url 'accueil' %}#contact">Contact</a>
+        <a href="{% url 'dashboard' %}" class="btn btn-honey">Espace apiculteur</a>
+    </nav>
+</header>

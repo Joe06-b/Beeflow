@@ -1,0 +1,41 @@
+{% extends "layouts/base_frontoffice.html" %}
+{% load static %}
+
+{% block title %}BeeFlow | Disponibilit&eacute; des produits{% endblock %}
+{% block extra_css %}<link rel="stylesheet" href="{% static 'css/stock.css' %}">{% endblock %}
+
+{% block content %}
+<section class="front-section stock-public-page">
+    <header class="stock-public-heading">
+        <span class="stock-eyebrow stock-eyebrow-dark">R&Eacute;SERVES DE LA MIELLERIE</span>
+        <h1>Disponibilit&eacute; des produits</h1>
+        <p>Consultez l&rsquo;&eacute;tat actuel des produits apicoles disponibles.</p>
+        <p class="stock-public-readonly"><span aria-hidden="true">&#128029;</span> Disponibilit&eacute; calcul&eacute;e depuis les stocks enregistr&eacute;s</p>
+        <div class="stock-front-switches stock-public-switches">
+            <a class="stock-primary-button" href="{% url 'stock_gestion_frontoffice' %}">G&eacute;rer les stocks</a>
+            <a class="stock-secondary-button" href="{% url 'stock_liste' %}">Acc&eacute;der au backoffice</a>
+        </div>
+    </header>
+
+    {% if disponibilites %}
+    <div class="stock-public-grid">
+        {% for item in disponibilites %}
+        <article class="stock-public-card">
+            <div class="stock-public-card-heading">
+                <span class="stock-public-icon" aria-hidden="true">{{ item.icone }}</span>
+                <div><h2>{{ item.libelle_produit }}</h2><span class="stock-public-unit">{{ item.libelle_unite }}</span></div>
+            </div>
+            <p class="stock-public-quantity">{{ item.quantite|floatformat:2 }} <span>{{ item.libelle_unite }}</span></p>
+            {% include "Stock/includes/disponibilite.html" with stock=item %}
+        </article>
+        {% endfor %}
+    </div>
+    {% else %}
+    <div class="stock-public-empty">
+        <span aria-hidden="true">&#127855;</span>
+        <h2>Les r&eacute;serves seront bient&ocirc;t renseign&eacute;es</h2>
+        <p>Aucune disponibilit&eacute; n&rsquo;est publi&eacute;e pour le moment.</p>
+    </div>
+    {% endif %}
+</section>
+{% endblock %}

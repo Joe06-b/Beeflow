@@ -1,0 +1,87 @@
+{% extends "layouts/base_backoffice.html" %}
+
+{% block title %}BeeFlow | Tableau de bord{% endblock %}
+
+{% block content %}
+
+<!-- WELCOME -->
+<section class="welcome">
+    <h1>Bienvenue sur BeeFlow 🐝</h1>
+    <p>Gérez votre rucher intelligemment et suivez vos activités apicoles.</p>
+</section>
+
+<!-- STATISTIQUES -->
+<section class="stats">
+    <div class="card">
+        <div class="icon">🐝</div>
+        <h3>Total des ruches</h3>
+        <h1 class="counter" data-target="48">0</h1>
+        <small>Ruches enregistrées</small>
+    </div>
+    <div class="card">
+        <div class="icon">🩺</div>
+        <h3>Alertes sanitaires</h3>
+        <h1 class="counter" data-target="5">0</h1>
+        <small>Contrôles à surveiller</small>
+    </div>
+    <div class="card">
+        <div class="icon">🍯</div>
+        <h3>Production annuelle</h3>
+        <h1>320 kg</h1>
+        <small>Production enregistrée</small>
+    </div>
+    <div class="card">
+        <div class="icon">📦</div>
+        <h3>Produits en stock</h3>
+        <h1 class="counter" data-target="125">0</h1>
+        <small>Articles disponibles</small>
+        <p class="card-text"><a href="{% url 'stock_liste' %}">Ouvrir la gestion du stock &rarr;</a></p>
+    </div>
+</section>
+
+<!-- GRAPHIQUE + ALERTES -->
+<section class="content-grid">
+    <div class="section">
+        <h2>📊 Évolution de la production</h2>
+        <div class="chart">
+            <div class="bar" data-height="45%"  title="Janvier"></div>
+            <div class="bar" data-height="65%"  title="Février"></div>
+            <div class="bar" data-height="55%"  title="Mars"></div>
+            <div class="bar" data-height="85%"  title="Avril"></div>
+            <div class="bar" data-height="70%"  title="Mai"></div>
+            <div class="bar" data-height="100%" title="Juin"></div>
+        </div>
+        <div class="chart-labels">
+            <span>Jan</span><span>Fév</span><span>Mar</span>
+            <span>Avr</span><span>Mai</span><span>Juin</span>
+        </div>
+    </div>
+
+    <div class="section">
+        <h2>🔔 Alertes récentes</h2>
+        <div class="alert danger">⚠️ Ruche R-02 : contrôle sanitaire en retard.</div>
+        <div class="alert">📦 Stock de traitement bientôt épuisé.</div>
+        <div class="alert success">🌿 Conditions environnementales favorables.</div>
+    </div>
+</section>
+
+<!-- TABLEAU DES RUCHES -->
+<section class="section">
+    <h2>🐝 Dernières ruches enregistrées</h2>
+    <div class="table-container">
+        <table>
+            <thead>
+                <tr>
+                    <th>Code ruche</th><th>Emplacement</th><th>État</th><th>Population</th>
+                </tr>
+            </thead>
+            <tbody>
+                <tr><td>R-001</td><td>Zone Nord</td><td><span class="status">Bon</span></td><td>25 000</td></tr>
+                <tr><td>R-002</td><td>Zone Sud</td><td><span class="status">Bon</span></td><td>20 000</td></tr>
+                <tr><td>R-003</td><td>Zone Est</td><td><span class="status">Bon</span></td><td>18 000</td></tr>
+            </tbody>
+        </table>
+    </div>
+</section>
+
+{% endblock %}

@@ -1,0 +1,26 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{% block title %}BeeFlow | Espace apiculteur{% endblock %}</title>
+    <link rel="stylesheet" href="{% static 'css/beeflow.css' %}">
+    {% block extra_css %}{% endblock %}
+</head>
+<body class="backoffice">
+
+    {% include "includes/backoffice_sidebar.html" %}
+
+    <main class="main">
+        {% include "includes/backoffice_header.html" %}
+
+        {% block content %}{% endblock %}
+
+        {% include "includes/backoffice_footer.html" %}
+    </main>
+
+    <script src="{% static 'js/beeflow.js' %}"></script>
+    {% block extra_js %}{% endblock %}
+</body>
+</html>
