@@ -40,7 +40,8 @@ urlpatterns = [
     path("dashboard/ruches/", include("rucheapp.urls")),
     
     path("produits/", include("ProduitApp.urls")),
-        path("dashboard/produits/", include("ProduitApp.urls_backoffice")),
+    path("dashboard/produits/", include("ProduitApp.urls_backoffice")),
+    path('stock/', include('Stock.urls')),
 ]
     
     # Photos des produits (en développement)

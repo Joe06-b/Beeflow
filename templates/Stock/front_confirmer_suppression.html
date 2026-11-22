@@ -1,0 +1,25 @@
+{% extends "layouts/base_frontoffice.html" %}
+{% load static %}
+
+{% block title %}BeeFlow | Supprimer un stock{% endblock %}
+{% block extra_css %}<link rel="stylesheet" href="{% static 'css/stock.css' %}">{% endblock %}
+
+{% block content %}
+<section class="front-section stock-public-page stock-front-delete-page">
+    <div class="stock-delete-card">
+        <div class="stock-delete-icon" aria-hidden="true">!</div>
+        <span class="stock-eyebrow stock-eyebrow-dark">CONFIRMATION</span>
+        <h1>Supprimer cette r&eacute;serve ?</h1>
+        <p class="stock-delete-intro">Cette action retirera d&eacute;finitivement cette ligne du stock.</p>
+        <div class="stock-delete-summary">
+            <span class="stock-delete-product-icon" aria-hidden="true">{{ stock.icone }}</span>
+            <div><strong>{{ stock.libelle_produit }}</strong><span>{{ stock.quantite|floatformat:2 }} {{ stock.unite }} &middot; {{ stock.emplacement|default:"Emplacement non pr&eacute;cis&eacute;" }}</span></div>
+        </div>
+        <form method="post" class="stock-delete-actions">
+            {% csrf_token %}
+            <a class="stock-secondary-button" href="{% url 'stock_gestion_frontoffice' %}">Garder le stock</a>
+            <button class="stock-danger-button" type="submit">Supprimer d&eacute;finitivement</button>
+        </form>
+    </div>
+</section>
+{% endblock %}

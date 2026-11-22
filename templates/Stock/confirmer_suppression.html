@@ -1,0 +1,45 @@
+{% extends "layouts/base_backoffice.html" %}
+{% load static %}
+
+{% block title %}BeeFlow | Supprimer un stock{% endblock %}
+
+{% block extra_css %}
+<link rel="stylesheet" href="{% static 'css/stock.css' %}">
+{% endblock %}
+
+{% block content %}
+<section class="stock-welcome stock-form-welcome">
+    <div class="stock-welcome-copy">
+        <span class="stock-eyebrow">MIELLERIE · RÉSERVES</span>
+        <h1>Supprimer un stock</h1>
+        <p>Vérifiez l’entrée concernée avant de la retirer de votre suivi.</p>
+    </div>
+    <div class="stock-honey-mark" aria-hidden="true">⬡</div>
+    <a class="stock-secondary-button" href="{% url 'stock_liste' %}">← Retour aux stocks</a>
+</section>
+
+<section class="stock-delete-wrap">
+    <div class="stock-delete-card">
+        <div class="stock-delete-icon" aria-hidden="true">!</div>
+        <span class="stock-eyebrow stock-eyebrow-dark">CONFIRMATION</span>
+        <h2>Retirer cette entrée ?</h2>
+        <p class="stock-delete-intro">Cette action supprimera définitivement cette ligne de stock.</p>
+
+        <div class="stock-delete-summary">
+            <span class="stock-delete-product-icon" aria-hidden="true">
+                {% if stock.produit == "miel" %}🍯{% elif stock.produit == "cire" %}◈{% elif stock.produit == "pollen" %}✿{% else %}♧{% endif %}
+            </span>
+            <div>
+                <strong>{{ stock.get_produit_display }}</strong>
+                <span>{{ stock.quantite|floatformat:2 }} {{ stock.unite }} · {{ stock.emplacement|default:"Emplacement non précisé" }}</span>
+            </div>
+        </div>
+
+        <form method="post" class="stock-delete-actions">
+            {% csrf_token %}
+            <a class="stock-secondary-button" href="{% url 'stock_liste' %}">Garder cette entrée</a>
+            <button type="submit" class="stock-danger-button">Supprimer définitivement</button>
+        </form>
+    </div>
+</section>
+{% endblock %}
