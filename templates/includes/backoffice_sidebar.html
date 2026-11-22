@@ -1,5 +1,6 @@
 {% load static %}
 <aside class="sidebar" id="sidebar">
+
     <a href="{% url 'dashboard' %}" class="logo"><img src="{% static 'img/logo.svg' %}" alt=""
             class="logo-img">Bee<span>Flow</span></a>
 
@@ -24,7 +25,7 @@
         <a href="{% url 'produits:liste' %}" class="{% if active_page == 'production' %}active{% endif %}">
             {% include "includes/icon.html" with i="jar" %} Production
         </a>
-        <a href="{% url 'stock_liste' %}" class="{% if active_page == 'stock' %}active{% endif %}" data-title="Gestion du stock" title="Bientôt disponible">
+        <a href="#" data-soon data-title="Gestion du stock" title="Bientôt disponible" class="{% if active_page == 'stock' %}active{% endif %}">
             {% include "includes/icon.html" with i="box" %} Gestion du stock
         </a>
     </nav>

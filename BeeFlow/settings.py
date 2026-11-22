@@ -41,7 +41,6 @@ INSTALLED_APPS = [
     'SuiviSanitaireApp',
     'rucheapp',
     'ProduitApp',
-    'Stock',
 ]
 
 MIDDLEWARE = [

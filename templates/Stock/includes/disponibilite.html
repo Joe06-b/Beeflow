@@ -1,9 +1,0 @@
-{% with etat=stock.etat_disponibilite %}
-{% if etat == "disponible" %}
-        <span class="status stock-availability available"><span class="stock-state-dot" aria-hidden="true"></span>Disponible</span>
-{% elif etat == "bientot_epuise" %}
-        <span class="status warning stock-availability soon-empty"><span class="stock-state-dot" aria-hidden="true"></span>Bient&ocirc;t &eacute;puis&eacute;</span>
-{% else %}
-        <span class="status danger stock-availability empty"><span class="stock-state-dot" aria-hidden="true"></span>&Eacute;puis&eacute;</span>
-{% endif %}
-{% endwith %}
