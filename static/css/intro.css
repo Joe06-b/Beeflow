@@ -1,0 +1,58 @@
+/* ==========================================================================
+   INTRO « L'abeille qui dessine »
+   ========================================================================== */
+html.intro-active, html.intro-active body { overflow: hidden; }
+
+.intro { position: fixed; inset: 0; z-index: 10000; background: var(--propolis); color: var(--wax); }
+.intro.is-ready { background: transparent; }                 /* le canvas dessine le fond */
+.intro-canvas { position: absolute; inset: 0; width: 100%; height: 100%; }
+
+/* Le mot « BeeFlow », révélé derrière l'abeille qui l'écrit */
+.intro-word {
+    position: absolute; left: 50%; transform: translateX(-50%);
+    font-family: var(--font-display); font-weight: 800; letter-spacing: -.035em; line-height: 1;
+    font-size: clamp(44px, 7vw, 84px); color: var(--honey); white-space: nowrap;
+    clip-path: inset(-20% 100% -20% 0);                       /* caché au départ */
+}
+.intro-word span { color: var(--wax); }
+.intro-tagline {
+    position: absolute; left: 0; right: 0; text-align: center; max-width: none;
+    color: #CDB89A; font-size: clamp(15px, 1.4vw, 18px); opacity: 0; transition: opacity .6s ease;
+}
+.intro.is-tagline .intro-tagline { opacity: 1; }
+
+/* Écran de départ */
+.intro-start { position: absolute; left: 0; right: 0; display: flex; justify-content: center; transition: opacity .35s, transform .35s; }
+.intro-enter { min-height: 52px; padding: 12px 26px; font-size: 15.5px; box-shadow: 0 0 0 6px rgba(233, 185, 73, .14); }
+.intro-enter:hover { box-shadow: 0 0 0 9px rgba(233, 185, 73, .2); }
+.intro.is-playing .intro-start { opacity: 0; transform: translateY(8px); pointer-events: none; }
+
+/* Outils */
+.intro-tools { position: absolute; z-index: 3; right: 22px; bottom: 20px; display: flex; gap: 8px; transition: opacity .4s; }
+.intro-tool {
+    display: inline-flex; align-items: center; gap: 8px; padding: 8px 14px; border-radius: 999px;
+    border: 1px solid rgba(233, 185, 73, .3); background: rgba(43, 27, 15, .55); color: #E2CFB2;
+    font-size: 13px; font-weight: 600;
+}
+.intro-tool:hover { border-color: var(--honey); color: var(--honey); }
+.intro-tool .ico { width: 17px; height: 17px; }
+.intro.is-diving .intro-tools, .intro.is-diving .intro-word, .intro.is-diving .intro-tagline { opacity: 0; transition: opacity .35s; }
+.intro.is-diving { pointer-events: none; }
+
+/* L'abeille (au-dessus de tout, elle reste un instant sur la page d'accueil) */
+.intro-bee {
+    position: fixed; left: 0; top: 0; z-index: 10001; width: 56px; height: 56px; margin: -28px 0 0 -28px;
+    pointer-events: none; will-change: transform;
+    filter: drop-shadow(0 6px 8px rgba(0, 0, 0, .35));
+}
+.bee-svg { width: 100%; height: 100%; overflow: visible; }
+.bee-wing { transform-box: fill-box; transform-origin: 50% 100%; animation: bee-flap .07s ease-in-out infinite alternate; }
+.bee-wing-l { transform-origin: 100% 100%; }
+.bee-wing-r { transform-origin: 0% 100%; }
+@keyframes bee-flap { to { transform: scaleY(.35); } }
+.intro-bee.is-resting .bee-wing { animation-duration: .5s; }
+
+@media (max-width: 560px) {
+    .intro-tools { left: 16px; right: 16px; justify-content: center; }
+    .intro-bee { width: 44px; height: 44px; margin: -22px 0 0 -22px; }
+}

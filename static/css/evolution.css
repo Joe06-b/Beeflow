@@ -1,0 +1,131 @@
+/* ==========================================================================
+   ÉVOLUTION D'UNE MALADIE DANS LA RUCHE — cadre 3D + frise + courbe
+   (s'appuie sur bee3d.css pour la scène, le panneau latéral et la bascule)
+   ========================================================================== */
+.evo-main { display: flex; flex-direction: column; gap: 14px; min-width: 0; }
+.evo-viewer { height: min(64vh, 600px); min-height: 430px; }
+
+/* Grand numéro de semaine posé sur la scène */
+.evo-week {
+    position: absolute; left: 18px; top: 16px; display: flex; flex-direction: column; line-height: 1;
+    color: #CDB89A; font-size: 12.5px; font-weight: 600; pointer-events: none;
+}
+.evo-week strong { font-family: var(--font-display); font-size: 56px; font-weight: 700; color: var(--honey); margin-top: 4px; font-variant-numeric: tabular-nums; }
+
+/* Légende des cellules */
+.evo-legend {
+    position: absolute; right: 14px; top: 14px; margin: 0; padding: 10px 12px; list-style: none;
+    display: grid; gap: 4px; max-width: 210px; border-radius: 12px;
+    background: rgba(43, 27, 15, .72); border: 1px solid rgba(233, 185, 73, .22); backdrop-filter: blur(6px);
+    color: #E2CFB2; font-size: 11.5px; pointer-events: none;
+}
+.evo-legend li { display: flex; align-items: center; gap: 8px; }
+.evo-legend i { width: 12px; height: 13px; clip-path: var(--hex); flex-shrink: 0; box-shadow: inset 0 0 0 1.5px rgba(233, 185, 73, .45); }
+.evo-legend li.is-hit { color: #F3B5AC; }
+
+/* Infobulle au survol d'une cellule */
+.evo-tip {
+    position: absolute; left: 0; top: 0; pointer-events: none; z-index: 2;
+    display: inline-flex; align-items: center; gap: 7px; padding: 5px 10px; border-radius: 8px;
+    background: rgba(43, 27, 15, .9); border: 1px solid rgba(233, 185, 73, .35); color: var(--wax);
+    font-size: 12.5px; font-weight: 600; white-space: nowrap;
+}
+.evo-tip i { width: 11px; height: 12px; clip-path: var(--hex); }
+.evo-tip.is-hit { border-color: rgba(224, 87, 74, .7); }
+.evo-tip[hidden] { display: none; }
+
+/* Frise du temps */
+.evo-timeline { margin: 0; display: flex; align-items: center; gap: 16px; padding: 14px 18px; }
+.evo-play {
+    width: 48px; height: 52px; flex-shrink: 0; display: grid; place-items: center; border: 0;
+    clip-path: var(--hex); background: var(--honey); color: var(--propolis); transition: transform .2s, background-color .2s;
+}
+.evo-play:hover { transform: scale(1.06); }
+.evo-play:focus-visible { outline: none; background: var(--propolis); color: var(--honey); }
+.evo-play .ico { width: 22px; height: 22px; }
+.evo-play .evo-ico-pause, .evo-play[aria-pressed="true"] .evo-ico-play { display: none; }
+.evo-play[aria-pressed="true"] .evo-ico-pause { display: block; }
+
+.evo-track { position: relative; flex: 1; min-width: 0; padding-bottom: 14px; }
+.evo-track input[type="range"] {
+    --pct: 0%;
+    width: 100%; height: 8px; margin: 0; appearance: none; -webkit-appearance: none; border-radius: 999px; outline: none;
+    background: linear-gradient(90deg, var(--honey) var(--pct), #EADFCB var(--pct));
+}
+.evo-track input[type="range"]::-webkit-slider-thumb {
+    -webkit-appearance: none; width: 22px; height: 24px; border: 0; clip-path: var(--hex); background: var(--propolis); cursor: var(--cursor-pointer);
+}
+.evo-track input[type="range"]::-moz-range-thumb { width: 22px; height: 24px; border: 0; border-radius: 0; clip-path: var(--hex); background: var(--propolis); }
+.evo-track input[type="range"]:focus-visible { box-shadow: var(--ring); }
+.evo-marks { position: absolute; left: 11px; right: 11px; bottom: 0; height: 10px; }
+.evo-marks span { position: absolute; top: 2px; width: 2px; height: 5px; margin-left: -1px; background: #D9CBB2; border-radius: 1px; }
+.evo-marks span.is-step { width: 8px; height: 9px; top: 0; margin-left: -4px; clip-path: var(--hex); background: var(--brown-2); border-radius: 0; }
+.evo-marks span.is-treat { width: 10px; height: 11px; top: -1px; margin-left: -5px; clip-path: var(--hex); background: var(--good); border-radius: 0; }
+.evo-week-label { flex-shrink: 0; min-width: 118px; text-align: right; font-weight: 600; color: var(--brown-2); font-variant-numeric: tabular-nums; }
+
+/* Bascule de scénario */
+.evo-switch button[data-scenario="avec"].is-active { background: var(--white); color: var(--good); box-shadow: 0 2px 8px -3px rgba(64, 40, 23, .3); }
+.evo-switch button[data-scenario="sans"].is-active { background: var(--white); color: var(--bad); box-shadow: 0 2px 8px -3px rgba(64, 40, 23, .3); }
+
+/* Chiffres de la semaine */
+.evo-kpis { display: grid; grid-template-columns: 1fr 1fr; gap: 16px 14px; }
+.evo-kpi { display: flex; flex-direction: column; gap: 4px; min-width: 0; }
+.evo-kpi:first-child { grid-column: 1 / -1; padding-bottom: 14px; border-bottom: 1px solid var(--line); }
+.evo-kpi-label { font-size: 12.5px; color: var(--muted); }
+.evo-kpi strong { font-family: var(--font-display); font-size: 26px; line-height: 1.05; color: var(--propolis); font-variant-numeric: tabular-nums; }
+.evo-kpi:first-child strong { font-size: 34px; }
+.evo-kpi small { font-size: 13px; font-weight: 600; color: var(--muted); }
+.evo-kpi small.is-bad { color: var(--bad); }
+.evo-kpi small.is-warn { color: var(--warn); }
+.evo-kpi small.is-good { color: var(--good); }
+.evo-kpi .badge { align-self: flex-start; margin-top: 4px; }
+.evo-bar { display: block; height: 6px; border-radius: 999px; background: #EFE6D4; overflow: hidden; margin-top: 3px; }
+.evo-bar i { display: block; height: 100%; width: 0; border-radius: inherit; transition: width .5s ease, background-color .5s; }
+.evo-bar i.is-good { background: var(--good); }
+.evo-bar i.is-warn { background: #D9A21B; }
+.evo-bar i.is-bad { background: var(--bad); }
+
+/* Étape en cours */
+.evo-step h2 { font-size: 21px; margin-bottom: 2px; }
+.evo-step .b3d-kicker { font-size: 12.5px; font-weight: 600; color: var(--honey-ink); margin-bottom: 4px; display: flex; align-items: center; gap: 6px; }
+.evo-step p { font-size: 14px; margin-top: 8px; }
+.evo-step .notice { margin: 14px 0 0; font-size: 13.5px; }
+.evo-step .notice strong { display: block; }
+
+/* Liste des étapes */
+.evo-steps-panel .panel-head { margin-bottom: 10px; }
+.evo-steps { list-style: none; margin: 0; padding: 0; display: grid; gap: 4px; position: relative; }
+.evo-steps::before { content: ""; position: absolute; left: 22px; top: 12px; bottom: 12px; width: 2px; background: var(--line); }
+.evo-steps button {
+    position: relative; width: 100%; display: flex; align-items: center; gap: 12px; padding: 7px 10px 7px 4px;
+    border: 0; border-radius: 10px; background: none; text-align: left; font-size: 13.5px; font-weight: 600; color: var(--muted);
+    transition: background-color .2s, color .2s;
+}
+.evo-steps button:hover { background: var(--wax); color: var(--propolis); }
+.evo-step-week {
+    width: 38px; height: 34px; flex-shrink: 0; display: grid; place-items: center; clip-path: var(--hex);
+    background: #EFE6D4; color: var(--brown-2); font-size: 11.5px; font-weight: 700; transition: background-color .3s, color .3s;
+}
+.evo-steps button.is-past { color: var(--brown-2); }
+.evo-steps button.is-past .evo-step-week { background: #E8D3A2; }
+.evo-steps button.is-current { background: var(--wax); color: var(--propolis); }
+.evo-steps button.is-current .evo-step-week { background: var(--propolis); color: var(--honey); }
+.evo-steps button.is-treat .evo-step-week { background: var(--good-bg); color: var(--good); }
+.evo-steps button.is-treat.is-current .evo-step-week { background: var(--good); color: var(--white); }
+
+/* Courbe */
+.evo-chart-panel { margin-top: 22px; }
+.evo-chart-note { font-size: 13px; font-weight: 600; color: var(--honey-ink); }
+.evo-chart { position: relative; height: 300px; }
+
+@media (max-width: 560px) {
+    .evo-viewer { height: 58vh; min-height: 360px; }
+    .evo-legend { display: none; }
+    .evo-week strong { font-size: 40px; }
+    .evo-timeline { gap: 10px; padding: 12px; }
+    .evo-week-label { display: none; }
+    .evo-chart { height: 240px; }
+}
+@media (prefers-reduced-motion: reduce) {
+    .evo-bar i, .evo-step-week { transition: none; }
+}

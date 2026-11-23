@@ -1,0 +1,43 @@
+{% load static %}
+<header class="front-header">
+    <a href="{% url 'accueil' %}" class="front-logo" aria-label="BeeFlow, accueil">
+        <img src="{% static 'img/logo.svg' %}" alt="" class="logo-img">Bee<span>Flow</span>
+    </a>
+
+    <button class="front-burger icon-btn" type="button" data-toggle-front aria-expanded="false" aria-label="Ouvrir le menu">
+        {% include "includes/icon.html" with i="menu" %}
+    </button>
+
+    <nav class="front-nav" aria-label="Navigation principale">
+        <a href="{% url 'accueil' %}#fonctionnalites">Fonctionnalités</a>
+        <a href="{% url 'accueil' %}#apropos">À propos</a>
+        <a href="{% url 'accueil' %}#contact">Contact</a>
+        <a href="{% url 'espace' %}" class="btn btn-honey btn-sm">
+            {% include "includes/icon.html" with i="hub" %} Mon espace
+        </a>
+
+        {% if request.resolver_match.url_name != 'accueil' %}
+        {# Compte de l'apiculteur (pas sur la page d'accueil du site, qui sert à se connecter) #}
+        <div class="account account-front" data-dropdown>
+            <button type="button" class="avatar-btn" data-dropdown-toggle aria-haspopup="menu" aria-expanded="false"
+                    title="Mon compte" aria-label="Mon compte ({{ request.user.username|default:'Apiculteur' }})">
+                <span class="hex hex-honey">{% include "includes/icon.html" with i="user" %}</span>
+            </button>
+            <div class="account-menu" role="menu" hidden>
+                <div class="account-head">
+                    <strong>{{ request.user.username|default:"Mon compte" }}</strong>
+                    <span>Apiculteur</span>
+                </div>
+                <button type="button" role="menuitem" data-modal-open="modal-compte">
+                    {% include "includes/icon.html" with i="edit" %} Modifier mon compte
+                </button>
+                {# INTÉGRATION : remplacer par l'URL de déconnexion du module utilisateurs #}
+                <a href="{% url 'accueil' %}" role="menuitem" class="is-danger">
+                    {% include "includes/icon.html" with i="logout" %} Se déconnecter
+                </a>
+            </div>
+        </div>
+        {% endif %}
+    </nav>
+</header>
+{% if request.resolver_match.url_name != 'accueil' %}{% include "includes/_modal_compte.html" %}{% endif %}

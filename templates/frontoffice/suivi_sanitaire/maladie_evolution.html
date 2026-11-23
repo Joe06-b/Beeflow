@@ -1,0 +1,140 @@
+{% extends "layouts/base_frontoffice.html" %}
+{% load static %}
+
+{% block title %}{{ m.nom }} : évolution dans la ruche | BeeFlow{% endblock %}
+{% block extra_css %}<link rel="stylesheet" href="{% static 'css/suivi_sanitaire.css' %}?v=9"><link rel="stylesheet" href="{% static 'css/atlas.css' %}?v=9"><link rel="stylesheet" href="{% static 'css/bee3d.css' %}?v=9"><link rel="stylesheet" href="{% static 'css/evolution.css' %}?v=9">
+<!-- La carte des modules doit venir AVANT tout préchargement de module -->
+<script type="importmap">
+  { "imports": { "three": "{% static 'vendor/three/three.module.min.js' %}", "three/addons/": "{% static 'vendor/three/addons/' %}" } }
+</script>
+<link rel="modulepreload" href="{% static 'vendor/three/three.module.min.js' %}">
+<link rel="modulepreload" href="{% static 'vendor/three/addons/controls/OrbitControls.js' %}">
+<link rel="modulepreload" href="{% static 'js/evolution3d.js' %}?v=9">{% endblock %}
+
+{% block content %}
+<div class="container page b3d-page evo-page">
+
+  <nav class="breadcrumb" aria-label="Fil d'Ariane">
+    <a href="{% url 'espace' %}">{% include "includes/icon.html" with i="hub" %} Mon espace</a>
+    {% include "includes/icon.html" with i="chevron-right" %}
+    <a href="{% url 'suivi_sanitaire:liste' %}">Suivi sanitaire</a>
+    {% include "includes/icon.html" with i="chevron-right" %}
+    <a href="{% url 'suivi_sanitaire:atlas' %}">Atlas des maladies</a>
+    {% include "includes/icon.html" with i="chevron-right" %}
+    <span aria-current="page">{{ m.nom }} : évolution</span>
+  </nav>
+
+  <header class="page-head">
+    <div>
+      <h1>{{ m.nom }} dans la ruche</h1>
+      <p>Suivez un cadre de couvain semaine après semaine, et comparez ce qui arrive si l'on traite ou si l'on ne fait rien.</p>
+    </div>
+    <div class="page-actions">
+      <label class="sr-only" for="evoAutre">Voir une autre maladie</label>
+      <select class="bf-select b3d-autre" id="evoAutre">
+        {% for a in autres %}<option value="{% url 'suivi_sanitaire:maladie_evolution' a.slug %}" {% if a.slug == m.slug %}selected{% endif %}>{{ a.nom }}</option>{% endfor %}
+      </select>
+      <a href="{% url 'suivi_sanitaire:atlas' %}#{{ m.slug }}" class="btn btn-ghost">{% include "includes/icon.html" with i="arrow-left" %} Fiche de l'atlas</a>
+    </div>
+  </header>
+
+  <nav class="tabs" aria-label="Vues">
+    <a href="{% url 'suivi_sanitaire:maladie_3d' m.slug %}">{% include "includes/icon.html" with i="eye" %} Anatomie</a>
+    <a href="{% url 'suivi_sanitaire:maladie_evolution' m.slug %}" class="is-active" aria-current="page">{% include "includes/icon.html" with i="hive" %} Évolution dans la ruche</a>
+  </nav>
+
+  <div class="b3d-layout">
+    <div class="evo-main">
+      <!-- Cadre de ruche en 3D -->
+      <section class="b3d-viewer evo-viewer" id="evoViewer" aria-label="Cadre de ruche en 3D, qui change au fil des semaines">
+        <div class="b3d-canvas" id="evoCanvas"></div>
+
+        <div class="evo-week" aria-hidden="true"><span>Semaine</span><strong id="evoWeekBig">0</strong></div>
+        <ul class="evo-legend" id="evoLegend" aria-label="Légende des cellules"></ul>
+
+        <div class="b3d-loading" id="evoLoading">
+          <span class="hex hex-honey">{% include "includes/icon.html" with i="hive" %}</span>
+          Préparation du cadre…
+        </div>
+        <div class="b3d-fallback" id="evoFallback" hidden>
+          <div class="atlas-stage">{% include "frontoffice/suivi_sanitaire/maladies/_illu.html" %}</div>
+          <p>La 3D n'est pas disponible sur cet appareil. La frise, les chiffres et la courbe restent utilisables.</p>
+        </div>
+
+        <div class="b3d-toolbar">
+          <button type="button" class="b3d-tool" id="evoReset" title="Recentrer la vue">{% include "includes/icon.html" with i="rotate" %}<span>Recentrer</span></button>
+          <span class="b3d-hint">Glisser pour tourner, molette ou pincement pour zoomer</span>
+        </div>
+      </section>
+
+      <!-- Frise du temps -->
+      <section class="panel evo-timeline" aria-label="Frise des semaines">
+        <button type="button" class="evo-play" id="evoPlay" aria-pressed="false" aria-label="Lancer l'évolution">
+          <svg viewBox="0 0 24 24" class="ico evo-ico-play" aria-hidden="true"><path d="M8 5.5v13l10.5-6.5z" fill="currentColor"/></svg>
+          <svg viewBox="0 0 24 24" class="ico evo-ico-pause" aria-hidden="true"><path d="M7 5h3.6v14H7zM13.4 5H17v14h-3.6z" fill="currentColor"/></svg>
+        </button>
+        <div class="evo-track">
+          <label class="sr-only" for="evoRange">Semaine affichée</label>
+          <input type="range" id="evoRange" min="0" max="{{ evolution.semaines }}" step="1" value="0">
+          <div class="evo-marks" id="evoMarks" aria-hidden="true"></div>
+        </div>
+        <div class="evo-week-label" id="evoWeekLabel" aria-live="polite">Semaine 0</div>
+      </section>
+    </div>
+
+    <!-- Panneau latéral -->
+    <aside class="b3d-side">
+      <div class="b3d-switch evo-switch" role="group" aria-label="Scénario">
+        <button type="button" data-scenario="sans" aria-pressed="true" class="is-active">{% include "includes/icon.html" with i="alert" %} Sans traitement</button>
+        <button type="button" data-scenario="avec" aria-pressed="false">{% include "includes/icon.html" with i="flask" %} Avec traitement</button>
+      </div>
+
+      <div class="panel evo-kpis">
+        <div class="evo-kpi"><span class="evo-kpi-label">Abeilles</span><strong id="kpiPop">30 000</strong><small id="kpiPopDelta">au départ</small></div>
+        <div class="evo-kpi"><span class="evo-kpi-label" id="kpiAtteinteLabel">Couvain atteint</span><strong id="kpiAtteinte">0 %</strong><span class="evo-bar"><i id="kpiAtteinteBar"></i></span></div>
+        <div class="evo-kpi"><span class="evo-kpi-label">État de la colonie</span><span class="badge" id="kpiEtat">Bon</span></div>
+      </div>
+
+      <div class="panel evo-step" id="evoStep" aria-live="polite"></div>
+
+      <div class="panel evo-steps-panel">
+        <div class="panel-head"><h2>{% include "includes/icon.html" with i="history" %} Les étapes</h2></div>
+        <ol class="evo-steps" id="evoSteps"></ol>
+      </div>
+    </aside>
+  </div>
+
+  <!-- Courbe de population -->
+  <section class="panel evo-chart-panel">
+    <div class="panel-head">
+      <h2>{% include "includes/icon.html" with i="chart" %} Nombre d'abeilles, semaine par semaine</h2>
+      <span class="evo-chart-note">Traitement en semaine {{ evolution.traitement.semaine }}</span>
+    </div>
+    <div class="evo-chart"><canvas id="evoChart" aria-label="Courbe du nombre d'abeilles avec et sans traitement" role="img"></canvas></div>
+  </section>
+
+  <p class="atlas-disclaimer">{% include "includes/icon.html" with i="alert" class="ico-sm" %} Simulation simplifiée à but pédagogique : le déroulé et les ordres de grandeur sont réalistes, les chiffres exacts varient d'une colonie à l'autre.</p>
+</div>
+
+{{ evolution|json_script:"evoData" }}
+<script>
+  window.EVO_INFO = { maladie: "{{ m.nom|escapejs }}" };
+  document.getElementById("evoAutre").addEventListener("change", e => { window.location.href = e.target.value; });
+
+  // Filet de sécurité : si la 3D ne démarre pas, on n'attend pas indéfiniment (la frise et la courbe restent utilisables)
+  window.addEventListener("load", () => setTimeout(() => {
+    if (window.EVO3D_OK) return;
+    document.getElementById("evoLoading").hidden = true;
+    const fb = document.getElementById("evoFallback");
+    fb.hidden = false;
+    fb.querySelector("p").innerHTML = "La 3D n'a pas pu démarrer. Rechargez la page avec <strong>Ctrl + F5</strong>. "
+      + "La frise, les chiffres et la courbe restent utilisables.";
+  }, 5000));
+</script>
+{% endblock %}
+
+{% block extra_js %}
+<script src="{% static 'vendor/chart.umd.js' %}"></script>
+<script src="{% static 'js/evolution.js' %}?v=9"></script>
+<script type="module" src="{% static 'js/evolution3d.js' %}?v=9"></script>
+{% endblock %}

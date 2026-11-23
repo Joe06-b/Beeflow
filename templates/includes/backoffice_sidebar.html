@@ -1,0 +1,37 @@
+{% load static %}
+<aside class="sidebar" id="sidebar">
+
+    <a href="{% url 'dashboard' %}" class="logo"><img src="{% static 'img/logo.svg' %}" alt="" class="logo-img">Bee<span>Flow</span></a>
+
+    <div class="menu-title">Menu principal</div>
+    <nav class="menu" aria-label="Modules">
+        <a href="{% url 'dashboard' %}" class="{% if active_page == 'dashboard' %}active{% endif %}">
+            {% include "includes/icon.html" with i="dashboard" %} Tableau de bord
+        </a>
+        <a href="#" data-soon data-title="Gestion des utilisateurs" title="Bientôt disponible" class="{% if active_page == 'utilisateurs' %}active{% endif %}">
+            {% include "includes/icon.html" with i="users" %} Gestion des utilisateurs
+        </a>
+        <a href="#" data-soon data-title="Gestion des ruches" title="Bientôt disponible" class="{% if active_page == 'ruches' %}active{% endif %}">
+            {% include "includes/icon.html" with i="hive" %} Gestion des ruches
+        </a>
+        <a href="#" data-soon data-title="Environnement" title="Bientôt disponible" class="{% if active_page == 'environnement' %}active{% endif %}">
+            {% include "includes/icon.html" with i="leaf" %} Environnement
+        </a>
+        <a href="{% url 'suivi_sanitaire_bo:liste' %}" class="{% if active_page == 'sanitaire' %}active{% endif %}">
+            {% include "includes/icon.html" with i="sanitaire" %} Suivi sanitaire
+        </a>
+        <a href="#" data-soon data-title="Production" title="Bientôt disponible" class="{% if active_page == 'production' %}active{% endif %}">
+            {% include "includes/icon.html" with i="jar" %} Production
+        </a>
+        <a href="#" data-soon data-title="Gestion du stock" title="Bientôt disponible" class="{% if active_page == 'stock' %}active{% endif %}">
+            {% include "includes/icon.html" with i="box" %} Gestion du stock
+        </a>
+    </nav>
+
+    <div class="sidebar-foot">
+        <nav class="menu" aria-label="Session">
+            {# INTÉGRATION : remplacer par l'URL de déconnexion du module utilisateurs #}
+            <a href="{% url 'accueil' %}">{% include "includes/icon.html" with i="logout" %} Se déconnecter</a>
+        </nav>
+    </div>
+</aside>

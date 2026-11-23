@@ -1,0 +1,179 @@
+{% extends "layouts/base_backoffice.html" %}
+{% load static %}
+
+{% block title %}Statistiques sanitaires | BeeFlow administration{% endblock %}
+{% block extra_css %}<link rel="stylesheet" href="{% static 'css/suivi_sanitaire.css' %}?v=9">{% endblock %}
+
+{% block content %}
+{% include "backoffice/suivi_sanitaire/_onglets.html" with onglet="stats" %}
+
+<section class="kpis kpis-3 ss-kpis-2rows" aria-label="Indicateurs">
+  <div class="kpi">
+    <span class="hex hex-honey">{% include "includes/icon.html" with i="list" %}</span>
+    <div><div class="kpi-value">{{ stats.total }}</div><div class="kpi-label">Suivis enregistrés</div></div>
+  </div>
+  <div class="kpi">
+    <span class="hex">{% include "includes/icon.html" with i="hive" %}</span>
+    <div><div class="kpi-value">{{ stats.nb_ruches_suivies }}<small>/{{ stats.nb_ruches_total }}</small></div><div class="kpi-label">Ruches suivies</div></div>
+  </div>
+  <div class="kpi">
+    <span class="hex">{% include "includes/icon.html" with i="flask" %}</span>
+    <div><div class="kpi-value">{{ stats.taux_traitement }}<small>%</small></div><div class="kpi-label">Suivis avec traitement</div></div>
+  </div>
+  <div class="kpi is-bad">
+    <span class="hex">{% include "includes/icon.html" with i="sanitaire" %}</span>
+    <div><div class="kpi-value">{{ stats.nb_critiques }}</div><div class="kpi-label">Critiques ou risque élevé ({{ stats.taux_critique }} %)</div></div>
+  </div>
+  <div class="kpi is-warn">
+    <span class="hex">{% include "includes/icon.html" with i="clock" %}</span>
+    <div><div class="kpi-value">{{ stats.nb_retard }}</div><div class="kpi-label">Contrôles en retard</div></div>
+  </div>
+  <div class="kpi">
+    <span class="hex">{% include "includes/icon.html" with i="calendar" %}</span>
+    <div><div class="kpi-value">{{ stats.nb_proches }}</div><div class="kpi-label">Contrôles dans les 7 jours</div></div>
+  </div>
+</section>
+
+{% if stats.total %}
+<div class="grid-2">
+  <section class="panel">
+    <div class="panel-head"><h2>{% include "includes/icon.html" with i="sanitaire" %} Répartition par état de santé</h2></div>
+    <div class="ss-chart ss-chart-short"><canvas id="chart-etat" role="img" aria-label="Nombre de suivis par état de santé"></canvas></div>
+  </section>
+  <section class="panel">
+    <div class="panel-head"><h2>{% include "includes/icon.html" with i="alert" %} Répartition par niveau de risque</h2></div>
+    <div class="ss-chart ss-chart-short"><canvas id="chart-risque" role="img" aria-label="Nombre de suivis par niveau de risque"></canvas></div>
+  </section>
+</div>
+
+<section class="panel">
+  <div class="panel-head"><h2>{% include "includes/icon.html" with i="chart" %} Évolution mensuelle (12 derniers mois)</h2></div>
+  <div class="ss-chart"><canvas id="chart-evolution" role="img" aria-label="Suivis et suivis critiques par mois"></canvas></div>
+  <details class="ss-details">
+    <summary>Voir les données du graphique</summary>
+    <div class="table-scroll">
+      <table class="table">
+        <thead><tr><th>Mois</th><th>Suivis</th><th>Dont critiques</th></tr></thead>
+        <tbody>{% for m in stats.evolution %}<tr><td>{{ m.mois }}</td><td class="num">{{ m.nb }}</td><td class="num">{{ m.critiques }}</td></tr>{% endfor %}</tbody>
+      </table>
+    </div>
+  </details>
+</section>
+
+<div class="grid-2">
+  <section class="panel">
+    <div class="panel-head"><h2>{% include "includes/icon.html" with i="hive" %} Suivis par ruche</h2></div>
+    <div class="ss-chart ss-chart-short"><canvas id="chart-ruches" role="img" aria-label="Nombre de suivis par ruche"></canvas></div>
+    <div class="table-scroll">
+      <table class="table">
+        <thead><tr><th>Ruche</th><th>Suivis</th><th>Critiques</th><th>Traitements</th></tr></thead>
+        <tbody>
+          {% for r in stats.par_ruche %}
+          <tr><td><span class="hive-id">{{ r.code }}</span></td><td class="num">{{ r.nb }}</td><td class="num">{{ r.critiques }}</td><td class="num">{{ r.traitements }}</td></tr>
+          {% endfor %}
+        </tbody>
+      </table>
+    </div>
+  </section>
+
+  <section class="panel">
+    <div class="panel-head"><h2>{% include "includes/icon.html" with i="microbe" %} Maladies les plus fréquentes</h2></div>
+    {% if stats.top_maladies %}
+    <ul class="ss-rank">
+      {% for m in stats.top_maladies %}
+      <li><span>{{ m.nom|capfirst }}</span><span class="ss-rank-bar"><i style="--w: {% widthratio m.nb stats.top_maladies.0.nb 100 %}%"></i></span><strong>{{ m.nb }}</strong></li>
+      {% endfor %}
+    </ul>
+    {% else %}<p class="muted">Aucune maladie enregistrée.</p>{% endif %}
+
+    <div class="panel-head ss-mt"><h2>{% include "includes/icon.html" with i="flask" %} Traitements les plus utilisés</h2></div>
+    {% if stats.top_traitements %}
+    <ul class="ss-rank">
+      {% for t in stats.top_traitements %}
+      <li><span>{{ t.nom|capfirst }}</span><span class="ss-rank-bar"><i style="--w: {% widthratio t.nb stats.top_traitements.0.nb 100 %}%"></i></span><strong>{{ t.nb }}</strong></li>
+      {% endfor %}
+    </ul>
+    {% else %}<p class="muted">Aucun traitement enregistré.</p>{% endif %}
+  </section>
+</div>
+{% else %}
+<section class="panel empty">
+  <span class="hex">{% include "includes/icon.html" with i="chart" %}</span>
+  <h3>Pas encore de statistiques</h3>
+  <p>Les graphiques apparaîtront dès le premier suivi enregistré.</p>
+  <a href="{% url 'suivi_sanitaire_bo:ajouter' %}" class="btn btn-honey">{% include "includes/icon.html" with i="plus" %} Ajouter un suivi</a>
+</section>
+{% endif %}
+
+{{ graphiques|json_script:"donnees-graphiques" }}
+{% endblock %}
+
+{% block extra_js %}
+<script src="{% static 'vendor/chart.umd.js' %}"></script>
+<script>
+(function () {
+  if (typeof Chart === "undefined" || !document.getElementById("chart-etat")) return;
+  const g = JSON.parse(document.getElementById("donnees-graphiques").textContent);
+
+  // Couleurs d'état : bon / à surveiller / critique (toujours accompagnées du libellé)
+  const STATUT = ["#3F7A4A", "#E0A526", "#A93C30"];
+  const SERIE_1 = "#9C5A2E";   // brun BeeFlow
+  const SERIE_2 = "#C98A00";   // miel BeeFlow
+  const GRILLE = "#EFE6D6";
+
+  Chart.defaults.font.family = "Figtree, 'Segoe UI', sans-serif";
+  Chart.defaults.font.size = 12.5;
+  Chart.defaults.color = "#7A6A5B";
+  Chart.defaults.plugins.tooltip.backgroundColor = "#2B1B0F";
+  Chart.defaults.plugins.tooltip.titleColor = "#E9B949";
+  Chart.defaults.plugins.tooltip.padding = 10;
+  Chart.defaults.plugins.tooltip.cornerRadius = 10;
+
+  const axes = {
+    x: { grid: { display: false }, border: { color: GRILLE } },
+    y: { beginAtZero: true, ticks: { precision: 0 }, grid: { color: GRILLE }, border: { display: false } },
+  };
+
+  function barresStatut(id, d) {
+    new Chart(document.getElementById(id), {
+      type: "bar",
+      data: { labels: d.labels, datasets: [{ data: d.data, backgroundColor: STATUT, borderRadius: 6, borderSkipped: "start", maxBarThickness: 26 }] },
+      options: {
+        indexAxis: "y", maintainAspectRatio: false,
+        plugins: { legend: { display: false }, tooltip: { callbacks: { label: c => ` ${c.raw} suivi(s)` } } },
+        scales: { x: axes.y, y: { grid: { display: false }, border: { color: GRILLE } } },
+      },
+    });
+  }
+  barresStatut("chart-etat", g.etat);
+  barresStatut("chart-risque", g.risque);
+
+  new Chart(document.getElementById("chart-evolution"), {
+    type: "line",
+    data: {
+      labels: g.evolution.labels,
+      datasets: [
+        { label: "Suivis", data: g.evolution.nb, borderColor: SERIE_1, backgroundColor: SERIE_1, borderWidth: 2, pointRadius: 4, pointHoverRadius: 6, tension: .3, cubicInterpolationMode: "monotone" },
+        { label: "Dont critiques", data: g.evolution.critiques, borderColor: SERIE_2, backgroundColor: SERIE_2, borderWidth: 2, pointRadius: 4, pointHoverRadius: 6, tension: .3, cubicInterpolationMode: "monotone", borderDash: [6, 4] },
+      ],
+    },
+    options: {
+      maintainAspectRatio: false,
+      interaction: { mode: "index", intersect: false },
+      plugins: { legend: { position: "top", align: "start", labels: { usePointStyle: true, pointStyle: "circle", boxWidth: 8, boxHeight: 8, padding: 16 } } },
+      scales: axes,
+    },
+  });
+
+  new Chart(document.getElementById("chart-ruches"), {
+    type: "bar",
+    data: { labels: g.ruches.labels, datasets: [{ label: "Suivis", data: g.ruches.data, backgroundColor: SERIE_1, borderRadius: 6, borderSkipped: "start", maxBarThickness: 34 }] },
+    options: {
+      maintainAspectRatio: false,
+      plugins: { legend: { display: false }, tooltip: { callbacks: { label: c => ` ${c.raw} suivi(s)` } } },
+      scales: axes,
+    },
+  });
+})();
+</script>
+{% endblock %}

@@ -1,0 +1,8 @@
+{% load static %}
+{# Notification sonore des contrôles en retard ou proches. Peut être incluse dans n'importe quelle page du front office. #}
+<link rel="stylesheet" href="{% static 'css/suivi_sanitaire.css' %}?v=9">
+<div id="ss-notif-config"
+     data-url-compte="{% url 'suivi_sanitaire:alertes_compte' %}"
+     data-url-alertes="{% url 'suivi_sanitaire:alertes' %}"
+     hidden></div>
+<script src="{% static 'js/suivi_alertes.js' %}?v=9" defer></script>

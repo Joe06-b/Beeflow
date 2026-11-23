@@ -1,0 +1,146 @@
+{% extends "layouts/base_frontoffice.html" %}
+{% load static %}
+
+{% block title %}Atlas des maladies | BeeFlow{% endblock %}
+{% block extra_css %}<link rel="stylesheet" href="{% static 'css/suivi_sanitaire.css' %}?v=9"><link rel="stylesheet" href="{% static 'css/atlas.css' %}?v=9">{% endblock %}
+
+{% block content %}
+<div class="container page">
+
+  <nav class="breadcrumb" aria-label="Fil d'Ariane">
+    <a href="{% url 'espace' %}">{% include "includes/icon.html" with i="hub" %} Mon espace</a>
+    {% include "includes/icon.html" with i="chevron-right" %}
+    <a href="{% url 'suivi_sanitaire:liste' %}">Suivi sanitaire</a>
+    {% include "includes/icon.html" with i="chevron-right" %}
+    <span aria-current="page">Atlas des maladies</span>
+  </nav>
+
+  <header class="page-head">
+    <div>
+      <h1>Atlas des maladies</h1>
+      <p>Les principales menaces pour vos colonies, de la plus grave à la moins grave. Retournez une carte pour lire sa fiche.</p>
+    </div>
+    <div class="page-actions">
+      <a href="{% url 'suivi_sanitaire:liste' %}" class="btn btn-ghost">{% include "includes/icon.html" with i="list" %} Tous les suivis</a>
+      <a href="{% url 'suivi_sanitaire:ajouter' %}" class="btn btn-honey">{% include "includes/icon.html" with i="plus" %} Nouveau suivi</a>
+    </div>
+  </header>
+
+  {% if plus_frequente %}
+  {% with m=plus_frequente %}
+  <section class="atlas-featured" aria-label="Maladie la plus fréquente dans vos suivis">
+    <div class="atlas-featured-stage" data-tilt>
+      {% include "frontoffice/suivi_sanitaire/maladies/_illu.html" with variant="-une" %}
+    </div>
+    <div class="atlas-featured-text">
+      <p class="atlas-featured-kicker">{% include "includes/icon.html" with i="alert" class="ico-sm" %} La plus fréquente dans vos ruches</p>
+      <h2>{{ m.nom }}</h2>
+      <p class="atlas-sci">{{ m.nom_scientifique }}</p>
+      <p>{{ m.resume }}</p>
+      <div class="atlas-featured-meta">
+        {% include "frontoffice/suivi_sanitaire/_gravite.html" %}
+        <span class="badge is-bad">Détectée {{ m.detections }} fois</span>
+      </div>
+      <div class="atlas-featured-actions">
+        <a href="{% url 'suivi_sanitaire:maladie_3d' m.slug %}" class="btn btn-honey">{% include "includes/icon.html" with i="eye" %} Explorer en 3D</a>
+        <a href="{% url 'suivi_sanitaire:maladie_evolution' m.slug %}" class="btn btn-outline-light">{% include "includes/icon.html" with i="hive" %} Évolution dans la ruche</a>
+        <button type="button" class="btn btn-outline-light" data-open-card="{{ m.slug }}">{% include "includes/icon.html" with i="rotate" %} Lire la fiche</button>
+        <a href="{% url 'suivi_sanitaire:liste' %}?q={{ m.recherche|urlencode }}" class="btn btn-outline-light">{% include "includes/icon.html" with i="list" %} Voir les suivis concernés</a>
+      </div>
+    </div>
+  </section>
+  {% endwith %}
+  {% endif %}
+
+  <section class="kpis kpis-3" aria-label="Résumé">
+    <div class="kpi">
+      <span class="hex hex-honey">{% include "includes/icon.html" with i="microbe" %}</span>
+      <div><div class="kpi-value">{{ fiches|length }}</div><div class="kpi-label">Maladies et menaces répertoriées</div></div>
+    </div>
+    <div class="kpi is-warn">
+      <span class="hex">{% include "includes/icon.html" with i="hive" %}</span>
+      <div><div class="kpi-value">{{ nb_detectees }}</div><div class="kpi-label">Déjà détectées dans vos suivis</div></div>
+    </div>
+    <div class="kpi is-bad">
+      <span class="hex">{% include "includes/icon.html" with i="bell" %}</span>
+      <div><div class="kpi-value">{{ nb_a_signaler }}</div><div class="kpi-label">À signaler aux services vétérinaires</div></div>
+    </div>
+  </section>
+
+  <div class="atlas-filters" role="group" aria-label="Filtrer les maladies">
+    <button type="button" class="chip is-active" data-filter="all">Toutes</button>
+    {% for code, label in categories.items %}
+    <button type="button" class="chip" data-filter="{{ code }}"><i class="chip-dot cat-{{ code }}"></i>{{ label }}</button>
+    {% endfor %}
+    <label class="chip chip-toggle"><input type="checkbox" id="onlyDetected"> Seulement celles détectées chez moi</label>
+  </div>
+
+  <div class="atlas-grid" id="atlasGrid">
+    {% for m in fiches %}
+    <article class="atlas-card" id="{{ m.slug }}" data-cat="{{ m.categorie }}" data-detected="{{ m.detections }}">
+      <div class="atlas-inner">
+
+        <!-- RECTO -->
+        <div class="atlas-face atlas-front">
+          <div class="atlas-stage" data-tilt>
+            {% include "frontoffice/suivi_sanitaire/maladies/_illu.html" %}
+          </div>
+          <div class="atlas-body">
+            <div class="atlas-tags">
+              <span class="badge is-plain cat-badge cat-{{ m.categorie }}">{{ m.categorie_label }}</span>
+              {% if m.a_signaler %}<span class="badge is-bad is-plain">{% include "includes/icon.html" with i="bell" class="ico-sm" %} À signaler</span>{% endif %}
+            </div>
+            <h3>{{ m.nom }}</h3>
+            <p class="atlas-sci">{{ m.nom_scientifique }}</p>
+            {% include "frontoffice/suivi_sanitaire/_gravite.html" %}
+            <p class="atlas-teaser">{{ m.resume }}</p>
+            <div class="atlas-foot">
+              {% if m.detections %}
+                <a href="{% url 'suivi_sanitaire:liste' %}?q={{ m.recherche|urlencode }}" class="atlas-count is-hit">{% include "includes/icon.html" with i="hive" class="ico-sm" %} Détectée {{ m.detections }} fois</a>
+              {% else %}
+                <span class="atlas-count">{% include "includes/icon.html" with i="check" class="ico-sm" %} Jamais détectée</span>
+              {% endif %}
+              <div class="atlas-foot-actions">
+                <a href="{% url 'suivi_sanitaire:maladie_3d' m.slug %}" class="icon-btn atlas-3d-btn" title="Explorer en 3D" aria-label="Explorer {{ m.nom }} en 3D">3D</a>
+                <button type="button" class="btn btn-dark btn-sm" data-flip aria-label="Lire la fiche {{ m.nom }}">{% include "includes/icon.html" with i="rotate" %} Fiche</button>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- VERSO -->
+        <div class="atlas-face atlas-back" aria-hidden="true">
+          <div class="atlas-back-head">
+            <div><h3>{{ m.nom }}</h3><p class="atlas-sci">{{ m.nom_scientifique }}</p></div>
+            <button type="button" class="icon-btn" data-flip aria-label="Retourner la carte">{% include "includes/icon.html" with i="rotate" %}</button>
+          </div>
+          <div class="atlas-back-body">
+            <p class="atlas-resume">{{ m.resume }}</p>
+            <h4>{% include "includes/icon.html" with i="eye" class="ico-sm" %} Symptômes à repérer</h4>
+            <ul>{% for s in m.symptomes %}<li>{{ s }}</li>{% endfor %}</ul>
+            <h4>{% include "includes/icon.html" with i="flask" class="ico-sm" %} Que faire</h4>
+            <ul>{% for s in m.conduite %}<li>{{ s }}</li>{% endfor %}</ul>
+            <h4>{% include "includes/icon.html" with i="sanitaire" class="ico-sm" %} Prévention</h4>
+            <ul>{% for s in m.prevention %}<li>{{ s }}</li>{% endfor %}</ul>
+            {% if m.a_signaler %}<p class="notice is-bad atlas-signal">{% include "includes/icon.html" with i="bell" %} <span>Maladie à signaler aux services vétérinaires dès le moindre doute.</span></p>{% endif %}
+          </div>
+          <div class="atlas-back-foot">
+            <a href="{% url 'suivi_sanitaire:maladie_3d' m.slug %}" class="btn btn-honey btn-sm">{% include "includes/icon.html" with i="eye" %} Explorer en 3D</a>
+            <a href="{% url 'suivi_sanitaire:maladie_evolution' m.slug %}" class="btn btn-dark btn-sm">{% include "includes/icon.html" with i="hive" %} Évolution</a>
+            {% if m.detections %}<a href="{% url 'suivi_sanitaire:liste' %}?q={{ m.recherche|urlencode }}" class="btn btn-link">Mes suivis ({{ m.detections }})</a>{% endif %}
+          </div>
+        </div>
+
+      </div>
+    </article>
+    {% endfor %}
+  </div>
+
+  <p class="atlas-empty" id="atlasEmpty" hidden>Aucune maladie ne correspond à ce filtre.</p>
+
+  <p class="atlas-disclaimer">{% include "includes/icon.html" with i="alert" class="ico-sm" %} Ces fiches donnent des repères généraux. Elles ne remplacent pas l'avis d'un vétérinaire, et les règles de déclaration dépendent de votre pays.</p>
+</div>
+{% include "frontoffice/suivi_sanitaire/_notification.html" %}
+{% endblock %}
+
+{% block extra_js %}<script src="{% static 'js/atlas.js' %}?v=9"></script>{% endblock %}

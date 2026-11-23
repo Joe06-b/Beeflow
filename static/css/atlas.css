@@ -1,0 +1,141 @@
+/* ==========================================================================
+   ATLAS DES MALADIES — cartes 3D retournables, illustrations en couches
+   ========================================================================== */
+
+/* Couleur de chaque catégorie (halo de l'illustration, pastilles) */
+.cat-parasite   { --cat: #A93C30; --cat-bg: #FBE5E1; }
+.cat-bacterie   { --cat: #9A6206; --cat-bg: #FCEFCF; }
+.cat-champignon { --cat: #4F7D57; --cat-bg: #E7F1E6; }
+.cat-virus      { --cat: #7A3B6B; --cat-bg: #F4E6F0; }
+.cat-predateur  { --cat: #2B1B0F; --cat-bg: #EFE6D4; }
+
+/* ---------- Illustration en couches (3D) ---------- */
+.illu {
+    position: relative; width: 100%; aspect-ratio: 240 / 180;
+    transform-style: preserve-3d;
+    transform: rotateX(var(--rx, 0deg)) rotateY(var(--ry, 0deg));
+    transition: transform .5s cubic-bezier(.2, .8, .2, 1);
+}
+.is-tilting .illu { transition: transform .08s linear; }
+.layer { position: absolute; inset: 0; width: 100%; height: 100%; overflow: visible; backface-visibility: hidden; -webkit-backface-visibility: hidden; }
+.layer-back  { transform: translateZ(0); color: var(--cat); }
+.layer-mid   { transform: translateZ(34px); filter: drop-shadow(0 10px 8px rgba(43, 27, 15, .22)); }
+.layer-front { transform: translateZ(70px); filter: drop-shadow(0 14px 10px rgba(43, 27, 15, .28)); }
+.illu-halo { fill: var(--cat-bg); }
+
+.atlas-stage { perspective: 700px; padding: 18px 26px 6px; background: radial-gradient(ellipse at 50% 60%, rgba(233, 185, 73, .18), transparent 70%); }
+
+/* ---------- Mise en avant : la maladie la plus fréquente ---------- */
+.atlas-featured {
+    display: grid; grid-template-columns: minmax(260px, 420px) 1fr; gap: 34px; align-items: center;
+    padding: 26px 34px; margin-bottom: 22px; border-radius: var(--r-lg);
+    background: var(--propolis); color: #E2CFB2; position: relative; overflow: hidden;
+}
+.atlas-featured::before {
+    content: ""; position: absolute; inset: 0; pointer-events: none;
+    background: radial-gradient(circle at 22% 50%, rgba(233, 185, 73, .22), transparent 45%);
+}
+.atlas-featured-stage { perspective: 800px; position: relative; }
+.atlas-featured .illu-halo { fill: rgba(255, 249, 237, .1); }
+.atlas-featured .layer-back { color: var(--honey); }
+.atlas-featured-text { position: relative; }
+.atlas-featured-kicker { display: inline-flex; align-items: center; gap: 8px; color: var(--honey); font-weight: 600; font-size: 14px; margin-bottom: 8px; }
+.atlas-featured h2 { color: var(--wax); font-size: clamp(30px, 3.4vw, 44px); font-weight: 800; letter-spacing: -.02em; }
+.atlas-featured .atlas-sci { color: #B8A285; margin: 4px 0 14px; }
+.atlas-featured-meta { display: flex; align-items: center; gap: 16px; flex-wrap: wrap; margin: 18px 0 22px; }
+.atlas-featured .grav-label { color: #E2CFB2; }
+.atlas-featured-actions { display: flex; gap: 10px; flex-wrap: wrap; }
+.btn-outline-light { color: var(--wax); border-color: rgba(255, 249, 237, .35); background: transparent; }
+.btn-outline-light:hover { border-color: var(--honey); color: var(--honey); }
+
+/* ---------- Filtres ---------- */
+.atlas-filters { display: flex; flex-wrap: wrap; gap: 8px; margin-bottom: 18px; }
+.chip {
+    display: inline-flex; align-items: center; gap: 8px; padding: 8px 14px; border-radius: 999px;
+    border: 1.5px solid var(--line); background: var(--white); font-size: 14px; font-weight: 600; color: var(--brown-2);
+    transition: border-color .2s, background-color .2s, color .2s;
+}
+.chip:hover { border-color: var(--honey); color: var(--propolis); }
+.chip.is-active { background: var(--propolis); border-color: var(--propolis); color: var(--honey); }
+.chip-dot { width: 10px; height: 11px; clip-path: var(--hex); background: var(--cat); display: inline-block; }
+.chip.is-active .chip-dot { background: var(--honey); }
+.chip-toggle { margin-left: auto; font-weight: 500; }
+.chip-toggle input { width: 16px; height: 16px; accent-color: var(--brown); }
+
+/* ---------- Grille de cartes ---------- */
+.atlas-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(255px, 1fr)); gap: 20px; }
+.atlas-card { perspective: 1400px; min-height: 470px; scroll-margin-top: 100px; }
+.atlas-card[hidden] { display: none; }
+.atlas-inner {
+    position: relative; height: 100%; min-height: inherit;
+    transform-style: preserve-3d; transition: transform .75s cubic-bezier(.3, .9, .3, 1);
+}
+.atlas-card.is-flipped .atlas-inner { transform: rotateY(180deg); }
+.atlas-face {
+    position: absolute; inset: 0; display: flex; flex-direction: column;
+    background: var(--white); border: 1px solid var(--line); border-radius: var(--r-lg); box-shadow: var(--shadow);
+    backface-visibility: hidden; -webkit-backface-visibility: hidden; overflow: hidden;
+}
+.atlas-front { transform-style: preserve-3d; overflow: visible; }
+/* Le recto reste dans le flux : c'est lui qui donne la hauteur de la carte.
+   Ainsi un titre sur 2 lignes ou des boutons qui passent à la ligne ne débordent jamais de la carte.
+   Le verso se pose par-dessus et défile à l'intérieur si besoin. */
+.atlas-face.atlas-front { position: relative; inset: auto; min-height: inherit; height: 100%; }
+.atlas-back { transform: rotateY(180deg); }
+.atlas-card:target .atlas-face, .atlas-card.is-highlight .atlas-face { box-shadow: 0 0 0 3px var(--honey), var(--shadow); }
+
+.atlas-front .atlas-stage { border-radius: var(--r-lg) var(--r-lg) 0 0; }
+.atlas-body { padding: 4px 20px 18px; display: flex; flex-direction: column; flex: 1; }
+.atlas-tags { display: flex; gap: 6px; flex-wrap: wrap; margin-bottom: 10px; }
+.cat-badge { background: var(--cat-bg); color: var(--cat); }
+.atlas-body h3 { font-size: 21px; font-weight: 750; }
+.atlas-sci { font-style: italic; color: var(--muted); font-size: 13.5px; margin: 2px 0 12px; }
+.atlas-foot { margin-top: auto; padding-top: 14px; display: flex; align-items: center; justify-content: space-between; gap: 8px 10px; flex-wrap: wrap; border-top: 1px solid var(--line-2); }
+.atlas-teaser { margin-top: 12px; font-size: 13.5px; color: var(--muted); display: -webkit-box; -webkit-line-clamp: 3; -webkit-box-orient: vertical; overflow: hidden; }
+.atlas-back-foot .btn-link { white-space: nowrap; }
+.atlas-foot-actions { display: flex; align-items: center; gap: 6px; margin-left: auto; flex-shrink: 0; }
+.atlas-3d-btn { width: 36px; height: 34px; font-family: var(--font-display); font-weight: 800; font-size: 13px; color: var(--propolis); background: var(--honey); border-radius: 10px; }
+.atlas-3d-btn:hover { background: #F0C55E; color: var(--propolis); border-color: transparent; }
+.atlas-count { display: inline-flex; align-items: center; gap: 6px; white-space: nowrap; font-size: 13px; color: var(--good); font-weight: 600; }
+.atlas-count.is-hit { color: var(--bad); }
+a.atlas-count:hover { text-decoration: underline; }
+
+/* Jauge de gravité en alvéoles */
+.grav { display: flex; align-items: center; gap: 10px; }
+.grav-cells { display: inline-flex; gap: 3px; }
+.grav-cells i { width: 14px; height: 16px; clip-path: var(--hex); background: #EFE6D6; }
+.grav-cells i.on { background: linear-gradient(var(--honey), #C98A00); }
+.grav-cells i.on:nth-child(4), .grav-cells i.on:nth-child(5) { background: linear-gradient(#D45A48, var(--bad)); }
+.grav-label { font-size: 13px; color: var(--muted); font-weight: 600; }
+
+/* Verso */
+.atlas-back-head { display: flex; justify-content: space-between; gap: 10px; padding: 18px 18px 8px 20px; border-bottom: 1px solid var(--line-2); background: #FCF8F0; }
+.atlas-back-head h3 { font-size: 19px; }
+.atlas-back-head .atlas-sci { margin-bottom: 0; }
+.atlas-back-body { padding: 14px 20px; overflow-y: auto; flex: 1; font-size: 13.5px; }
+.atlas-back-body h4 { display: flex; align-items: center; gap: 8px; font-family: var(--font-body); font-size: 13px; font-weight: 700; color: var(--honey-ink); margin: 14px 0 6px; }
+.atlas-back-body ul, .atlas-mini ul { list-style: none; display: flex; flex-direction: column; gap: 5px; }
+.atlas-back-body li, .atlas-mini li { position: relative; padding-left: 16px; }
+.atlas-back-body li::before, .atlas-mini li::before { content: ""; position: absolute; left: 0; top: 6px; width: 7px; height: 8px; clip-path: var(--hex); background: var(--honey); }
+.atlas-resume { color: var(--ink); }
+.atlas-signal { margin: 14px 0 0; font-size: 13px; align-items: center; }
+.atlas-back-foot { display: flex; justify-content: space-between; align-items: center; gap: 8px; padding: 12px 16px; border-top: 1px solid var(--line-2); }
+
+.atlas-empty { text-align: center; color: var(--muted); padding: 40px; }
+.atlas-disclaimer { display: flex; align-items: center; gap: 8px; margin: 26px auto 0; justify-content: center; color: var(--muted); font-size: 13px; max-width: none; }
+
+/* ---------- Fiche dans le détail d'un suivi ---------- */
+.atlas-mini-grid { display: grid; grid-template-columns: 220px 1fr; gap: 20px; align-items: center; }
+.atlas-mini-stage { border-radius: var(--r); padding: 10px 14px 0; }
+.atlas-mini h4 { display: flex; align-items: center; gap: 8px; font-family: var(--font-body); font-size: 13px; font-weight: 700; color: var(--honey-ink); margin: 18px 0 8px; }
+.atlas-mini .atlas-resume { margin-top: 10px; font-size: 14px; }
+.atlas-mini-lists { gap: 18px; font-size: 13.5px; }
+
+@media (max-width: 860px) {
+    .atlas-featured { grid-template-columns: 1fr; padding: 22px; }
+    .chip-toggle { margin-left: 0; }
+    .atlas-mini-grid { grid-template-columns: 1fr; }
+}
+@media (prefers-reduced-motion: reduce) {
+    .atlas-inner { transition: none; }
+}

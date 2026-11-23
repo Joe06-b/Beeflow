@@ -1,0 +1,32 @@
+{% load static %}
+{# Les règles vérifiées à l'enregistrement (clean() du modèle), contrôlées EN DIRECT pendant la saisie par suivi_form.js #}
+<div class="panel ss-rules-panel" id="regles" data-form="suivi-form">
+  <div class="panel-head">
+    <h2>{% include "includes/icon.html" with i="check" %} Avant d'enregistrer</h2>
+    <span class="ss-rules-score" id="reglesScore" aria-live="polite"></span>
+  </div>
+  <ul class="ss-rules">
+    <li data-rule="date" data-icon="calendar">
+      <span class="ss-rule-icon">{% include "includes/icon.html" with i="calendar" class="ico-sm" %}</span>
+      <span class="ss-rule-text">La date du suivi ne peut pas être dans le futur.</span>
+    </li>
+    <li data-rule="traitement" data-icon="flask">
+      <span class="ss-rule-icon">{% include "includes/icon.html" with i="flask" class="ico-sm" %}</span>
+      <span class="ss-rule-text">Un traitement doit avoir une dose et une date.</span>
+    </li>
+    <li data-rule="controle" data-icon="clock">
+      <span class="ss-rule-icon">{% include "includes/icon.html" with i="clock" class="ico-sm" %}</span>
+      <span class="ss-rule-text">Le prochain contrôle se place après la date du suivi.</span>
+    </li>
+    <li data-rule="risque" data-icon="alert">
+      <span class="ss-rule-icon">{% include "includes/icon.html" with i="alert" class="ico-sm" %}</span>
+      <span class="ss-rule-text">Un état critique ne peut pas avoir un risque faible.</span>
+    </li>
+  </ul>
+  <p class="ss-rules-legend">
+    <span><i class="is-ok"></i> respectée</span>
+    <span><i class="is-pending"></i> à compléter</span>
+    <span><i class="is-bad"></i> à corriger</span>
+  </p>
+</div>
+<script src="{% static 'js/suivi_form.js' %}?v=9" defer></script>
