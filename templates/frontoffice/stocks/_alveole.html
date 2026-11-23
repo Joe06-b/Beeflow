@@ -1,0 +1,16 @@
+{% comment %}
+  Alvéole 3D d'un stock (prisme hexagonal rempli de miel). Utilisée dans la liste et la fiche détail.
+  Paramètres : s = le stock ; taille = "xl" pour la grande alvéole de la fiche détail (rotative, avec seuils).
+{% endcomment %}
+<div class="st-cell st-cell-{{ s.niveau_alerte }}{% if s.statut == 'VIDE' %} st-cell-vide{% endif %}{% if taille == 'xl' %} st-cell-xl st-cell-seuils{% endif %}"
+     style="--p: {% widthratio s.quantite_actuelle s.capacite_max 100 %}; --pmin: {% widthratio s.seuil_alerte_min s.capacite_max 100 %}; --pmax: {% widthratio s.seuil_alerte_max s.capacite_max 100 %};"
+     {% if taille == 'xl' %}tabindex="0" role="group" aria-roledescription="alvéole 3D" aria-label="Alvéole remplie à {{ s.taux_remplissage|floatformat:0 }} %. Flèches gauche et droite pour la faire tourner."{% else %}aria-hidden="true"{% endif %}>
+  <span class="st-ombre"></span>
+  <div class="st-prism">
+    <span class="st-face"></span><span class="st-face"></span><span class="st-face"></span>
+    <span class="st-face"></span><span class="st-face"></span><span class="st-face"></span>
+    <span class="st-cap st-cap-fond"></span>
+    <span class="st-surface"></span>
+    <span class="st-cap st-cap-haut"></span>
+  </div>
+</div>

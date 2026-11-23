@@ -58,11 +58,12 @@
                     <p>Produits apicoles : stock, prix, états et codes-barres.</p>
                     <span class="face-foot">Ouvrir le module {% include "includes/icon.html" with i="arrow-right" %}</span>
                 </a>
-                <a class="face" href="#" data-soon data-title="Gestion du stock">
+                 {# STOCK : face activée #}
+                <a class="face face-live" href="{% url 'stocks:liste' %}">
                     <span class="face-chip">{% include "includes/icon.html" with i="box" %}</span>
                     <h3>Gestion du stock</h3>
-                    <p>Pots, cadres et traitements disponibles.</p>
-                    <span class="face-foot is-soon">Bientôt disponible</span>
+                    <p>Miel, cire, pollen et autres produits : quantités et alertes.</p>
+                    <span class="face-foot">Ouvrir le module {% include "includes/icon.html" with i="arrow-right" %}</span>
                 </a>
                 {# Face verrouillée : l'administration est un espace séparé, réservé au compte administrateur #}
                 <a class="face face-locked" href="#" data-locked aria-disabled="true">

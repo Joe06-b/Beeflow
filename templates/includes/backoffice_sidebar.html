@@ -25,7 +25,8 @@
         <a href="{% url 'produits:liste' %}" class="{% if active_page == 'production' %}active{% endif %}">
             {% include "includes/icon.html" with i="jar" %} Production
         </a>
-        <a href="#" data-soon data-title="Gestion du stock" title="Bientôt disponible" class="{% if active_page == 'stock' %}active{% endif %}">
+                {# STOCK : lien activé #}
+        <a href="{% url 'stocks_bo:liste' %}" class="{% if active_page == 'stock' %}active{% endif %}">
             {% include "includes/icon.html" with i="box" %} Gestion du stock
         </a>
     </nav>
