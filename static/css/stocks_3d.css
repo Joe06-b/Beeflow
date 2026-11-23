@@ -1,0 +1,130 @@
+/* ==========================================================================
+   MODULE GESTION DU STOCK — VUE 3D « ALVÉOLES » (front office)
+   Chaque stock est une alvéole (prisme hexagonal) remplie de miel
+   à hauteur de son taux de remplissage. 100 % CSS 3D, comme la ruche du hub.
+   Variables posées sur .st-cell (style inline) :
+     --p    : remplissage en % (0-100)
+     --pmin : seuil minimum en % de la capacité
+     --pmax : seuil maximum en % de la capacité
+   ========================================================================== */
+
+/* ---- Bascule Vue 3D / Vue tableau ---- */
+.st-vues { display: inline-flex; gap: .25rem; padding: .3rem; border-radius: 999px; background: #fff; box-shadow: 0 2px 10px rgba(43, 27, 15, .06); }
+.st-vues button { display: inline-flex; align-items: center; gap: .45rem; border: 0; background: transparent; padding: .5rem 1rem; border-radius: 999px; font: inherit; font-weight: 600; color: #7A6A5B; cursor: pointer; }
+.st-vues button[aria-pressed="true"] { background: #2B1B0F; color: #E9B949; }
+.st-vues button:focus-visible { outline: 2px solid #E9B949; outline-offset: 2px; }
+.st-vue[hidden] { display: none !important; }
+
+/* ---- Rayon de miel (grille des alvéoles) ---- */
+.st-rayon { display: grid; grid-template-columns: repeat(auto-fill, minmax(190px, 1fr)); gap: 1.25rem 1rem; padding: 1.5rem 1.25rem 1.75rem; }
+.st-carte { display: flex; flex-direction: column; align-items: center; gap: .55rem; padding: 1rem .75rem 1.1rem; border-radius: 20px; text-decoration: none; color: inherit; transition: background .25s, transform .25s; }
+.st-carte:hover, .st-carte:focus-visible { background: rgba(233, 185, 73, .12); transform: translateY(-3px); outline: none; }
+.st-carte:focus-visible { box-shadow: 0 0 0 2px #E9B949; }
+.st-carte-nom { font-weight: 700; text-align: center; line-height: 1.2; }
+.st-carte-info { font-size: .85rem; color: #7A6A5B; text-align: center; }
+.st-carte-taux { font-size: 1.35rem; font-weight: 800; line-height: 1; }
+
+/* ---- L'alvéole (prisme hexagonal) ---- */
+.st-cell {
+    --s: 56px;                          /* largeur d'une face */
+    --h: 96px;                          /* hauteur de l'alvéole */
+    --a: calc(var(--s) * .866);         /* apothème = s × √3 / 2 */
+    --liq: #E9B949; --liq-dark: #C98A00; --liq-top: #F6D77E;
+    --verre: rgba(255, 250, 238, .38); --bord: rgba(156, 90, 46, .45);
+    --ry: 30deg;
+    width: calc(var(--s) * 2.3); height: calc(var(--h) + var(--a) * 1.6);
+    perspective: 720px; position: relative; display: grid; place-items: center;
+}
+.st-cell-warn { --liq: #E39B3B; --liq-dark: #B86A12; --liq-top: #F3C27E; }
+.st-cell-bad  { --liq: #C0533F; --liq-dark: #8E2F25; --liq-top: #DE8E7E; }
+
+.st-prism {
+    position: relative; width: 0; height: 0;
+    transform-style: preserve-3d;
+    transform: rotateX(-24deg) rotateY(var(--ry));
+    transition: transform .9s cubic-bezier(.2, .7, .2, 1);
+}
+.st-carte:hover .st-prism, .st-carte:focus-visible .st-prism { --ry: 120deg; }
+
+.st-face, .st-cap, .st-surface { position: absolute; left: 0; top: 0; backface-visibility: visible; }
+
+/* 6 faces de « cire » transparentes, remplies de miel jusqu'à --p */
+.st-face {
+    width: var(--s); height: var(--h);
+    margin-left: calc(var(--s) / -2); margin-top: calc(var(--h) / -2);
+    transform: rotateY(calc(var(--i) * 60deg)) translateZ(var(--a));
+    background:
+        linear-gradient(to right, rgba(255, 255, 255, .25), transparent 40%, rgba(43, 27, 15, .08)),
+        linear-gradient(to top, var(--liq-dark) 0, var(--liq) calc(var(--p) * 1%), var(--verre) calc(var(--p) * 1%));
+    border-left: 1px solid var(--bord); border-right: 1px solid var(--bord);
+}
+/* Ombrage différent selon l'orientation de la face (fausse lumière) */
+.st-face::after { content: ""; position: absolute; inset: 0; background: #2B1B0F; opacity: var(--ombre, 0); }
+.st-face:nth-child(1) { --i: 0; --ombre: .02; }
+.st-face:nth-child(2) { --i: 1; --ombre: .10; }
+.st-face:nth-child(3) { --i: 2; --ombre: .22; }
+.st-face:nth-child(4) { --i: 3; --ombre: .28; }
+.st-face:nth-child(5) { --i: 4; --ombre: .18; }
+.st-face:nth-child(6) { --i: 5; --ombre: .06; }
+
+/* Hexagones : fond, bord supérieur (opercule ouvert) et surface du miel */
+.st-cap, .st-surface {
+    width: calc(var(--s) * 2); height: calc(var(--a) * 2);
+    margin-left: calc(var(--s) * -1); margin-top: calc(var(--a) * -1);
+    clip-path: polygon(25% 0, 75% 0, 100% 50%, 75% 100%, 25% 100%, 0 50%);
+}
+.st-cap-fond { transform: translateY(calc(var(--h) / 2)) rotateX(90deg); background: var(--liq-dark); }
+.st-cell-vide .st-cap-fond { background: #D9C7A8; }
+.st-cap-haut { transform: translateY(calc(var(--h) / -2)) rotateX(90deg); background: rgba(255, 250, 238, .18); outline: 2px solid var(--bord); }
+.st-surface {
+    transform: translateY(calc(var(--h) / 2 - var(--h) * var(--p) / 100)) rotateX(90deg);
+    background:
+        radial-gradient(circle at 35% 35%, rgba(255, 255, 255, .55), transparent 45%),
+        linear-gradient(120deg, var(--liq-top), var(--liq) 60%, var(--liq-dark));
+    background-size: 200% 200%, 100% 100%;
+    animation: st-miel 5s ease-in-out infinite alternate;
+}
+.st-cell-vide .st-surface { display: none; }
+@keyframes st-miel { from { background-position: 0% 0%, 0 0; } to { background-position: 100% 100%, 0 0; } }
+
+/* Ombre portée sous l'alvéole */
+.st-ombre { position: absolute; left: 50%; top: calc(50% + var(--h) * .42); width: calc(var(--s) * 2); height: calc(var(--a) * .7); transform: translateX(-50%); border-radius: 50%; background: radial-gradient(closest-side, rgba(43, 27, 15, .25), transparent); pointer-events: none; }
+
+/* ---- Fiche détail : grande alvéole qu'on fait tourner ---- */
+.st-cell-xl { --s: 104px; --h: 190px; cursor: grab; touch-action: pan-y; }
+.st-cell-xl.is-dragging { cursor: grabbing; }
+.st-cell-xl.is-dragging .st-prism { transition: none; }
+.st-cell-xl:focus-visible { outline: 2px solid #E9B949; outline-offset: 6px; border-radius: 16px; }
+
+/* Repères de seuils sur les faces (uniquement sur la fiche détail) */
+.st-cell-seuils .st-face {
+    background:
+        linear-gradient(to top, transparent calc(var(--pmax) * 1% - 1.5px), #2B1B0F calc(var(--pmax) * 1% - 1.5px), #2B1B0F calc(var(--pmax) * 1% + 1.5px), transparent calc(var(--pmax) * 1% + 1.5px)),
+        linear-gradient(to top, transparent calc(var(--pmin) * 1% - 1.5px), #A93C30 calc(var(--pmin) * 1% - 1.5px), #A93C30 calc(var(--pmin) * 1% + 1.5px), transparent calc(var(--pmin) * 1% + 1.5px)),
+        linear-gradient(to right, rgba(255, 255, 255, .25), transparent 40%, rgba(43, 27, 15, .08)),
+        linear-gradient(to top, var(--liq-dark) 0, var(--liq) calc(var(--p) * 1%), var(--verre) calc(var(--p) * 1%));
+}
+
+.st-vue3d { display: grid; grid-template-columns: minmax(260px, 1fr) minmax(200px, 260px); align-items: center; gap: 1.5rem; }
+.st-vue3d-scene { display: grid; justify-items: center; gap: .4rem; padding: .5rem 0 1rem; }
+.st-vue3d-aide { font-size: .82rem; color: #7A6A5B; display: inline-flex; align-items: center; gap: .4rem; }
+.st-legende { list-style: none; margin: 0; padding: 0; display: grid; gap: .85rem; }
+.st-legende li { display: grid; grid-template-columns: 22px 1fr auto; align-items: center; gap: .6rem; }
+.st-legende strong { font-variant-numeric: tabular-nums; }
+.st-repere { width: 22px; height: 0; border-top: 3px solid currentColor; }
+.st-repere-cap { border-top: 2px dashed #9C5A2E; }
+.st-repere-max { color: #2B1B0F; }
+.st-repere-min { color: #A93C30; }
+.st-repere-miel { height: 14px; border: 0; border-radius: 4px; background: linear-gradient(to top, var(--liq-dark, #C98A00), var(--liq, #E9B949)); }
+
+@media (max-width: 720px) {
+    .st-vue3d { grid-template-columns: 1fr; }
+    .st-cell-xl { --s: 84px; --h: 150px; }
+}
+
+/* Mouvement réduit : pas d'animation ni de rotation au survol */
+@media (prefers-reduced-motion: reduce) {
+    .st-surface { animation: none; }
+    .st-prism { transition: none; }
+    .st-carte:hover .st-prism { --ry: 30deg; }
+}

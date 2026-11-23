@@ -1,0 +1,44 @@
+{% extends "layouts/base_frontoffice.html" %}
+{% load static %}
+{% block title %}Gestion des ruches | BeeFlow{% endblock %}
+{% block body_class %}page-ruches-front{% endblock %}
+{% block body_attrs %}data-honeycomb="soft"{% endblock %}
+{% block extra_css %}<link rel="stylesheet" href="{% static 'css/ruches_front.css' %}?v=20261121-3">{% endblock %}
+{% block extra_js %}<script src="{% static 'js/ruches_filters.js' %}" defer></script>{% endblock %}
+{% block content %}
+<main class="rf-page">
+  <header class="rf-page-head"><span class="rf-kicker">Notre rucher</span><h1>Gestion des ruches</h1></header>
+  <section class="rf-stats" aria-label="Statistiques des ruches">
+    <div><span class="rf-stat-icon">{% include "includes/icon.html" with i="hive" %}</span><strong>{{ nb_resultats }}</strong><span>Ruches affichées</span></div>
+    <div><span class="rf-stat-icon rf-stat-good">{% include "includes/icon.html" with i="check" %}</span><strong>{{ nb_bon }}</strong><span>Bon</span></div>
+    <div><span class="rf-stat-icon rf-stat-watch">{% include "includes/icon.html" with i="eye" %}</span><strong>{{ nb_surveillance }}</strong><span>À surveiller</span></div>
+    <div><span class="rf-stat-icon">{% include "includes/icon.html" with i="users" %}</span><strong>{{ population_totale }}</strong><span>Abeilles estimées</span></div>
+    <div><span class="rf-stat-icon rf-stat-warn">{% include "includes/icon.html" with i="alert" %}</span><strong>{{ nb_risque }}</strong><span>Risque élevé</span></div>
+  </section>
+  <form class="rf-filters" method="get" action="{% url 'ruches_front:liste' %}" data-ruches-filters>
+    <label class="rf-search">{% include "includes/icon.html" with i="search" %}<input name="q" value="{{ filtres.q }}" placeholder="Code, type ou race…" aria-label="Rechercher par code, type ou race"></label>
+    <select name="type" aria-label="Filtrer par type" data-ruches-filter><option value="">Tous les types</option>{% for valeur, libelle in types_ruches %}<option value="{{ valeur }}" {% if filtres.type == valeur %}selected{% endif %}>{{ libelle }}</option>{% endfor %}</select>
+    <select name="etat" aria-label="Filtrer par état" data-ruches-filter><option value="">Tous les états</option>{% for valeur, libelle in etats %}<option value="{{ valeur }}" {% if filtres.etat == valeur %}selected{% endif %}>{{ libelle }}</option>{% endfor %}</select>
+    <select name="tri" aria-label="Trier les ruches" data-ruches-filter><option value="code" {% if filtres.tri == "code" %}selected{% endif %}>Code A–Z</option><option value="code_desc" {% if filtres.tri == "code_desc" %}selected{% endif %}>Code Z–A</option><option value="date_desc" {% if filtres.tri == "date_desc" %}selected{% endif %}>Plus récentes</option><option value="date" {% if filtres.tri == "date" %}selected{% endif %}>Plus anciennes</option><option value="population_desc" {% if filtres.tri == "population_desc" %}selected{% endif %}>Plus peuplées</option><option value="population" {% if filtres.tri == "population" %}selected{% endif %}>Moins peuplées</option></select>
+    <button class="rf-submit" type="submit">{% include "includes/icon.html" with i="filter" %} Filtrer</button>
+    <a class="rf-reset" href="{% url 'ruches_front:liste' %}" aria-label="Réinitialiser les filtres" title="Réinitialiser les filtres">{% include "includes/icon.html" with i="x" %}</a>
+  </form>
+  <div class="rf-results-head" aria-live="polite"><p class="rf-count"><strong>{{ nb_resultats }}</strong> ruche{{ nb_resultats|pluralize }} trouvée{{ nb_resultats|pluralize }}</p></div>
+  <section class="rf-grid" aria-label="Liste des ruches">
+    {% for ruche in ruches %}
+      <article class="rf-card {{ ruche.etat_css }}">
+        <div class="rf-card-photo rf-photo-{{ ruche.type_ruche|slugify }}">
+          <img src="{% get_static_prefix %}img/ruches/{{ ruche.type_ruche|slugify }}.png" alt="Photo d'une ruche {{ ruche.type_label }}">
+        </div>
+        <div class="rf-card-content">
+          <div class="rf-card-title-row"><span class="rf-state {{ ruche.etat_css }}"><i></i>{{ ruche.get_etat_predit_display }}</span><h2>{{ ruche.code_ruche }}</h2></div><p>{{ ruche.type_label }} <b>•</b> {{ ruche.race_label }}</p>
+          <dl class="rf-card-meta"><div><dt>{% include "includes/icon.html" with i="users" %} Population</dt><dd>{{ ruche.nombre_abeilles }}</dd></div><div><dt>{% include "includes/icon.html" with i="calendar" %} Installation</dt><dd>{{ ruche.date_installation|date:"d/m/Y" }}</dd></div></dl>
+          <div class="rf-card-actions">
+            <a class="rf-card-detail" href="{% url 'ruches_front:detail' ruche.pk %}"><span>Voir les détails</span><span aria-hidden="true">→</span></a>
+          </div>
+        </div>
+      </article>
+    {% empty %}<div class="rf-empty"><span class="rf-empty-icon">{% include "includes/icon.html" with i="hive" %}</span><h2>Aucune ruche trouvée</h2><p>Modifiez les filtres ou réinitialisez la recherche.</p><a href="{% url 'ruches_front:liste' %}">Réinitialiser les filtres</a></div>{% endfor %}
+  </section>
+</main>
+{% endblock %}

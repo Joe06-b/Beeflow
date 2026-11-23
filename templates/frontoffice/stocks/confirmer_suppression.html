@@ -1,0 +1,27 @@
+{% extends "layouts/base_frontoffice.html" %}
+{% load static %}
+
+{% block title %}Supprimer le stock {{ stock.nom_stock }} | BeeFlow{% endblock %}
+{% block extra_css %}<link rel="stylesheet" href="{% static 'css/stocks.css' %}">{% endblock %}
+
+{% block content %}
+<div class="container-narrow page">
+  <section class="panel st-confirm">
+    <span class="hex st-confirm-icon">{% include "includes/icon.html" with i="trash" %}</span>
+    <h1>Supprimer le stock « {{ stock.nom_stock }} » ?</h1>
+    <p class="muted">Le stock de <strong>{{ stock.get_type_stock_display }}</strong> situé à <strong>{{ stock.emplacement }}</strong> sera définitivement effacé.</p>
+
+    <dl class="st-facts st-facts-row">
+      <div><dt>Quantité</dt><dd>{{ stock.quantite_actuelle|floatformat:"-2" }} / {{ stock.capacite_max|floatformat:"-2" }}</dd></div>
+      <div><dt>Remplissage</dt><dd>{{ stock.taux_remplissage|floatformat:0 }} %</dd></div>
+      <div><dt>Statut</dt><dd><span class="st-statut st-statut-{{ stock.niveau_alerte }}">{{ stock.get_statut_display }}</span></dd></div>
+    </dl>
+
+    <form method="post" class="st-confirm-actions">
+      {% csrf_token %}
+      <a href="{% url 'stocks:detail' stock.pk %}" class="btn btn-ghost">Garder le stock</a>
+      <button type="submit" class="btn btn-danger">{% include "includes/icon.html" with i="trash" %} Supprimer définitivement</button>
+    </form>
+  </section>
+</div>
+{% endblock %}

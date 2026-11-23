@@ -1,0 +1,35 @@
+{# Champs du formulaire Stock. Utilisé en front office ET en back office. #}
+{% if form.non_field_errors %}
+<div class="notice is-bad">{% include "includes/icon.html" with i="alert" %}<div>{{ form.non_field_errors }}</div></div>
+{% endif %}
+
+<fieldset class="st-fieldset">
+  <legend><span class="hex hex-sm">{% include "includes/icon.html" with i="box" %}</span> Identification</legend>
+  <div class="form-row">
+    {% include "frontoffice/stocks/_champ.html" with field=form.nom_stock %}
+    {% include "frontoffice/stocks/_champ.html" with field=form.type_stock %}
+  </div>
+  {% include "frontoffice/stocks/_champ.html" with field=form.emplacement %}
+  {% include "frontoffice/stocks/_champ.html" with field=form.description %}
+</fieldset>
+
+<fieldset class="st-fieldset">
+  <legend><span class="hex hex-sm">{% include "includes/icon.html" with i="chart" %}</span> Capacité et quantité</legend>
+  <div class="form-row">
+    {% include "frontoffice/stocks/_champ.html" with field=form.capacite_max %}
+    {% include "frontoffice/stocks/_champ.html" with field=form.quantite_actuelle %}
+  </div>
+</fieldset>
+
+<fieldset class="st-fieldset">
+  <legend><span class="hex hex-sm">{% include "includes/icon.html" with i="alert" %}</span> Seuils d'alerte</legend>
+  <div class="form-row">
+    {% include "frontoffice/stocks/_champ.html" with field=form.seuil_alerte_min %}
+    {% include "frontoffice/stocks/_champ.html" with field=form.seuil_alerte_max %}
+  </div>
+</fieldset>
+
+<fieldset class="st-fieldset">
+  <legend><span class="hex hex-sm">{% include "includes/icon.html" with i="users" %}</span> Responsables</legend>
+  {% include "frontoffice/stocks/_champ.html" with field=form.responsables %}
+</fieldset>

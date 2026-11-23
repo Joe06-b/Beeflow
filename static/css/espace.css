@@ -1,0 +1,195 @@
+/* ==========================================================================
+   PAGE « MON ESPACE » — la ruche 3D (prisme hexagonal, une face par module)
+   ========================================================================== */
+body.page-espace { background: var(--propolis); }
+body.page-espace .front-main { min-height: calc(100vh - 70px); }
+
+.espace {
+    max-width: 1240px; margin: 0 auto;
+    min-height: calc(100vh - 70px);
+    padding: 48px clamp(20px, 4vw, 48px) 56px;
+    display: grid; grid-template-columns: minmax(300px, 420px) 1fr; gap: 40px; align-items: center;
+}
+
+/* Colonne texte */
+.espace-hello { color: var(--honey); font-weight: 600; margin-bottom: 10px; }
+.espace h1 { color: var(--wax); font-size: clamp(32px, 3.6vw, 48px); line-height: 1.04; letter-spacing: -.03em; font-weight: 800; }
+.espace-lead { color: #CDB89A; margin: 18px 0 30px; font-size: 16px; }
+
+.espace-list { display: flex; flex-direction: column; gap: 4px; border-left: 1px solid rgba(233, 185, 73, .18); }
+.espace-list button {
+    display: flex; align-items: center; gap: 14px; width: 100%; text-align: left;
+    padding: 11px 16px; margin-left: -1px; border: 0; border-left: 2px solid transparent;
+    background: none; color: #CDB89A; font-size: 15px; font-weight: 500;
+    transition: color .25s, border-color .25s, background-color .25s;
+}
+.espace-list button .ico { color: #8E7759; transition: color .25s; }
+.espace-list button em { margin-left: auto; font-style: normal; font-size: 12px; color: #8E7759; }
+.espace-list button:hover { color: var(--wax); }
+.espace-list button.is-current { color: var(--honey); border-left-color: var(--honey); background: linear-gradient(90deg, rgba(233, 185, 73, .10), transparent); font-weight: 600; }
+.espace-list button.is-current .ico { color: var(--honey); }
+
+/* Scène */
+.hive-zone { width: 100%; overflow: hidden; display: flex; flex-direction: column; align-items: center; gap: 22px; }
+.hive-stage {
+    --fw: 230px;            /* largeur d'une face */
+    --fh: 320px;            /* hauteur d'une face */
+    --apo: 199.2px;         /* apothème = fw × √3 / 2 */
+    position: relative; width: 100%; height: 520px;
+    perspective: 1500px; perspective-origin: 50% 30%;
+    touch-action: pan-y; user-select: none; -webkit-user-select: none;
+    border-radius: 24px;
+}
+.hive-stage:focus-visible { box-shadow: 0 0 0 2px rgba(233, 185, 73, .55); }
+.hive-stage.is-dragging { cursor: grabbing; }
+
+.hive {
+    position: absolute; left: 50%; top: 50%; width: 0; height: 0;
+    transform-style: preserve-3d;
+    transform: rotateX(-14deg) rotateY(var(--angle, 0deg));
+    transition: transform .9s cubic-bezier(.2, .9, .2, 1);
+}
+.hive-stage.is-dragging .hive { transition: none; }
+
+/* Faces */
+.face {
+    position: absolute; left: calc(var(--fw) / -2); top: calc(var(--fh) / -2);
+    width: var(--fw); height: var(--fh); padding: 24px 22px 20px;
+    display: flex; flex-direction: column;
+    backface-visibility: hidden; -webkit-backface-visibility: hidden;
+    color: var(--propolis);
+    background:
+        url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='22.52' height='39.00'%3E%3Cpath d='M11.26 0.00L22.52 6.50L22.52 19.50L11.26 26.00L-0.00 19.50L0.00 6.50ZM0.00 19.50L11.26 26.00L11.26 39.00L0.00 45.50L-11.26 39.00L-11.26 26.00ZM22.52 19.50L33.77 26.00L33.77 39.00L22.52 45.50L11.26 39.00L11.26 26.00ZM11.26 39.00L22.52 45.50L22.52 58.50L11.26 65.00L-0.00 58.50L0.00 45.50Z' fill='none' stroke='%23654321' stroke-opacity='.16' stroke-width='1.2'/%3E%3C/svg%3E"),
+        linear-gradient(170deg, #F7D57F 0%, #E9B949 55%, #D49A2C 100%);
+    border: 1px solid rgba(64, 40, 23, .35);
+    box-shadow: inset 0 0 0 5px rgba(255, 249, 237, .22), inset 0 -60px 70px -40px rgba(101, 67, 33, .45);
+    filter: brightness(.72) saturate(.85);
+    transition: filter .5s;
+}
+.face:nth-of-type(1) { transform: rotateY(0deg)   translateZ(var(--apo)); }
+.face:nth-of-type(2) { transform: rotateY(60deg)  translateZ(var(--apo)); }
+.face:nth-of-type(3) { transform: rotateY(120deg) translateZ(var(--apo)); }
+.face:nth-of-type(4) { transform: rotateY(180deg) translateZ(var(--apo)); }
+.face:nth-of-type(5) { transform: rotateY(240deg) translateZ(var(--apo)); }
+.face:nth-of-type(6) { transform: rotateY(300deg) translateZ(var(--apo)); }
+.face.is-front { filter: none; }
+.face.is-front:hover .face-foot:not(.is-soon) { background: var(--propolis); color: var(--honey); }
+
+/* Face verrouillée (administration) : noire, sans lien */
+.face-locked {
+    color: #8E7759; cursor: not-allowed;
+    background:
+        repeating-linear-gradient(135deg, rgba(255, 255, 255, .025) 0 10px, transparent 10px 20px),
+        linear-gradient(170deg, #241609 0%, #160D05 100%);
+    border-color: rgba(233, 185, 73, .18);
+    box-shadow: inset 0 0 0 5px rgba(255, 249, 237, .04);
+}
+.face-locked h3 { color: #CDB89A; }
+.face-locked p { color: #B8A285; }
+.face-locked .face-chip { background: rgba(233, 185, 73, .12); color: #A8927A; }
+.face-locked .face-foot { background: rgba(255, 249, 237, .06); color: #A8927A; }
+.espace-list button.is-locked { color: #7E6A52; }
+.espace-list button.is-locked .ico { color: #6E5B45; }
+
+.face-dark {
+    color: var(--wax);
+    background:
+        url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='22.52' height='39.00'%3E%3Cpath d='M11.26 0.00L22.52 6.50L22.52 19.50L11.26 26.00L-0.00 19.50L0.00 6.50ZM0.00 19.50L11.26 26.00L11.26 39.00L0.00 45.50L-11.26 39.00L-11.26 26.00ZM22.52 19.50L33.77 26.00L33.77 39.00L22.52 45.50L11.26 39.00L11.26 26.00ZM11.26 39.00L22.52 45.50L22.52 58.50L11.26 65.00L-0.00 58.50L0.00 45.50Z' fill='none' stroke='%23E9B949' stroke-opacity='.12' stroke-width='1.2'/%3E%3C/svg%3E"),
+        linear-gradient(170deg, #6B4524 0%, #4A2E18 60%, #34200F 100%);
+    border-color: rgba(233, 185, 73, .35);
+}
+.face-dark h3 { color: var(--honey); }
+.face-dark p { color: #E2CFB2; }
+
+.face-chip { width: 52px; height: 60px; display: grid; place-items: center; clip-path: var(--hex); background: var(--propolis); color: var(--honey); margin-bottom: 22px; }
+.face-chip .ico { width: 26px; height: 26px; }
+.face-dark .face-chip { background: var(--honey); color: var(--propolis); }
+.face h3 { font-size: 25px; line-height: 1.05; font-weight: 800; letter-spacing: -.02em; margin-bottom: 10px; }
+.face p { font-size: 14px; line-height: 1.45; color: #4A3322; }
+.face-status { margin-top: 12px; font-size: 13px; font-weight: 700; }
+.face-status:empty { display: none; }
+.face-status .badge { background: rgba(255, 249, 237, .78); }
+.face-foot {
+    margin-top: auto; align-self: flex-start;
+    display: inline-flex; align-items: center; gap: 8px;
+    padding: 9px 14px; border-radius: 999px;
+    background: rgba(43, 27, 15, .88); color: var(--wax); font-size: 13px; font-weight: 600;
+    transition: background-color .25s, color .25s;
+}
+.face-foot .ico { width: 16px; height: 16px; }
+.face-foot.is-soon { background: rgba(255, 249, 237, .55); color: #6A4A2C; }
+.face-dark .face-foot { background: var(--honey); color: var(--propolis); }
+
+/* Couvercle (toit de la ruche) et fond */
+.hive-cap {
+    position: absolute; left: calc(var(--fw) * -1); top: calc(var(--apo) * -1);
+    width: calc(var(--fw) * 2); height: calc(var(--apo) * 2);
+    clip-path: polygon(25% 0, 75% 0, 100% 50%, 75% 100%, 25% 100%, 0 50%);
+    display: grid; place-items: center;
+}
+.hive-cap-top {
+    transform: rotateX(90deg) translateZ(calc(var(--fh) / 2));
+    background: radial-gradient(circle, #5B3A1E 0%, #3A2412 70%);
+}
+.hive-cap-top img { width: 150px; height: 150px; transform: rotate(180deg); opacity: .95; }
+.hive-cap-bottom { transform: rotateX(-90deg) translateZ(calc(var(--fh) / 2)); background: #1E130A; }
+
+.hive-shadow {
+    position: absolute; left: 50%; top: calc(50% + 205px); width: 420px; height: 60px;
+    transform: translateX(-50%); border-radius: 50%;
+    background: radial-gradient(ellipse, rgba(0, 0, 0, .55), transparent 70%);
+    pointer-events: none;
+}
+
+/* Commandes */
+.hive-controls { display: flex; align-items: center; gap: 16px; }
+.hive-btn {
+    width: 46px; height: 52px; display: grid; place-items: center; border: 0;
+    clip-path: var(--hex); background: rgba(233, 185, 73, .14); color: var(--honey);
+    transition: background-color .2s, color .2s;
+}
+.hive-btn:hover { background: var(--honey); color: var(--propolis); }
+.hive-sound { margin-left: 8px; width: 38px; height: 38px; display: grid; place-items: center; border-radius: 50%; border: 1px solid rgba(233, 185, 73, .25); background: none; color: #A8927A; }
+.hive-sound:hover { color: var(--honey); border-color: var(--honey); }
+.hive-sound .ico { width: 18px; height: 18px; }
+.hive-hint { display: inline-flex; align-items: center; gap: 8px; color: #A8927A; font-size: 13px; }
+
+/* Ouverture d'un module :
+   1. les autres faces et le couvercle s'effacent, la ruche se redresse face à l'écran
+   2. la face de devant devient un panneau (.fly-panel, beeflow.css) qui s'agrandit en plein écran */
+.hive-stage.is-opening .hive { transition: transform .35s ease; transform: rotateX(0deg) rotateY(var(--angle)); }
+.hive-stage.is-opening .face:not(.is-front),
+.hive-stage.is-opening .hive-cap,
+.hive-stage.is-opening .hive-shadow { opacity: 0; transition: opacity .25s ease; }
+.page-espace .espace-intro, .hive-controls { transition: opacity .3s ease; }
+body.page-espace:has(.is-opening) .espace-intro,
+body.page-espace:has(.is-opening) .hive-controls { opacity: 0; }
+
+/* Face verrouillée : petit refus quand on essaie de l'ouvrir */
+.face.is-denied { animation: face-deny .4s ease; }
+@keyframes face-deny { 20%, 60% { margin-left: calc(var(--fw) / -2 - 8px); } 40%, 80% { margin-left: calc(var(--fw) / -2 + 8px); } }
+
+/* Entrée de la page : les faces s'assemblent une fois */
+@keyframes face-in { from { opacity: 0; } }
+.hive.is-intro .face { animation: face-in .7s ease both; }
+.hive.is-intro .face:nth-of-type(2) { animation-delay: .08s; }
+.hive.is-intro .face:nth-of-type(3) { animation-delay: .16s; }
+.hive.is-intro .face:nth-of-type(4) { animation-delay: .24s; }
+.hive.is-intro .face:nth-of-type(5) { animation-delay: .32s; }
+.hive.is-intro .face:nth-of-type(6) { animation-delay: .40s; }
+
+/* Responsive */
+@media (max-width: 980px) {
+    .espace { grid-template-columns: 1fr; gap: 10px; padding-top: 32px; }
+    .espace-list { display: none; }
+    .espace-lead { margin-bottom: 0; }
+}
+@media (max-width: 560px) {
+    .hive-stage { --fw: 180px; --fh: 260px; --apo: 155.9px; height: 430px; }
+    .face { padding: 18px 16px 16px; }
+    .face h3 { font-size: 20px; }
+    .face p { font-size: 13px; }
+    .face-chip { width: 42px; height: 48px; margin-bottom: 14px; }
+    .hive-cap-top img { width: 90px; height: 90px; }
+    .hive-shadow { top: calc(50% + 165px); width: 320px; }
+}

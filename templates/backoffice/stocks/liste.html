@@ -1,0 +1,135 @@
+{% extends "layouts/base_backoffice.html" %}
+{% load static %}
+
+{% block title %}Gestion du stock | BeeFlow administration{% endblock %}
+{% block extra_css %}<link rel="stylesheet" href="{% static 'css/stocks.css' %}">{% endblock %}
+
+{% block content %}
+{% include "backoffice/stocks/_onglets.html" with onglet="liste" %}
+
+<section class="kpis kpis-3" aria-label="Indicateurs">
+  <div class="kpi">
+    <span class="hex hex-honey">{% include "includes/icon.html" with i="box" %}</span>
+    <div><div class="kpi-value">{{ stats.total }}</div><div class="kpi-label">Stocks enregistrés</div></div>
+  </div>
+  <div class="kpi {% if stats.nb_alertes %}is-warn{% endif %}">
+    <span class="hex">{% include "includes/icon.html" with i="alert" %}</span>
+    <div><div class="kpi-value">{{ stats.nb_alertes }}</div><div class="kpi-label">Stocks en alerte</div></div>
+  </div>
+  <div class="kpi">
+    <span class="hex">{% include "includes/icon.html" with i="chart" %}</span>
+    <div><div class="kpi-value">{{ stats.taux_global }}<small>%</small></div><div class="kpi-label">Remplissage global</div></div>
+  </div>
+</section>
+
+<form method="get" class="toolbar" role="search">
+  <div class="search">{% include "includes/icon.html" with i="search" %}{{ form.q }}</div>
+  {{ form.type_stock }}
+  {{ form.statut }}
+  {{ form.tri }}
+  <div class="toolbar-actions">
+    <button type="submit" class="btn btn-dark">{% include "includes/icon.html" with i="filter" %} Filtrer</button>
+    <a href="{% url 'stocks_bo:liste' %}" class="icon-btn" title="Effacer les filtres" aria-label="Effacer les filtres">{% include "includes/icon.html" with i="x" %}</a>
+  </div>
+</form>
+
+<form method="post" action="{% url 'stocks_bo:supprimer_selection' %}" class="table-card" id="form-selection">
+  {% csrf_token %}
+
+  <div class="table-card-head">
+    <span>{{ nb_resultats }} stock{{ nb_resultats|pluralize }}, page {{ page.number }} sur {{ page.paginator.num_pages }}</span>
+    <button type="submit" class="btn btn-danger-ghost btn-sm" id="btn-suppr-selection" disabled>
+      {% include "includes/icon.html" with i="trash" %} <span>Supprimer la sélection (<span id="nb-selection">0</span>)</span>
+    </button>
+  </div>
+
+  {% if page.object_list %}
+  <div class="table-scroll">
+    <table class="table">
+      <thead>
+        <tr>
+          <th><input type="checkbox" id="tout-cocher" aria-label="Tout sélectionner"></th>
+          <th>Nom</th><th>Type</th><th>Emplacement</th><th>Quantité / capacité</th>
+          <th>Remplissage</th><th>Statut</th><th>Responsables</th><th><span class="sr-only">Actions</span></th>
+        </tr>
+      </thead>
+      <tbody>
+        {% for s in page %}
+        <tr class="{% if s.est_en_alerte %}is-alert{% endif %}">
+          <td><input type="checkbox" name="ids" value="{{ s.pk }}" class="case-stock" aria-label="Sélectionner le stock {{ s.nom_stock }}"></td>
+          <td><strong>{{ s.nom_stock }}</strong>{% if s.description %}<br><span class="muted small">{{ s.description|truncatechars:40 }}</span>{% endif %}</td>
+          <td>{{ s.get_type_stock_display }}</td>
+          <td>{{ s.emplacement }}</td>
+          <td class="num">{{ s.quantite_actuelle|floatformat:"-2" }} / {{ s.capacite_max|floatformat:"-2" }}</td>
+          <td>
+            <div class="st-jauge st-jauge-{{ s.niveau_alerte }}" role="img" aria-label="Rempli à {{ s.taux_remplissage|floatformat:0 }} %">
+              <i style="width: {% widthratio s.quantite_actuelle s.capacite_max 100 %}%"></i>
+            </div>
+            <span class="muted small">{{ s.taux_remplissage|floatformat:0 }} %</span>
+          </td>
+          <td><span class="st-statut st-statut-{{ s.niveau_alerte }}">{{ s.get_statut_display }}</span></td>
+          <td>{% for u in s.responsables.all %}{{ u.username }}{% if not forloop.last %}, {% endif %}{% empty %}<span class="muted">—</span>{% endfor %}</td>
+          <td>
+            <div class="actions">
+              {# STOCK : lien vers la fiche côté apiculteur (front office) #}
+              <a href="{% url 'stocks:detail' s.pk %}" class="icon-btn" title="Voir la fiche" aria-label="Voir la fiche du stock {{ s.nom_stock }}">{% include "includes/icon.html" with i="eye" %}</a>
+              <a href="{% url 'stocks_bo:modifier' s.pk %}" class="icon-btn" title="Modifier" aria-label="Modifier le stock {{ s.nom_stock }}">{% include "includes/icon.html" with i="edit" %}</a>
+              <a href="{% url 'stocks_bo:supprimer' s.pk %}" class="icon-btn danger" title="Supprimer" aria-label="Supprimer le stock {{ s.nom_stock }}">{% include "includes/icon.html" with i="trash" %}</a>
+            </div>
+          </td>
+        </tr>
+        {% endfor %}
+      </tbody>
+    </table>
+  </div>
+  {% else %}
+  <div class="empty">
+    <span class="hex">{% include "includes/icon.html" with i="box" %}</span>
+    <h3>Aucun stock à afficher</h3>
+    <p>Effacez les filtres ou ajoutez un premier stock.</p>
+    <a href="{% url 'stocks_bo:ajouter' %}" class="btn btn-honey">{% include "includes/icon.html" with i="plus" %} Ajouter un stock</a>
+  </div>
+  {% endif %}
+
+  {% if page.has_other_pages %}
+  <nav class="pagination" aria-label="Pagination">
+    {% if page.has_previous %}
+      <a href="?{{ params }}&page=1" aria-label="Première page">{% include "includes/icon.html" with i="chevrons-left" %}</a>
+      <a href="?{{ params }}&page={{ page.previous_page_number }}" aria-label="Page précédente">{% include "includes/icon.html" with i="chevron-left" %}</a>
+    {% endif %}
+    {% for n in page.paginator.page_range %}
+      {% if n == page.number %}<span class="is-current" aria-current="page">{{ n }}</span>
+      {% elif n > page.number|add:"-3" and n < page.number|add:"3" %}<a href="?{{ params }}&page={{ n }}">{{ n }}</a>{% endif %}
+    {% endfor %}
+    {% if page.has_next %}
+      <a href="?{{ params }}&page={{ page.next_page_number }}" aria-label="Page suivante">{% include "includes/icon.html" with i="chevron-right" %}</a>
+      <a href="?{{ params }}&page={{ page.paginator.num_pages }}" aria-label="Dernière page">{% include "includes/icon.html" with i="chevrons-right" %}</a>
+    {% endif %}
+  </nav>
+  {% endif %}
+</form>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+  // Sélection multiple pour la suppression groupée
+  (function () {
+    const toutCocher = document.getElementById("tout-cocher");
+    const cases = document.querySelectorAll(".case-stock");
+    const bouton = document.getElementById("btn-suppr-selection");
+    const compteur = document.getElementById("nb-selection");
+    if (!toutCocher) return;
+
+    function majBouton() {
+      const nb = document.querySelectorAll(".case-stock:checked").length;
+      compteur.textContent = nb;
+      bouton.disabled = nb === 0;
+      toutCocher.checked = nb > 0 && nb === cases.length;
+      toutCocher.indeterminate = nb > 0 && nb < cases.length;
+      cases.forEach(c => c.closest("tr").classList.toggle("is-selected", c.checked));
+    }
+    toutCocher.addEventListener("change", () => { cases.forEach(c => c.checked = toutCocher.checked); majBouton(); });
+    cases.forEach(c => c.addEventListener("change", majBouton));
+  })();
+</script>
+{% endblock %}

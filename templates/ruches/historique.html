@@ -1,0 +1,69 @@
+{% extends "layouts/base_backoffice.html" %}
+{% load static %}
+
+{% block title %}Historique des ruches | BeeFlow administration{% endblock %}
+{% block extra_css %}<link rel="stylesheet" href="{% static 'css/ruche.css' %}">{% endblock %}
+{% block extra_js %}<script src="{% static 'js/ruches_filters.js' %}?v=2" defer></script>{% endblock %}
+
+{% block content %}
+{% include "ruches/_onglets.html" with onglet="historique" %}
+
+<form method="get" action="{% url 'ruches:historique' %}" class="toolbar" role="search" data-ruches-filters>
+  <div class="search">
+    {% include "includes/icon.html" with i="search" %}
+    <input class="bf-input" type="search" name="q" value="{{ request.GET.q }}" placeholder="Code de ruche ou auteur…" aria-label="Rechercher dans l'historique">
+  </div>
+  <select class="bf-select" name="action" aria-label="Filtrer par action" data-ruches-filter>
+    <option value="">Toutes les actions</option>
+    {% for valeur, libelle in actions_historique %}<option value="{{ valeur }}"{% if request.GET.action == valeur %} selected{% endif %}>{{ libelle }}</option>{% endfor %}
+  </select>
+  <div class="toolbar-actions">
+    <button type="submit" class="btn btn-dark">{% include "includes/icon.html" with i="filter" %} Filtrer</button>
+    <a href="{% url 'ruches:historique' %}" class="icon-btn" title="Effacer les filtres" aria-label="Effacer les filtres">{% include "includes/icon.html" with i="x" %}</a>
+  </div>
+</form>
+
+<section class="panel rch-history-panel">
+  <div class="panel-head"><h2>{% include "includes/icon.html" with i="history" %} Modifications enregistrées</h2><span class="muted small">{{ nb_resultats }} entrée{{ nb_resultats|pluralize }}</span></div>
+  {% if historiques %}
+    <div class="rch-history-list">
+      {% for entree in historiques %}
+      <article class="rch-history-item is-{{ entree.action }}">
+        <div class="rch-history-marker">{% include "includes/icon.html" with i="history" %}</div>
+        <div class="rch-history-main">
+          <header>
+            <div><strong>{{ entree.code_ruche }}</strong><span class="badge rch-history-action is-{{ entree.action }}">{{ entree.get_action_display }}</span></div>
+            <div class="rch-history-tools">
+              <time datetime="{{ entree.date_modification|date:'c' }}">{{ entree.date_modification|date:"d/m/Y à H:i" }}</time>
+              <a class="icon-btn danger" href="{% url 'ruches:supprimer_historique' entree.pk %}" title="Supprimer cette entrée" aria-label="Supprimer l'entrée d'historique de {{ entree.code_ruche }}">{% include "includes/icon.html" with i="trash" %}</a>
+            </div>
+          </header>
+          <p class="rch-history-author">Par {{ entree.auteur }}</p>
+          {% if entree.action == "modification" and entree.changements %}
+          <details>
+            <summary>Voir les champs modifiés ({{ entree.changements|length }})</summary>
+            <dl class="rch-history-changes">
+              {% for champ, changement in entree.changements.items %}
+              <div><dt>{{ changement.label }}</dt><dd><del>{{ changement.avant|default:"—" }}</del><span aria-hidden="true">→</span><ins>{{ changement.apres|default:"—" }}</ins></dd></div>
+              {% endfor %}
+            </dl>
+          </details>
+          {% elif entree.action == "ajout" %}<p>La ruche a été ajoutée à la gestion.</p>
+          {% else %}<p>La ruche a été supprimée de la gestion.</p>{% endif %}
+        </div>
+      </article>
+      {% endfor %}
+    </div>
+  {% else %}
+    <div class="empty"><span class="hex">{% include "includes/icon.html" with i="history" %}</span><h3>Aucun historique</h3><p>Les futures créations, modifications et suppressions apparaîtront ici.</p></div>
+  {% endif %}
+
+  {% if page_obj.has_other_pages %}
+  <nav class="pagination" aria-label="Pagination de l'historique">
+    {% if page_obj.has_previous %}<a href="?{% if params %}{{ params }}&{% endif %}page={{ page_obj.previous_page_number }}">{% include "includes/icon.html" with i="chevron-left" %}</a>{% endif %}
+    <span class="is-current">{{ page_obj.number }} / {{ page_obj.paginator.num_pages }}</span>
+    {% if page_obj.has_next %}<a href="?{% if params %}{{ params }}&{% endif %}page={{ page_obj.next_page_number }}">{% include "includes/icon.html" with i="chevron-right" %}</a>{% endif %}
+  </nav>
+  {% endif %}
+</section>
+{% endblock %}

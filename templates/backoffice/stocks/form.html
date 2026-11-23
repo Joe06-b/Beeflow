@@ -1,0 +1,31 @@
+{% extends "layouts/base_backoffice.html" %}
+{% load static %}
+
+{% block title %}{{ page_title }} | BeeFlow administration{% endblock %}
+{% block extra_css %}<link rel="stylesheet" href="{% static 'css/stocks.css' %}">{% endblock %}
+
+{% block content %}
+<nav class="breadcrumb" aria-label="Fil d'Ariane">
+  <a href="{% url 'stocks_bo:liste' %}">{% include "includes/icon.html" with i="arrow-left" %} Gestion des stocks</a>
+</nav>
+
+<div class="grid-aside">
+  <form method="post" class="panel st-form" id="stock-form" novalidate>
+    {% csrf_token %}
+    {% include "frontoffice/stocks/_form_sections.html" %}
+  </form>
+
+  <div class="sticky stack">
+    <div class="panel st-form-actions">
+      <button type="submit" form="stock-form" class="btn btn-honey">{% include "includes/icon.html" with i="check" %} Enregistrer</button>
+      {% if mode == "ajout" %}
+      <button type="submit" form="stock-form" name="enregistrer_et_ajouter" class="btn btn-ghost">{% include "includes/icon.html" with i="plus" %} Enregistrer et en ajouter un autre</button>
+      {% else %}
+      <a href="{% url 'stocks_bo:supprimer' stock.pk %}" class="btn btn-danger-ghost">{% include "includes/icon.html" with i="trash" %} Supprimer ce stock</a>
+      {% endif %}
+      <a href="{% url 'stocks_bo:liste' %}" class="btn btn-ghost">Annuler</a>
+    </div>
+    {% include "frontoffice/stocks/_regles.html" %}
+  </div>
+</div>
+{% endblock %}

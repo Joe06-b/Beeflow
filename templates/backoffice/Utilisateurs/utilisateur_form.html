@@ -1,0 +1,106 @@
+{% extends "layouts/base_backoffice.html" %}
+{% load static %}
+
+{% block title %}
+BeeFlow | {% if form.instance.pk %}Modifier{% else %}Ajouter{% endif %} un utilisateur
+{% endblock %}
+
+{% block extra_css %}
+<link rel="stylesheet" href="{% static 'css/Utilisateurs/utilisateur_form.css' %}">
+{% endblock %}
+
+{% block content %}
+<!-- Grande barre en marron du haut -->
+<section class="welcome">
+    <h1>Gestion des utilisateurs</h1>
+    <p>
+        {% if form.instance.pk %}
+        Modifiez les informations personnelles, le rôle et les accès de l'utilisateur.
+        {% else %}
+        Créez un nouveau compte utilisateur et définissez son rôle au sein du rucher.
+        {% endif %}
+    </p>
+</section>
+
+<!-- Fil d'Ariane -->
+<nav class="breadcrumb user-bo-crumb" aria-label="Fil d'Ariane">
+    <a href="{% url 'utilisateurs:liste' %}">
+        {% include "includes/icon.html" with i="arrow-left" %} Gestion des utilisateurs
+    </a>
+</nav>
+
+<!-- Carte du formulaire -->
+<div class="grid-aside user-form-layout">
+<div class="card panel user-form-panel">
+
+    <div class="card-body">
+
+        <form method="post" id="utilisateur-form" novalidate>
+            {% csrf_token %}
+
+            {% if form.non_field_errors %}
+            <div class="alert alert-danger">
+                {{ form.non_field_errors }}
+            </div>
+            {% endif %}
+
+            <div class="row">
+
+                {% for field in form %}
+                <div class="col-md-6 mb-3" data-role-field="{{ field.name }}">
+
+                    <label for="{{ field.id_for_label }}" class="form-label">
+                        {{ field.label }}
+                        {% if field.field.required %}<span class="req">*</span>{% endif %}
+                    </label>
+
+                    {{ field }}
+
+                    {% if field.help_text %}
+                    <small class="form-text text-muted">
+                        {{ field.help_text }}
+                    </small>
+                    {% endif %}
+
+                    {% for error in field.errors %}
+                    <div class="text-danger small">
+                        {{ error }}
+                    </div>
+                    {% endfor %}
+
+                </div>
+                {% endfor %}
+
+            </div>
+
+        </form>
+
+    </div>
+</div>
+
+<div class="sticky stack user-form-sidebar">
+    <div class="panel user-form-actions">
+        <button type="submit" form="utilisateur-form" class="btn btn-honey">{% include "includes/icon.html" with i="check" %} {% if form.instance.pk %}Enregistrer les modifications{% else %}Ajouter l'utilisateur{% endif %}</button>
+        {% if not form.instance.pk %}<button type="submit" form="utilisateur-form" name="enregistrer_et_ajouter" class="btn btn-ghost">{% include "includes/icon.html" with i="plus" %} Enregistrer et en ajouter un autre</button>{% endif %}
+        <a href="{% url 'utilisateurs:liste' %}" class="btn btn-ghost">Annuler</a>
+    </div>
+    <div class="user-rules-panel" id="user-rules" data-form="utilisateur-form">
+        <div class="user-rules-head"><h2>{% include "includes/icon.html" with i="check" %} Avant d'enregistrer</h2><span class="user-rules-score" id="userRulesScore" aria-live="polite"></span></div>
+        <ul class="user-rules">
+            <li data-rule="identifiants" data-icon="user"><span class="user-rule-icon">{% include "includes/icon.html" with i="user" %}</span><span>Le nom d'utilisateur, l'e-mail et le téléphone sont valides.</span></li>
+            <li data-rule="identite" data-icon="check"><span class="user-rule-icon">{% include "includes/icon.html" with i="check" %}</span><span>Le prénom et le nom sont correctement renseignés.</span></li>
+            <li data-rule="profil" data-icon="hive"><span class="user-rule-icon">{% include "includes/icon.html" with i="hive" %}</span><span>Le rôle, le statut et le sexe sont sélectionnés.</span></li>
+            <li data-rule="naissance" data-icon="calendar"><span class="user-rule-icon">{% include "includes/icon.html" with i="calendar" %}</span><span>La date de naissance est renseignée et réaliste.</span></li>
+            <li data-rule="role" data-icon="settings"><span class="user-rule-icon">{% include "includes/icon.html" with i="settings" %}</span><span>Les informations liées au rôle sont complètes.</span></li>
+        </ul>
+        <p class="user-rules-legend"><span><i class="is-ok"></i> respectée</span><span><i class="is-pending"></i> à compléter</span><span><i class="is-bad"></i> à corriger</span></p>
+    </div>
+</div>
+</div>
+
+{% endblock %}
+
+{% block extra_js %}
+<script src="{% static 'js/Utilisateurs/utilisateur_role.js' %}"></script>
+<script src="{% static 'js/Utilisateurs/utilisateur_validation.js' %}"></script>
+{% endblock %}

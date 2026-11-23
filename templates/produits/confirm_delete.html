@@ -1,0 +1,13 @@
+{% extends "layouts/base_backoffice.html" %}
+{% block title %}BeeFlow | Supprimer{% endblock %}
+{% block content %}
+<section class="section">
+    <h2>🗑️ Suppression</h2>
+    <div class="alert danger">Confirmez-vous la suppression de <strong>{{ produit }}</strong> ?</div>
+    <form method="post" class="form-actions">
+        {% csrf_token %}
+        <button type="submit" class="btn btn-danger">Oui, supprimer</button>
+        <a href="{% url 'produits:liste' %}" class="btn btn-outline">Annuler</a>
+    </form>
+</section>
+{% endblock %}

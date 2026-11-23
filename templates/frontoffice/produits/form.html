@@ -1,0 +1,45 @@
+{% extends "layouts/base_frontoffice.html" %}
+{% load static %}
+
+{% block title %}{{ titre }} | BeeFlow{% endblock %}
+{% block extra_css %}<link rel="stylesheet" href="{% static 'css/produits.css' %}">{% endblock %}
+
+{% block content %}
+<div class="container page">
+
+  <nav class="breadcrumb" aria-label="Fil d'Ariane">
+    <a href="{% url 'espace' %}">{% include "includes/icon.html" with i="hub" %} Mon espace</a>
+    {% include "includes/icon.html" with i="chevron-right" %}
+    <a href="{% url 'produits_front:liste' %}">Gestion des produits</a>
+    {% include "includes/icon.html" with i="chevron-right" %}
+    <span aria-current="page">{% if mode == "ajout" %}Nouveau produit{% else %}Modifier{% endif %}</span>
+  </nav>
+
+  <header class="page-head">
+    <div>
+      <h1>{{ titre }}</h1>
+      <p>Renseignez les informations du produit apicole. Les champs marqués <span class="req">*</span> sont obligatoires.</p>
+    </div>
+  </header>
+
+  <div class="grid-aside">
+    <form method="post" enctype="multipart/form-data" class="panel pr-form" id="produit-form" novalidate>
+      {% csrf_token %}
+      {% include "frontoffice/produits/_form_sections.html" %}
+    </form>
+
+    <div class="sticky stack">
+      <div class="panel pr-form-actions">
+        <button type="submit" form="produit-form" class="btn btn-honey">
+          {% include "includes/icon.html" with i="check" %}
+          {% if mode == "ajout" %}Enregistrer le produit{% else %}Enregistrer les modifications{% endif %}
+        </button>
+        <a href="{% if produit %}{% url 'produits_front:detail' produit.pk %}{% else %}{% url 'produits_front:liste' %}{% endif %}" class="btn btn-ghost">Annuler</a>
+      </div>
+      {% include "frontoffice/produits/_regles.html" %}
+    </div>
+  </div>
+
+</div>
+{% endblock %}
+{% block extra_js %}<script src="{% static 'js/produits_form.js' %}"></script>{% endblock %}

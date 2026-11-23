@@ -1,0 +1,21 @@
+{% extends "layouts/base_backoffice.html" %}
+{% load static %}
+
+{% block title %}Produit #{{ produit.pk }} | BeeFlow administration{% endblock %}
+{% block extra_css %}<link rel="stylesheet" href="{% static 'css/produits.css' %}">{% endblock %}
+
+{% block content %}
+<nav class="breadcrumb pr-bo-crumb" aria-label="Fil d'Ariane">
+  <a href="{% url 'produits:liste' %}">{% include "includes/icon.html" with i="arrow-left" %} Gestion des produits</a>
+</nav>
+
+<div class="pr-bo-head">
+  <p>{{ produit.get_categorie_produit_display }}{% if produit.origine_florale %} · {{ produit.origine_florale }}{% endif %}, produit #{{ produit.pk }}.</p>
+  <div class="page-actions">
+    <a href="{% url 'produits:modifier' produit.pk %}" class="btn btn-honey">{% include "includes/icon.html" with i="edit" %} Modifier</a>
+    <a href="{% url 'produits:supprimer' produit.pk %}" class="btn btn-danger-ghost">{% include "includes/icon.html" with i="trash" %} Supprimer</a>
+  </div>
+</div>
+
+{% include "frontoffice/produits/_detail.html" %}
+{% endblock %}

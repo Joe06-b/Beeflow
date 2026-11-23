@@ -1,0 +1,55 @@
+{% extends "layouts/base_backoffice.html" %}
+{% load static %}
+
+{% block title %}Statistiques des produits | BeeFlow administration{% endblock %}
+{% block extra_css %}<link rel="stylesheet" href="{% static 'css/produits.css' %}">{% endblock %}
+
+{% block content %}
+{% include "backoffice/produits/_onglets.html" with onglet="stats" %}
+
+<section class="kpis pr-st-kpis" aria-label="Indicateurs">
+  <div class="kpi"><span class="hex hex-honey">{% include "includes/icon.html" with i="jar" %}</span><div><div class="kpi-value" data-kpi="total">{{ stats.total }}</div><div class="kpi-label">Total des produits</div></div></div>
+  <div class="kpi"><span class="hex">{% include "includes/icon.html" with i="check" %}</span><div><div class="kpi-value" data-kpi="disponibles">{{ stats.compteurs.disponibles }}</div><div class="kpi-label">Disponibles</div></div></div>
+  <div class="kpi"><span class="hex hex-dark">{% include "includes/icon.html" with i="alert" %}</span><div><div class="kpi-value" data-kpi="ruptures">{{ stats.compteurs.ruptures }}</div><div class="kpi-label">En rupture de stock</div></div></div>
+  <div class="kpi"><span class="hex">{% include "includes/icon.html" with i="box" %}</span><div><div class="kpi-value" data-kpi="archives">{{ stats.compteurs.archives }}</div><div class="kpi-label">Archivés</div></div></div>
+</section>
+<section class="kpis pr-st-kpis" aria-label="Indicateurs financiers et activité">
+  <div class="kpi"><span class="hex hex-honey">{% include "includes/icon.html" with i="droplet" %}</span><div><div class="kpi-value"><span data-kpi="valeur_stock">{{ stats.valeur_stock|floatformat:0 }}</span><small>TND</small></div><div class="kpi-label">Valeur du stock disponible</div></div></div>
+  <div class="kpi"><span class="hex">{% include "includes/icon.html" with i="note" %}</span><div><div class="kpi-value"><span data-kpi="prix_moyen">{{ stats.prix_moyen|floatformat:2 }}</span><small>TND</small></div><div class="kpi-label">Prix moyen</div></div></div>
+  <div class="kpi"><span class="hex">{% include "includes/icon.html" with i="plus" %}</span><div><div class="kpi-value" data-kpi="ce_mois">{{ stats.ce_mois }}</div><div class="kpi-label">Ajoutés ce mois</div></div></div>
+  <div class="kpi"><span class="hex">{% include "includes/icon.html" with i="hive" %}</span><div><div class="kpi-value" data-kpi="nb_categories">{{ stats.nb_categories }}</div><div class="kpi-label">Catégories</div></div></div>
+</section>
+
+{% if stats.total %}
+<div class="grid-2 pr-st-row">
+  <section class="panel">
+    <div class="panel-head"><h2>{% include "includes/icon.html" with i="box" %} Répartition par état</h2></div>
+    <div class="pr-chart pr-chart-short"><canvas id="chart-etat" role="img" aria-label="Nombre de produits par état"></canvas></div>
+  </section>
+  <section class="panel">
+    <div class="panel-head"><h2>{% include "includes/icon.html" with i="jar" %} Produits par catégorie et par état</h2></div>
+    <div class="pr-chart pr-chart-short"><canvas id="chart-categorie" role="img" aria-label="Produits par catégorie, empilés par état"></canvas></div>
+  </section>
+</div>
+
+<section class="panel pr-st-row">
+  <div class="panel-head"><h2>{% include "includes/icon.html" with i="chart" %} Évolution du catalogue (12 derniers mois)</h2></div>
+  <div class="pr-chart"><canvas id="chart-evolution" role="img" aria-label="Produits ajoutés par mois et total cumulé"></canvas></div>
+</section>
+{% else %}
+<section class="panel empty">
+  <span class="hex">{% include "includes/icon.html" with i="chart" %}</span>
+  <h3>Pas encore de statistiques</h3>
+  <p>Les visualisations apparaîtront dès le premier produit enregistré.</p>
+  <a href="{% url 'produits:ajouter' %}" class="btn btn-honey">{% include "includes/icon.html" with i="plus" %} Ajouter un produit</a>
+</section>
+{% endif %}
+
+{{ stats|json_script:"pr-stats-data" }}
+<span id="pr-stats-config" data-url="{% url 'produits:statistiques_donnees' %}" hidden></span>
+{% endblock %}
+
+{% block extra_js %}
+<script src="{% static 'vendor/chart.umd.js' %}"></script>
+<script src="{% static 'js/produits_stats.js' %}"></script>
+{% endblock %}

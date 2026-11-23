@@ -1,0 +1,116 @@
+{% extends "layouts/base_frontoffice.html" %}
+{% load static %}
+
+{% block title %}{{ m.nom }} en 3D | BeeFlow{% endblock %}
+{% block extra_css %}<link rel="stylesheet" href="{% static 'css/suivi_sanitaire.css' %}?v=9"><link rel="stylesheet" href="{% static 'css/atlas.css' %}?v=9"><link rel="stylesheet" href="{% static 'css/bee3d.css' %}?v=9">
+<!-- La carte des modules doit venir AVANT tout préchargement de module -->
+<script type="importmap">
+  { "imports": { "three": "{% static 'vendor/three/three.module.min.js' %}", "three/addons/": "{% static 'vendor/three/addons/' %}" } }
+</script>
+<!-- Téléchargement anticipé des scripts 3D, en parallèle du reste de la page -->
+<link rel="modulepreload" href="{% static 'vendor/three/three.module.min.js' %}">
+<link rel="modulepreload" href="{% static 'vendor/three/addons/controls/OrbitControls.js' %}">
+<link rel="modulepreload" href="{% static 'js/bee3d.js' %}?v=9">{% endblock %}
+
+{% block content %}
+<div class="container page b3d-page">
+
+  <nav class="breadcrumb" aria-label="Fil d'Ariane">
+    <a href="{% url 'espace' %}">{% include "includes/icon.html" with i="hub" %} Mon espace</a>
+    {% include "includes/icon.html" with i="chevron-right" %}
+    <a href="{% url 'suivi_sanitaire:liste' %}">Suivi sanitaire</a>
+    {% include "includes/icon.html" with i="chevron-right" %}
+    <a href="{% url 'suivi_sanitaire:atlas' %}">Atlas des maladies</a>
+    {% include "includes/icon.html" with i="chevron-right" %}
+    <span aria-current="page">{{ m.nom }} en 3D</span>
+  </nav>
+
+  <header class="page-head">
+    <div>
+      <h1>{{ m.nom }} en 3D</h1>
+      <p><em>{{ m.nom_scientifique }}</em>. Faites tourner l'abeille et cliquez sur une partie pour voir ce que la maladie lui fait.</p>
+    </div>
+    <div class="page-actions">
+      <label class="sr-only" for="b3dAutre">Voir une autre maladie</label>
+      <select class="bf-select b3d-autre" id="b3dAutre">
+        {% for a in autres %}<option value="{% url 'suivi_sanitaire:maladie_3d' a.slug %}" {% if a.slug == m.slug %}selected{% endif %}>{{ a.nom }}</option>{% endfor %}
+      </select>
+      <a href="{% url 'suivi_sanitaire:atlas' %}#{{ m.slug }}" class="btn btn-ghost">{% include "includes/icon.html" with i="arrow-left" %} Fiche de l'atlas</a>
+    </div>
+  </header>
+
+  <nav class="tabs" aria-label="Vues">
+    <a href="{% url 'suivi_sanitaire:maladie_3d' m.slug %}" class="is-active" aria-current="page">{% include "includes/icon.html" with i="eye" %} Anatomie</a>
+    <a href="{% url 'suivi_sanitaire:maladie_evolution' m.slug %}">{% include "includes/icon.html" with i="hive" %} Évolution dans la ruche</a>
+  </nav>
+
+  <div class="b3d-layout">
+    <!-- Scène 3D -->
+    <section class="b3d-viewer" id="b3dViewer" aria-label="Abeille en 3D, à faire tourner">
+      <div class="b3d-canvas" id="b3dCanvas"></div>
+      <div class="b3d-hotspots" id="b3dHotspots"></div>
+
+      <div class="b3d-loading" id="b3dLoading">
+        <span class="hex hex-honey">{% include "includes/icon.html" with i="hive" %}</span>
+        Préparation de l'abeille…
+      </div>
+      <div class="b3d-fallback" id="b3dFallback" hidden>
+        <div class="atlas-stage">{% include "frontoffice/suivi_sanitaire/maladies/_illu.html" %}</div>
+        <p>La 3D n'est pas disponible sur cet appareil. Voici l'illustration de la maladie.</p>
+      </div>
+
+      <div class="b3d-toolbar">
+        <button type="button" class="b3d-tool" id="b3dReset" title="Recentrer la vue">{% include "includes/icon.html" with i="rotate" %}<span>Recentrer</span></button>
+        <button type="button" class="b3d-tool" id="b3dSpin" aria-pressed="false" title="Rotation automatique">{% include "includes/icon.html" with i="history" %}<span>Tourner</span></button>
+        <button type="button" class="b3d-tool" id="b3dFly" aria-pressed="false" title="Faire battre les ailes">{% include "includes/icon.html" with i="leaf" %}<span>Faire voler</span></button>
+        <span class="b3d-hint">Glisser pour tourner, molette ou pincement pour zoomer</span>
+      </div>
+    </section>
+
+    <!-- Panneau d'informations -->
+    <aside class="b3d-side">
+      <div class="b3d-switch" role="group" aria-label="État de l'abeille">
+        <button type="button" data-etat="saine" aria-pressed="false">{% include "includes/icon.html" with i="check" %} Saine</button>
+        <button type="button" data-etat="atteinte" aria-pressed="true" class="is-active">{% include "includes/icon.html" with i="alert" %} Atteinte</button>
+      </div>
+
+      <div class="panel b3d-info" id="b3dInfo" aria-live="polite"></div>
+
+      <div class="panel b3d-parts-panel">
+        <div class="panel-head"><h2>{% include "includes/icon.html" with i="list" %} Parties de l'abeille</h2></div>
+        <div class="b3d-parts" id="b3dParts"></div>
+      </div>
+
+      <div class="b3d-summary">
+        {% include "frontoffice/suivi_sanitaire/_gravite.html" %}
+        <span class="badge is-plain cat-badge cat-{{ m.categorie }}">{{ m.categorie_label }}</span>
+      </div>
+    </aside>
+  </div>
+
+  <p class="atlas-disclaimer">{% include "includes/icon.html" with i="alert" class="ico-sm" %} Modèle simplifié à but pédagogique : les proportions sont arrangées pour bien voir chaque partie.</p>
+</div>
+
+{{ anatomie|json_script:"b3dData" }}
+<script>
+  window.B3D = {
+    maladie: "{{ m.nom|escapejs }}",
+    slug: "{{ m.slug|escapejs }}",
+  };
+  document.getElementById("b3dAutre").addEventListener("change", e => { window.location.href = e.target.value; });
+
+  // Filet de sécurité : si le module 3D n'a pas pu démarrer, on n'attend pas indéfiniment
+  window.addEventListener("load", () => setTimeout(() => {
+    if (window.B3D_OK) return;
+    document.getElementById("b3dLoading").hidden = true;
+    const fb = document.getElementById("b3dFallback");
+    fb.hidden = false;
+    fb.querySelector("p").innerHTML = "La 3D n'a pas pu démarrer. Rechargez la page avec <strong>Ctrl + F5</strong>. "
+      + "Si le problème continue, ouvrez la console (F12) et envoyez le message d'erreur en rouge.";
+  }, 5000));
+</script>
+{% endblock %}
+
+{% block extra_js %}
+<script type="module" src="{% static 'js/bee3d.js' %}?v=9"></script>
+{% endblock %}

@@ -1,0 +1,30 @@
+{% extends "layouts/base_backoffice.html" %}
+{% block title %}BeeFlow | {{ produit.get_categorie_produit_display }}{% endblock %}
+{% block content %}
+<section class="section">
+    <div class="section-head">
+        <h2>🍯 {{ produit.get_categorie_produit_display }} {{ produit.origine_florale }}</h2>
+        <span class="status">{{ produit.get_etat_display }}</span>
+    </div>
+    <div class="detail-layout">
+        <div>
+            {% if produit.photo_produit %}<img src="{{ produit.photo_produit.url }}" class="detail-photo">
+            {% else %}<div class="detail-photo detail-photo-empty">🍯</div>{% endif %}
+        </div>
+        <dl class="detail-list">
+            <dt>Code-barres</dt><dd>{{ produit.code_barre }}</dd>
+            <dt>Catégorie</dt><dd>{{ produit.get_categorie_produit_display }}</dd>
+            <dt>Origine florale</dt><dd>{{ produit.origine_florale|default:"—" }}</dd>
+            <dt>Quantité</dt><dd>{{ produit.quantite|floatformat:"-2" }} {{ produit.get_unite_display }}</dd>
+            <dt>Prix</dt><dd>{{ produit.prix }} TND</dd>
+            <dt>Description</dt><dd>{{ produit.description_sensorielle|default:"—"|linebreaksbr }}</dd>
+            <dt>Ajouté le</dt><dd>{{ produit.created_at|date:"d/m/Y H:i" }}</dd>
+        </dl>
+    </div>
+    <div class="form-actions">
+        <a href="{% url 'produits:modifier' produit.pk %}" class="btn btn-honey">Modifier</a>
+        <a href="{% url 'produits:supprimer' produit.pk %}" class="btn btn-danger">Supprimer</a>
+        <a href="{% url 'produits:liste' %}" class="btn btn-outline">← Retour</a>
+    </div>
+</section>
+{% endblock %}

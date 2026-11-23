@@ -1,0 +1,20 @@
+{% load static %}
+<footer class="front-footer" id="contact">
+    <div class="front-footer-grid">
+        <div>
+            <div class="front-logo"><img src="{% static 'img/logo.svg' %}" alt="" class="logo-img">Bee<span>Flow</span></div>
+            <p class="footer-about">La gestion apicole simple et moderne : ruches, santé des colonies, production et stock.</p>
+        </div>
+        <div>
+            <h4>Navigation</h4>
+            <a href="{% url 'accueil' %}">{% include "includes/icon.html" with i="home" %} Accueil</a>
+            <a href="{% url 'espace' %}">{% include "includes/icon.html" with i="hub" %} Mon espace</a>
+        </div>
+        <div>
+            <h4>Contact</h4>
+            <p>{% include "includes/icon.html" with i="mail" %} contact@beeflow.tn</p>
+            <p>{% include "includes/icon.html" with i="pin" %} Tunis, Tunisie</p>
+        </div>
+    </div>
+    <div class="front-copy">© {% now "Y" %} BeeFlow. Tous droits réservés.</div>
+</footer>

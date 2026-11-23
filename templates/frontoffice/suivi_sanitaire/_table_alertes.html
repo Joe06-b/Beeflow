@@ -1,0 +1,27 @@
+{% if liste %}
+<div class="table-scroll">
+  <table class="table">
+    <thead>
+      <tr><th>Ruche</th><th>Suivi du</th><th>État</th><th>Risque</th><th>Maladie</th><th>Prochain contrôle</th><th><span class="sr-only">Ouvrir</span></th></tr>
+    </thead>
+    <tbody>
+      {% for s in liste %}
+      <tr>
+        <td><span class="hive-id">{{ s.get_id_ruche_display }}</span></td>
+        <td>{{ s.date_suivi|date:"d/m/Y" }}</td>
+        <td><span class="badge lvl-{{ s.etat_sante|lower }}">{{ s.get_etat_sante_display }}</span></td>
+        <td><span class="badge lvl-{{ s.niveau_risque|lower }}">{{ s.get_niveau_risque_display }}</span></td>
+        <td>{{ s.maladie_detectee|default:'<span class="muted">Aucune</span>' }}</td>
+        <td>
+          {{ s.date_prochain_controle|date:"d/m/Y"|default:"—" }}
+          {% if s.controle_en_retard %}<span class="ss-late">+{{ s.jours_de_retard }} j</span>{% endif %}
+        </td>
+        <td><div class="actions"><a href="{% url 'suivi_sanitaire:detail' s.pk %}" class="icon-btn" title="Voir le suivi" aria-label="Voir le suivi {{ s.id_suivi }}">{% include "includes/icon.html" with i="arrow-right" %}</a></div></td>
+      </tr>
+      {% endfor %}
+    </tbody>
+  </table>
+</div>
+{% else %}
+<p class="ss-ok">{% include "includes/icon.html" with i="check" %} {{ vide }}</p>
+{% endif %}

@@ -1,0 +1,276 @@
+/* ==========================================================================
+   BEEFLOW — MODULE UTILISATEURS (DÉTAILS D'UN UTILISATEUR)
+   Design harmonisé avec le Suivi Sanitaire et la charte BeeFlow.
+   ========================================================================== */
+
+/* ---------- Fil d'Ariane ---------- */
+.user-bo-crumb {
+    margin-bottom: 18px;
+    display: flex;
+    align-items: center;
+}
+
+.user-bo-crumb a {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    font-size: 13.5px;
+    font-weight: 600;
+    color: var(--muted);
+    text-decoration: none;
+    transition: color .2s;
+}
+
+.user-bo-crumb a:hover {
+    color: var(--honey-ink);
+}
+
+/* ---------- Carte Principale ---------- */
+.card, .panel.user-detail-panel {
+    background: var(--white);
+    border: 1px solid var(--line);
+    border-radius: var(--r-lg);
+    box-shadow: var(--shadow);
+    overflow: hidden;
+    margin-bottom: 28px;
+}
+
+/* En-tête de la carte */
+.card-header, .user-detail-head {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 22px 28px;
+    background: var(--wax);
+    border-bottom: 1px solid var(--line);
+    flex-wrap: wrap;
+    gap: 16px;
+}
+
+.user-head-info {
+    display: flex;
+    align-items: center;
+    gap: 16px;
+}
+
+.user-avatar-hex {
+    width: 52px;
+    height: 58px;
+    background: var(--honey);
+    color: var(--propolis);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    clip-path: var(--hex);
+    box-shadow: 0 4px 14px rgba(233, 185, 73, .35);
+}
+
+.user-avatar-hex .ico {
+    width: 24px;
+    height: 24px;
+}
+
+.user-head-text h2 {
+    font-family: var(--font-display);
+    font-size: 22px;
+    font-weight: 700;
+    color: var(--propolis);
+    margin: 0 0 4px;
+}
+
+.user-head-text p {
+    font-size: 13.5px;
+    color: var(--muted);
+    margin: 0;
+}
+
+/* Corps */
+.card-body, .user-detail-body {
+    padding: 28px;
+}
+
+/* Sections */
+.detail-section-title {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    font-family: var(--font-display);
+    font-size: 16px;
+    font-weight: 700;
+    color: var(--propolis);
+    margin-bottom: 16px;
+    padding-bottom: 8px;
+    border-bottom: 1px solid var(--line-2);
+}
+
+.detail-section-title .ico {
+    color: var(--honey-ink);
+}
+
+/* Grille des faits / données */
+.user-facts-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
+    gap: 14px;
+    margin-bottom: 26px;
+}
+
+.user-fact-item {
+    padding: 14px 16px;
+    border: 1px solid var(--line-2);
+    border-radius: var(--r);
+    background: #FFFCF6;
+    display: flex;
+    flex-direction: column;
+    gap: 5px;
+    transition: border-color .2s, background-color .2s;
+}
+
+.user-fact-item:hover {
+    border-color: var(--line);
+    background: #FFF9ED;
+}
+
+.user-fact-label {
+    font-size: 12.5px;
+    font-weight: 600;
+    color: var(--muted);
+    text-transform: uppercase;
+    letter-spacing: .4px;
+}
+
+.user-fact-value {
+    font-size: 15px;
+    font-weight: 600;
+    color: var(--ink);
+    margin: 0;
+    word-break: break-word;
+}
+
+/* Badges */
+.badge {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    padding: 3px 10px;
+    border-radius: 999px;
+    font-size: 12px;
+    font-weight: 600;
+    width: fit-content;
+}
+
+.lvl-actif, .lvl-bon {
+    background: var(--good-bg);
+    color: var(--good);
+}
+
+.lvl-inactif, .lvl-moyen {
+    background: var(--warn-bg);
+    color: var(--warn);
+}
+
+.lvl-suspendu, .lvl-critique {
+    background: var(--bad-bg);
+    color: var(--bad);
+}
+
+.role-badge {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    padding: 4px 12px;
+    border-radius: 8px;
+    font-size: 12.5px;
+    font-weight: 600;
+    width: fit-content;
+}
+
+.role-admin {
+    background: #FDF4E1;
+    color: #855C0B;
+    border: 1px solid #F6DDA5;
+}
+
+.role-apiculteur {
+    background: #EAF3EC;
+    color: var(--good);
+    border: 1px solid #CCE3D1;
+}
+
+.role-responsable {
+    background: #F2ECFA;
+    color: #5E35B1;
+    border: 1px solid #DDD0F3;
+}
+
+/* Actions */
+.detail-actions {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    flex-wrap: wrap;
+}
+
+.btn-honey {
+    background: var(--honey);
+    color: var(--propolis);
+    border: 1px solid transparent;
+    padding: 9px 18px;
+    border-radius: var(--r-sm);
+    font-family: var(--font-body);
+    font-size: 13.5px;
+    font-weight: 600;
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    cursor: var(--cursor-pointer);
+    text-decoration: none;
+    transition: background-color .2s;
+}
+
+.btn-honey:hover {
+    background: var(--honey-2);
+}
+
+.btn-danger-ghost {
+    background: transparent;
+    color: var(--bad);
+    border: 1px solid #F8CFC9;
+    padding: 9px 18px;
+    border-radius: var(--r-sm);
+    font-family: var(--font-body);
+    font-size: 13.5px;
+    font-weight: 600;
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    cursor: var(--cursor-pointer);
+    text-decoration: none;
+    transition: all .2s;
+}
+
+.btn-danger-ghost:hover {
+    background: var(--bad-bg);
+    border-color: var(--bad);
+}
+
+.btn-ghost {
+    background: transparent;
+    color: var(--ink);
+    border: 1px solid var(--line);
+    padding: 9px 18px;
+    border-radius: var(--r-sm);
+    font-family: var(--font-body);
+    font-size: 13.5px;
+    font-weight: 600;
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    cursor: var(--cursor-pointer);
+    text-decoration: none;
+    transition: all .2s;
+}
+
+.btn-ghost:hover {
+    background: var(--wax);
+}

@@ -1,0 +1,10 @@
+{# Règles vérifiées à l'enregistrement (Stock.clean()) #}
+<div class="panel">
+  <div class="panel-head"><h2>{% include "includes/icon.html" with i="check" %} Avant d'enregistrer</h2></div>
+  <ul class="st-rules">
+    <li>{% include "includes/icon.html" with i="box" class="ico-sm" %} La quantité ne peut pas dépasser la capacité maximale.</li>
+    <li>{% include "includes/icon.html" with i="alert" class="ico-sm" %} Le seuil minimum doit être inférieur au seuil maximum.</li>
+    <li>{% include "includes/icon.html" with i="chart" class="ico-sm" %} Le seuil maximum ne peut pas dépasser la capacité.</li>
+    <li>{% include "includes/icon.html" with i="check" class="ico-sm" %} Le taux de remplissage et le statut sont calculés automatiquement.</li>
+  </ul>
+</div>

@@ -1,0 +1,45 @@
+{% extends "layouts/base_backoffice.html" %}
+{% load static %}
+
+{% block title %}{{ page_title }} | BeeFlow administration{% endblock %}
+{% block extra_css %}<link rel="stylesheet" href="{% static 'css/stocks.css' %}">{% endblock %}
+
+{% block content %}
+<section class="panel st-confirm">
+  <span class="hex st-confirm-icon">{% include "includes/icon.html" with i="trash" %}</span>
+  <h1>{% if multiple %}Supprimer {{ stocks|length }} stock{{ stocks|length|pluralize }} ?{% else %}Supprimer ce stock ?{% endif %}</h1>
+  <p class="muted">Cette action est définitive : les stocks listés ci-dessous seront effacés.</p>
+
+  <div class="table-scroll">
+    <table class="table">
+      <thead><tr><th>Nom</th><th>Type</th><th>Emplacement</th><th>Quantité</th><th>Statut</th></tr></thead>
+      <tbody>
+        {% for s in stocks %}
+        <tr>
+          <td><strong>{{ s.nom_stock }}</strong></td>
+          <td>{{ s.get_type_stock_display }}</td>
+          <td>{{ s.emplacement }}</td>
+          <td class="num">{{ s.quantite_actuelle|floatformat:"-2" }} / {{ s.capacite_max|floatformat:"-2" }}</td>
+          <td><span class="st-statut st-statut-{{ s.niveau_alerte }}">{{ s.get_statut_display }}</span></td>
+        </tr>
+        {% endfor %}
+      </tbody>
+    </table>
+  </div>
+
+  {% if multiple %}
+  <form method="post" action="{% url 'stocks_bo:supprimer_selection' %}" class="st-confirm-actions">
+    {% csrf_token %}
+    {% for s in stocks %}<input type="hidden" name="ids" value="{{ s.pk }}">{% endfor %}
+    <a href="{% url 'stocks_bo:liste' %}" class="btn btn-ghost">Annuler</a>
+    <button type="submit" name="confirmer" value="1" class="btn btn-danger">{% include "includes/icon.html" with i="trash" %} Supprimer définitivement</button>
+  </form>
+  {% else %}
+  <form method="post" class="st-confirm-actions">
+    {% csrf_token %}
+    <a href="{% url 'stocks_bo:liste' %}" class="btn btn-ghost">Annuler</a>
+    <button type="submit" class="btn btn-danger">{% include "includes/icon.html" with i="trash" %} Supprimer définitivement</button>
+  </form>
+  {% endif %}
+</section>
+{% endblock %}

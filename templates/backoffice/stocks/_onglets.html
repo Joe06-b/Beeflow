@@ -1,0 +1,9 @@
+<div class="bo-head st-bo-head">
+  <nav class="tabs" aria-label="Sections du stock">
+    <a href="{% url 'stocks_bo:liste' %}" class="{% if onglet == 'liste' %}is-active{% endif %}" {% if onglet == 'liste' %}aria-current="page"{% endif %}>{% include "includes/icon.html" with i="list" %} Gestion des stocks</a>
+  </nav>
+  <div class="page-actions">
+    <a href="{% url 'stocks:liste' %}" class="btn btn-ghost">{% include "includes/icon.html" with i="eye" %} Voir côté apiculteur</a>
+    <a href="{% url 'stocks_bo:ajouter' %}" class="btn btn-honey">{% include "includes/icon.html" with i="plus" %} Ajouter un stock</a>
+  </div>
+</div>

@@ -1,0 +1,63 @@
+{% with nom_admin=request.user.username|default:"Admin" %}
+<header class="topbar">
+    <div class="topbar-left">
+        <button class="menu-toggle icon-btn" type="button" data-toggle-menu aria-label="Ouvrir le menu">
+            {% include "includes/icon.html" with i="menu" %}
+        </button>
+        <h2 id="pageTitle">{{ page_title|default:"Tableau de bord" }}</h2>
+    </div>
+
+    <div class="topbar-right">
+        <div class="date" id="currentDate"></div>
+
+        <!-- Compte de l'administrateur : menu déroulant -->
+        <div class="account" data-dropdown>
+            <button type="button" class="profile" data-dropdown-toggle aria-haspopup="menu" aria-expanded="false">
+                <span class="hex">{% include "includes/icon.html" with i="user" %}</span>
+                <span>{{ nom_admin }}</span>
+                {% include "includes/icon.html" with i="chevron-down" class="ico-sm account-caret" %}
+            </button>
+            <div class="account-menu" role="menu" hidden>
+                <div class="account-head">
+                    <strong>{{ nom_admin }}</strong>
+                    <span>Administrateur</span>
+                </div>
+                <button type="button" role="menuitem" data-modal-open="modal-compte">
+                    {% include "includes/icon.html" with i="edit" %} Modifier mon compte
+                </button>
+                <button type="button" role="menuitem" class="is-danger" data-modal-open="modal-supprimer-compte">
+                    {% include "includes/icon.html" with i="user-x" %} Supprimer mon compte
+                </button>
+            </div>
+        </div>
+    </div>
+</header>
+
+{% include "includes/_modal_compte.html" %}
+
+<!-- ============================================================
+     SUPPRIMER MON COMPTE (même principe d'intégration)
+     ============================================================ -->
+<dialog class="modal modal-sm" id="modal-supprimer-compte" aria-labelledby="modal-suppr-titre">
+    <form method="post" action="{% url 'utilisateurs:supprimer_mon_compte' %}" class="modal-box"
+        data-delete-account-form novalidate>
+        {% csrf_token %}
+        <div class="modal-body modal-center">
+            <span class="hex modal-danger-icon">{% include "includes/icon.html" with i="user-x" %}</span>
+            <h2 id="modal-suppr-titre">Supprimer mon compte ?</h2>
+            <p class="muted">Le compte <strong>{{ nom_admin }}</strong> sera définitivement supprimé. Vous serez
+                déconnecté et ne pourrez plus accéder à l'administration.</p>
+            <div class="field">
+                <label for="del-mdp">Confirmez avec votre mot de passe</label>
+                <input class="bf-input" id="del-mdp" name="password" type="password" placeholder="Mot de passe" required
+                    autocomplete="current-password">
+            </div>
+        </div>
+        <div class="modal-foot">
+            <button type="button" class="btn btn-ghost" data-modal-close>Annuler</button>
+            <button type="submit" class="btn btn-danger" disabled>{% include "includes/icon.html" with i="trash" %}
+                Supprimer mon compte</button>
+        </div>
+    </form>
+</dialog>
+{% endwith %}

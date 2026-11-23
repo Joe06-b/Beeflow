@@ -1,0 +1,120 @@
+{% extends "layouts/base_backoffice.html" %}
+{% load static %}
+
+{% block title %}Suivi sanitaire | BeeFlow administration{% endblock %}
+{% block extra_css %}<link rel="stylesheet" href="{% static 'css/suivi_sanitaire.css' %}?v=9">{% endblock %}
+
+{% block content %}
+{% include "backoffice/suivi_sanitaire/_onglets.html" with onglet="liste" %}
+
+<form method="get" class="toolbar" role="search">
+  <div class="search">{% include "includes/icon.html" with i="search" %}{{ form.q }}</div>
+  {{ form.ruche }}
+  {{ form.etat_sante }}
+  {{ form.niveau_risque }}
+  {{ form.tri }}
+  <div class="toolbar-actions">
+    <button type="submit" class="btn btn-dark">{% include "includes/icon.html" with i="filter" %} Filtrer</button>
+    <a href="{% url 'suivi_sanitaire_bo:liste' %}" class="icon-btn" title="Effacer les filtres" aria-label="Effacer les filtres">{% include "includes/icon.html" with i="x" %}</a>
+  </div>
+</form>
+
+<form method="post" action="{% url 'suivi_sanitaire_bo:supprimer_selection' %}" class="table-card" id="form-selection">
+  {% csrf_token %}
+
+  <div class="table-card-head">
+    <span>{{ nb_resultats }} suivi{{ nb_resultats|pluralize }}, page {{ page.number }} sur {{ page.paginator.num_pages }}</span>
+    <button type="submit" class="btn btn-danger-ghost btn-sm" id="btn-suppr-selection" disabled>
+      {% include "includes/icon.html" with i="trash" %} <span>Supprimer la sélection (<span id="nb-selection">0</span>)</span>
+    </button>
+  </div>
+
+  {% if page.object_list %}
+  <div class="table-scroll">
+    <table class="table">
+      <thead>
+        <tr>
+          <th><input type="checkbox" id="tout-cocher" aria-label="Tout sélectionner"></th>
+          <th>N°</th><th>Ruche</th><th>Date</th><th>État</th><th>Risque</th>
+          <th>Maladie</th><th>Traitement</th><th>Prochain contrôle</th><th><span class="sr-only">Actions</span></th>
+        </tr>
+      </thead>
+      <tbody>
+        {% for s in page %}
+        <tr class="{% if s.est_en_alerte %}is-alert{% endif %}">
+          <td><input type="checkbox" name="ids" value="{{ s.pk }}" class="case-suivi" aria-label="Sélectionner le suivi {{ s.id_suivi }}"></td>
+          <td class="num">{{ s.id_suivi }}</td>
+          <td><span class="hive-id">{{ s.get_id_ruche_display }}</span></td>
+          <td>{{ s.date_suivi|date:"d/m/Y" }}</td>
+          <td><span class="badge lvl-{{ s.etat_sante|lower }}">{{ s.get_etat_sante_display }}</span></td>
+          <td><span class="badge lvl-{{ s.niveau_risque|lower }}">{{ s.get_niveau_risque_display }}</span></td>
+          <td>{{ s.maladie_detectee|default:'<span class="muted">Aucune</span>' }}</td>
+          <td>{% if s.type_traitement %}{{ s.type_traitement }}{% if s.dose %} <span class="muted small">{{ s.dose }}</span>{% endif %}{% else %}<span class="muted">Aucun</span>{% endif %}</td>
+          <td>
+            {% if s.date_prochain_controle %}
+              {{ s.date_prochain_controle|date:"d/m/Y" }}
+              {% if s.controle_en_retard %}<span class="ss-late">+{{ s.jours_de_retard }} j</span>{% elif s.remplace %}<span class="ss-done" title="Un suivi plus récent existe pour cette ruche">fait</span>{% endif %}
+            {% else %}<span class="muted">Non prévu</span>{% endif %}
+          </td>
+          <td>
+            <div class="actions">
+              <a href="{% url 'suivi_sanitaire_bo:modifier' s.pk %}" class="icon-btn" title="Modifier" aria-label="Modifier le suivi {{ s.id_suivi }}">{% include "includes/icon.html" with i="edit" %}</a>
+              <a href="{% url 'suivi_sanitaire_bo:supprimer' s.pk %}" class="icon-btn danger" title="Supprimer" aria-label="Supprimer le suivi {{ s.id_suivi }}">{% include "includes/icon.html" with i="trash" %}</a>
+            </div>
+          </td>
+        </tr>
+        {% endfor %}
+      </tbody>
+    </table>
+  </div>
+  {% else %}
+  <div class="empty">
+    <span class="hex">{% include "includes/icon.html" with i="sanitaire" %}</span>
+    <h3>Aucun suivi à afficher</h3>
+    <p>Effacez les filtres ou ajoutez un premier suivi sanitaire.</p>
+    <a href="{% url 'suivi_sanitaire_bo:ajouter' %}" class="btn btn-honey">{% include "includes/icon.html" with i="plus" %} Ajouter un suivi</a>
+  </div>
+  {% endif %}
+
+  {% if page.has_other_pages %}
+  <nav class="pagination" aria-label="Pagination">
+    {% if page.has_previous %}
+      <a href="?{{ params }}&page=1" aria-label="Première page">{% include "includes/icon.html" with i="chevrons-left" %}</a>
+      <a href="?{{ params }}&page={{ page.previous_page_number }}" aria-label="Page précédente">{% include "includes/icon.html" with i="chevron-left" %}</a>
+    {% endif %}
+    {% for n in page.paginator.page_range %}
+      {% if n == page.number %}<span class="is-current" aria-current="page">{{ n }}</span>
+      {% elif n > page.number|add:"-3" and n < page.number|add:"3" %}<a href="?{{ params }}&page={{ n }}">{{ n }}</a>{% endif %}
+    {% endfor %}
+    {% if page.has_next %}
+      <a href="?{{ params }}&page={{ page.next_page_number }}" aria-label="Page suivante">{% include "includes/icon.html" with i="chevron-right" %}</a>
+      <a href="?{{ params }}&page={{ page.paginator.num_pages }}" aria-label="Dernière page">{% include "includes/icon.html" with i="chevrons-right" %}</a>
+    {% endif %}
+  </nav>
+  {% endif %}
+</form>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+  // Sélection multiple pour la suppression groupée
+  (function () {
+    const toutCocher = document.getElementById("tout-cocher");
+    const cases = document.querySelectorAll(".case-suivi");
+    const bouton = document.getElementById("btn-suppr-selection");
+    const compteur = document.getElementById("nb-selection");
+    if (!toutCocher) return;
+
+    function majBouton() {
+      const nb = document.querySelectorAll(".case-suivi:checked").length;
+      compteur.textContent = nb;
+      bouton.disabled = nb === 0;
+      toutCocher.checked = nb > 0 && nb === cases.length;
+      toutCocher.indeterminate = nb > 0 && nb < cases.length;
+      cases.forEach(c => c.closest("tr").classList.toggle("is-selected", c.checked));
+    }
+    toutCocher.addEventListener("change", () => { cases.forEach(c => c.checked = toutCocher.checked); majBouton(); });
+    cases.forEach(c => c.addEventListener("change", majBouton));
+  })();
+</script>
+{% endblock %}

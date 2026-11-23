@@ -1,0 +1,13 @@
+{# Illustration en couches : chaque couche est à une profondeur différente (translateZ) → effet 3D à l'inclinaison #}
+<div class="illu cat-{{ m.categorie }}">
+  <svg class="layer layer-back" viewBox="0 0 240 180" aria-hidden="true">
+    <defs>
+      <pattern id="illu-comb-{{ m.slug }}{{ variant|default:"" }}" width="17.32" height="30" patternUnits="userSpaceOnUse">
+        <path d="M8.66 0 17.32 5v10L8.66 20 0 15V5zM0 15l8.66 5v10M17.32 15 8.66 20" fill="none" stroke="currentColor" stroke-opacity=".22" stroke-width="1.2"/>
+      </pattern>
+    </defs>
+    <polygon points="120,6 199,51 199,141 120,186 41,141 41,51" class="illu-halo"/>
+    <polygon points="120,6 199,51 199,141 120,186 41,141 41,51" fill="url(#illu-comb-{{ m.slug }}{{ variant|default:"" }})"/>
+  </svg>
+  {% with "frontoffice/suivi_sanitaire/maladies/_illu_"|add:m.slug|add:".html" as illu %}{% include illu %}{% endwith %}
+</div>
