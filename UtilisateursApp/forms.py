@@ -1,6 +1,7 @@
 import re
 import secrets
 import string
+import threading
 from django.contrib.auth.forms import AdminUserCreationForm, UserChangeForm, SetPasswordForm, AuthenticationForm
 from django import forms
 from django.core.exceptions import ValidationError
@@ -10,6 +11,7 @@ from django.utils import timezone
 from django.core.mail import send_mail
 from django.conf import settings
 from django.contrib.auth.password_validation import validate_password
+from django.db import transaction
 
 
 def envoyer_email_identifiants(utilisateur, mot_de_passe):
@@ -28,13 +30,16 @@ Mot de passe : {mot_de_passe}
 Cordialement,
 L'équipe BeeFlow
 """
-    send_mail(
-        sujet,
-        message,
-        settings.DEFAULT_FROM_EMAIL,
-        [utilisateur.email],
-        fail_silently=False
-    )
+    try:
+        send_mail(
+            sujet,
+            message,
+            settings.DEFAULT_FROM_EMAIL,
+            [utilisateur.email],
+            fail_silently=False
+        )
+    except Exception as e:
+        print(f"Erreur lors de l'envoi de l'email à {utilisateur.email} : {e}")
 
 
 class UtilisateurCreationForm(forms.ModelForm):
@@ -204,7 +209,14 @@ class UtilisateurCreationForm(forms.ModelForm):
             utilisateur.save()
             self.save_m2m()
 
-            envoyer_email_identifiants(utilisateur, mot_de_passe)
+            # Envoi du mail en arrière-plan pour ne pas bloquer la redirection de l'utilisateur
+            transaction.on_commit(
+                lambda: threading.Thread(
+                    target=envoyer_email_identifiants,
+                    args=(utilisateur, mot_de_passe),
+                    daemon=True,
+                ).start()
+            )
 
         return utilisateur
 

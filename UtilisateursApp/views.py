@@ -384,7 +384,7 @@ class UtilisateurUpdateView(UpdateView):
 
 
 # 5. Supprimer un utilisateur
-class UtilisateurDeleteView(AdminRequisMixin,DeleteView):
+class UtilisateurDeleteView(DeleteView):
     model = Utilisateur
     template_name = 'backoffice/Utilisateurs/utilisateur_confirm_delete.html'
     context_object_name = 'utilisateur'
