@@ -150,5 +150,16 @@ MAILERS = {
 }
 
 DEFAULT_FROM_EMAIL = "beeflow.apiculture@gmail.com"
+import django
+if django.VERSION < (6, 1):
+    _smtp = MAILERS["default"]["OPTIONS"]
+    EMAIL_BACKEND = MAILERS["default"]["BACKEND"]
+    EMAIL_HOST = _smtp["host"]
+    EMAIL_PORT = _smtp["port"]
+    EMAIL_HOST_USER = _smtp["username"]
+    EMAIL_HOST_PASSWORD = _smtp["password"]
+    EMAIL_USE_TLS = _smtp["use_tls"]
+    EMAIL_TIMEOUT = _smtp["timeout"]
+
 MEDIA_URL = "/media/"
 MEDIA_ROOT = BASE_DIR / "media"
