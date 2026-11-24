@@ -8,7 +8,9 @@ from datetime import date, timedelta
 from django.db.models import Case, Count, Exists, IntegerField, OuterRef, Q, Value, When
 from django.db.models.functions import Lower, TruncMonth
 
-from .models import EtatSante, NiveauRisque, RUCHES_TEST, SuiviSanitaire
+from rucheapp.models import Ruche
+
+from .models import EtatSante, NiveauRisque, SuiviSanitaire
 
 # ---------------------------------------------------------------------------
 # Tri logique des énumérations (sinon tri alphabétique : Eleve, Faible, Moyen)
@@ -28,17 +30,15 @@ RANG_RISQUE = Case(
 TRIS = {
     "date_desc": ["-date_suivi", "-id_suivi"],
     "date_asc": ["date_suivi", "id_suivi"],
-    "ruche": ["id_ruche", "-date_suivi"],
+    "ruche": ["ruche__code_ruche", "-date_suivi"],
     "etat": ["-rang_etat", "-date_suivi"],
     "risque": ["-rang_risque", "-date_suivi"],
     "controle": ["date_prochain_controle", "-date_suivi"],
 }
-CODES_RUCHES = dict(RUCHES_TEST)
-
 
 def filtrer_suivis(donnees):
     """donnees = cleaned_data d'un RechercheSuiviForm (ou {})."""
-    suivis = SuiviSanitaire.objects.annotate(rang_etat=RANG_ETAT, rang_risque=RANG_RISQUE)
+    suivis = SuiviSanitaire.objects.select_related("ruche").annotate(rang_etat=RANG_ETAT, rang_risque=RANG_RISQUE)
 
     q = (donnees.get("q") or "").strip()
     if q:
@@ -47,16 +47,14 @@ def filtrer_suivis(donnees):
             | Q(symptomes__icontains=q)
             | Q(observation__icontains=q)
             | Q(type_traitement__icontains=q)
+            | Q(ruche__code_ruche__icontains=q)          # recherche par code de ruche (ex : "R-002")
         )
-        ids = [rid for rid, code in RUCHES_TEST if q.lower() in code.lower()]
-        if ids:
-            filtre |= Q(id_ruche__in=ids)
         if q.isdigit():
             filtre |= Q(id_suivi=int(q))
         suivis = suivis.filter(filtre)
 
     if donnees.get("ruche"):
-        suivis = suivis.filter(id_ruche=donnees["ruche"])
+        suivis = suivis.filter(ruche=donnees["ruche"])
     if donnees.get("etat_sante"):
         suivis = suivis.filter(etat_sante=donnees["etat_sante"])
     if donnees.get("niveau_risque"):
@@ -81,7 +79,7 @@ def _pourcentage(partie, total):
 def avec_remplace(qs):
     """Ajoute à chaque suivi « remplace » = un suivi plus récent existe pour la même ruche
     (une seule requête SQL, au lieu d'une par ligne de tableau)."""
-    plus_recent = SuiviSanitaire.objects.filter(id_ruche=OuterRef("id_ruche")).filter(
+    plus_recent = SuiviSanitaire.objects.filter(ruche=OuterRef("ruche")).filter(
         Q(date_suivi__gt=OuterRef("date_suivi"))
         | Q(date_suivi=OuterRef("date_suivi"), id_suivi__gt=OuterRef("id_suivi"))
     )
@@ -92,7 +90,7 @@ def derniers_suivis(qs=None):
     """Garde uniquement le DERNIER suivi de chaque ruche (le plus récent).
     Les alertes (contrôle en retard, contrôle proche, état critique) ne concernent que lui :
     si une ruche a été revisitée, le contrôle prévu par l'ancien suivi est considéré comme fait."""
-    qs = SuiviSanitaire.objects.all() if qs is None else qs
+    qs = SuiviSanitaire.objects.select_related("ruche") if qs is None else qs
     return avec_remplace(qs).filter(remplace=False)
 
 
@@ -119,7 +117,7 @@ def calculer_statistiques():
     nb_proches = alertes["proches"]
     nb_traites = tous.exclude(type_traitement="").count()
     nb_malades = tous.exclude(maladie_detectee="").count()
-    nb_ruches_suivies = tous.order_by().values("id_ruche").distinct().count()
+    nb_ruches_suivies = tous.order_by().values("ruche").distinct().count()
 
     # Évolution sur les 12 derniers mois
     debut = (aujourd_hui.replace(day=1) - timedelta(days=335)).replace(day=1)
@@ -141,20 +139,16 @@ def calculer_statistiques():
         evolution.append({"mois": mois.strftime("%m/%Y"), "nb": ligne.get("nb", 0), "critiques": ligne.get("critiques", 0)})
         mois = (mois.replace(day=28) + timedelta(days=4)).replace(day=1)   # mois suivant
 
-    # Par ruche
-    par_ruche = []
-    lignes = {
-        l["id_ruche"]: l
-        for l in tous.order_by().values("id_ruche").annotate(
-            nb=Count("id_suivi"),
-            critiques=Count("id_suivi", filter=Q(etat_sante=EtatSante.CRITIQUE)),
-            traitements=Count("id_suivi", filter=~Q(type_traitement="")),
+    # Par ruche : toutes les ruches de rucheapp, même celles sans suivi (nb = 0)
+    par_ruche = [
+        {"id_ruche": r.pk, "code": r.code_ruche, "nb": r.nb,
+         "critiques": r.critiques, "traitements": r.traitements}
+        for r in Ruche.objects.order_by("code_ruche").annotate(
+            nb=Count("suivis"),
+            critiques=Count("suivis", filter=Q(suivis__etat_sante=EtatSante.CRITIQUE)),
+            traitements=Count("suivis", filter=~Q(suivis__type_traitement="") & Q(suivis__isnull=False)),
         )
-    }
-    for rid, code in RUCHES_TEST:
-        l = lignes.get(rid, {})
-        par_ruche.append({"id_ruche": rid, "code": code, "nb": l.get("nb", 0),
-                          "critiques": l.get("critiques", 0), "traitements": l.get("traitements", 0)})
+    ]
 
     # Top 5 des maladies et des traitements (insensible à la casse)
     top_maladies = list(
@@ -172,7 +166,7 @@ def calculer_statistiques():
         "nb_retard": nb_retard,
         "nb_proches": nb_proches,
         "nb_ruches_suivies": nb_ruches_suivies,
-        "nb_ruches_total": len(RUCHES_TEST),
+        "nb_ruches_total": len(par_ruche),
         "taux_traitement": _pourcentage(nb_traites, total),
         "taux_maladie": _pourcentage(nb_malades, total),
         "taux_critique": _pourcentage(nb_critiques, total),

@@ -44,7 +44,7 @@
         <tr class="{% if s.est_en_alerte %}is-alert{% endif %}">
           <td><input type="checkbox" name="ids" value="{{ s.pk }}" class="case-suivi" aria-label="Sélectionner le suivi {{ s.id_suivi }}"></td>
           <td class="num">{{ s.id_suivi }}</td>
-          <td><span class="hive-id">{{ s.get_id_ruche_display }}</span></td>
+          <td><span class="hive-id">{{ s.ruche.code_ruche }}</span></td>
           <td>{{ s.date_suivi|date:"d/m/Y" }}</td>
           <td><span class="badge lvl-{{ s.etat_sante|lower }}">{{ s.get_etat_sante_display }}</span></td>
           <td><span class="badge lvl-{{ s.niveau_risque|lower }}">{{ s.get_niveau_risque_display }}</span></td>

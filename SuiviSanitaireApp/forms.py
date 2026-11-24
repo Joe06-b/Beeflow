@@ -1,7 +1,9 @@
 from django import forms
 
+from rucheapp.models import Ruche
+
 from .maladies import noms_maladies
-from .models import EtatSante, NiveauRisque, RUCHES_TEST, SuiviSanitaire
+from .models import EtatSante, NiveauRisque, SuiviSanitaire
 
 
 class SuiviSanitaireForm(forms.ModelForm):
@@ -11,7 +13,7 @@ class SuiviSanitaireForm(forms.ModelForm):
     class Meta:
         model = SuiviSanitaire
         fields = [
-            "id_ruche",
+            "ruche",
             "date_suivi",
             "etat_sante",
             "maladie_detectee",
@@ -39,7 +41,9 @@ class SuiviSanitaireForm(forms.ModelForm):
         for field in self.fields.values():
             css = "bf-select" if isinstance(field.widget, forms.Select) else "bf-input"
             field.widget.attrs["class"] = css
-        self.fields["id_ruche"].choices = [("", "Choisir une ruche")] + RUCHES_TEST
+        # Liste déroulante alimentée par les vraies ruches (app rucheapp), triées par code
+        self.fields["ruche"].queryset = Ruche.objects.order_by("code_ruche")
+        self.fields["ruche"].empty_label = "Choisir une ruche"
         # Suggestions de l'atlas des maladies dans le champ libre (liste <datalist>)
         self.fields["maladie_detectee"].widget.attrs["list"] = "maladies-connues"
         self.fields["maladie_detectee"].widget.attrs["autocomplete"] = "off"
@@ -62,9 +66,10 @@ class RechercheSuiviForm(forms.Form):
         required=False,
         widget=forms.TextInput(attrs={"placeholder": "Rechercher une maladie, un traitement, une ruche…", "aria-label": "Rechercher", "class": "bf-input"}),
     )
-    ruche = forms.TypedChoiceField(
-        required=False, coerce=int, empty_value=None,
-        choices=[("", "Toutes les ruches")] + RUCHES_TEST,
+    ruche = forms.ModelChoiceField(
+        required=False,
+        queryset=Ruche.objects.order_by("code_ruche"),
+        empty_label="Toutes les ruches",
         widget=forms.Select(attrs={"class": "bf-select"}),
     )
     etat_sante = forms.ChoiceField(

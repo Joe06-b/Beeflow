@@ -9,7 +9,7 @@
   <section class="panel ss-confirm">
     <span class="hex ss-confirm-icon">{% include "includes/icon.html" with i="trash" %}</span>
     <h1>Supprimer le suivi n°{{ suivi.id_suivi }} ?</h1>
-    <p class="muted">Le suivi de la ruche <strong>{{ suivi.get_id_ruche_display }}</strong> du {{ suivi.date_suivi|date:"d/m/Y" }}
+    <p class="muted">Le suivi de la ruche <strong>{{ suivi.ruche.code_ruche }}</strong> du {{ suivi.date_suivi|date:"d/m/Y" }}
        sera définitivement effacé, avec son diagnostic et son traitement.</p>
 
     <dl class="ss-facts ss-facts-row ss-confirm-facts">

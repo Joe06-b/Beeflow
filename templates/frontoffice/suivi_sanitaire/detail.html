@@ -18,10 +18,11 @@
 
   <header class="page-head">
     <div>
-      <h1>Contrôle de la ruche {{ suivi.get_id_ruche_display }}</h1>
+      <h1>Contrôle de la ruche {{ suivi.ruche.code_ruche }}</h1>
       <p>Suivi n°{{ suivi.id_suivi }}, effectué le {{ suivi.date_suivi|date:"j F Y" }}.</p>
     </div>
     <div class="page-actions">
+      <a href="{% url 'ruches_front:detail' suivi.ruche_id %}" class="btn btn-ghost">{% include "includes/icon.html" with i="hive" %} Voir la ruche</a>
       <a href="{% url 'suivi_sanitaire:modifier' suivi.pk %}" class="btn btn-ghost">{% include "includes/icon.html" with i="edit" %} Modifier</a>
       <a href="{% url 'suivi_sanitaire:supprimer' suivi.pk %}" class="btn btn-danger-ghost">{% include "includes/icon.html" with i="trash" %} Supprimer</a>
     </div>
@@ -67,8 +68,8 @@
 
       <section class="panel">
         <div class="panel-head">
-          <h2>{% include "includes/icon.html" with i="history" %} Historique de la ruche {{ suivi.get_id_ruche_display }}</h2>
-          <a href="{% url 'suivi_sanitaire:ajouter' %}?ruche={{ suivi.id_ruche }}" class="btn btn-ghost btn-sm">{% include "includes/icon.html" with i="plus" %} Nouveau suivi</a>
+          <h2>{% include "includes/icon.html" with i="history" %} Historique de la ruche {{ suivi.ruche.code_ruche }}</h2>
+          <a href="{% url 'suivi_sanitaire:ajouter' %}?ruche={{ suivi.ruche_id }}" class="btn btn-ghost btn-sm">{% include "includes/icon.html" with i="plus" %} Nouveau suivi</a>
         </div>
         {% if historique %}
         <ol class="ss-timeline">
@@ -115,7 +116,7 @@
           <strong>Non prévu</strong>
         {% endif %}
       </div>
-      <a href="{% url 'suivi_sanitaire:ajouter' %}?ruche={{ suivi.id_ruche }}" class="btn btn-honey ss-block">{% include "includes/icon.html" with i="plus" %} Enregistrer un nouveau contrôle</a>
+      <a href="{% url 'suivi_sanitaire:ajouter' %}?ruche={{ suivi.ruche_id }}" class="btn btn-honey ss-block">{% include "includes/icon.html" with i="plus" %} Enregistrer un nouveau contrôle</a>
     </aside>
   </div>
 

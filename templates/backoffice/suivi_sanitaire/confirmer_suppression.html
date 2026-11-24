@@ -17,7 +17,7 @@
         {% for s in suivis %}
         <tr>
           <td class="num">{{ s.id_suivi }}</td>
-          <td><span class="hive-id">{{ s.get_id_ruche_display }}</span></td>
+          <td><span class="hive-id">{{ s.ruche.code_ruche }}</span></td>
           <td>{{ s.date_suivi|date:"d/m/Y" }}</td>
           <td><span class="badge lvl-{{ s.etat_sante|lower }}">{{ s.get_etat_sante_display }}</span></td>
           <td>{{ s.maladie_detectee|default:'<span class="muted">Aucune</span>' }}</td>

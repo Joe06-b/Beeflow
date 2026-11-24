@@ -108,7 +108,7 @@ def bo_supprimer_selection(request):
         messages.warning(request, "Aucun suivi sélectionné.", extra_tags="son-erreur")
         return redirect("suivi_sanitaire_bo:liste")
 
-    suivis = SuiviSanitaire.objects.filter(pk__in=ids)
+    suivis = SuiviSanitaire.objects.select_related("ruche").filter(pk__in=ids)
 
     if "confirmer" in request.POST:          # 2e étape : suppression réelle
         nb, _ = suivis.delete()
@@ -158,7 +158,7 @@ def bo_export_csv(request):
                      "Traitement", "Dose", "Date traitement", "Prochain contrôle", "Risque"])
     for s in suivis:
         writer.writerow([
-            s.id_suivi, s.get_id_ruche_display(), s.date_suivi, s.get_etat_sante_display(),
+            s.id_suivi, s.ruche.code_ruche, s.date_suivi, s.get_etat_sante_display(),
             s.maladie_detectee, s.symptomes, s.observation, s.type_traitement, s.dose,
             s.date_traitement or "", s.date_prochain_controle or "", s.get_niveau_risque_display(),
         ])

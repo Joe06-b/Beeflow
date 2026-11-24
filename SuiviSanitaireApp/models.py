@@ -18,28 +18,20 @@ class NiveauRisque(models.TextChoices):
     ELEVE = "Eleve", "Élevé"
 
 
-# ------------------------------------------------------------------
-# TEMPORAIRE (en attendant l'intégration avec l'app Ruche de mon binôme)
-# Liste statique de ruches de test, utilisée pour la liste déroulante.
-# À SUPPRIMER le jour de l'intégration.
-# ------------------------------------------------------------------
-RUCHES_TEST = [
-    (1, "R-001"),
-    (2, "R-002"),
-    (3, "R-003"),
-    (4, "R-004"),
-    (5, "R-005"),
-]
-
-
 class SuiviSanitaire(models.Model):
     # - id_suivi : int
     id_suivi = models.AutoField(primary_key=True)
 
-    # - id_ruche : int  -> association "Avoir" : 1 Ruche  ---  0..* SuiviSanitaire
-    # TEMPORAIRE : entier statique. Sera remplacé par une ForeignKey vers Ruche
-    # lors de l'intégration (voir commentaire en bas du fichier).
-    id_ruche = models.PositiveIntegerField(choices=RUCHES_TEST, verbose_name="Ruche")
+    # - ruche : association "Avoir" : 1 Ruche  ---  0..* SuiviSanitaire
+    # Clé étrangère vers la Ruche de rucheapp. La colonne en base reste "id_ruche"
+    # (même nom que dans le diagramme de classes). Supprimer une ruche supprime ses suivis.
+    ruche = models.ForeignKey(
+        "rucheapp.Ruche",
+        on_delete=models.CASCADE,
+        related_name="suivis",
+        db_column="id_ruche",
+        verbose_name="Ruche",
+    )
 
     # - date_suivi : Date
     date_suivi = models.DateField(default=date.today, verbose_name="Date du suivi")
@@ -96,7 +88,7 @@ class SuiviSanitaire(models.Model):
         ordering = ["-date_suivi", "-id_suivi"]
 
     def __str__(self):
-        return f"Suivi #{self.id_suivi} – Ruche {self.get_id_ruche_display()} – {self.date_suivi}"
+        return f"Suivi #{self.id_suivi} – Ruche {self.ruche} – {self.date_suivi}"
 
     # ---------- Règles de validation (appelées par les formulaires / full_clean) ----------
     def clean(self):
@@ -138,7 +130,7 @@ class SuiviSanitaire(models.Model):
             self._remplace = self.remplace           # valeur annotée par services.avec_remplace()
         if getattr(self, "_remplace", None) is None:
             self._remplace = (
-                SuiviSanitaire.objects.filter(id_ruche=self.id_ruche)
+                SuiviSanitaire.objects.filter(ruche_id=self.ruche_id)
                 .filter(models.Q(date_suivi__gt=self.date_suivi)
                         | models.Q(date_suivi=self.date_suivi, id_suivi__gt=self.id_suivi))
                 .exists()
@@ -166,19 +158,3 @@ class SuiviSanitaire(models.Model):
     def est_en_alerte(self):
         # Seul le DERNIER suivi d'une ruche compte : un ancien suivi critique déjà suivi d'un autre n'alerte plus
         return (self.est_critique and not self.est_remplace) or self.controle_en_retard
-
-
-# ------------------------------------------------------------------
-# INTÉGRATION (plus tard) : remplacer le champ id_ruche ci-dessus par :
-#
-#     ruche = models.ForeignKey(
-#         "NomAppDeMonAmi.Ruche",
-#         on_delete=models.CASCADE,
-#         related_name="suivis",
-#         db_column="id_ruche",
-#         verbose_name="Ruche",
-#     )
-#
-# puis supprimer RUCHES_TEST, remplacer id_ruche par ruche dans forms/views/templates,
-# et refaire makemigrations / migrate.
-# ------------------------------------------------------------------

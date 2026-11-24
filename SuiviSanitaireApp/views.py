@@ -9,7 +9,7 @@ from .forms import RechercheSuiviForm, SuiviSanitaireForm
 from django.http import Http404
 
 from .maladies import CATEGORIES, MALADIES, anatomie_pour, evolution_pour, fiche_par_slug, maladies_avec_detections, trouver_maladie
-from .models import EtatSante, NiveauRisque, RUCHES_TEST, SuiviSanitaire
+from .models import EtatSante, NiveauRisque, SuiviSanitaire
 from .services import avec_remplace, compter_alertes, derniers_suivis
 
 TEMPLATE_DIR = "frontoffice/suivi_sanitaire/"
@@ -32,7 +32,7 @@ RANG_RISQUE = Case(
 TRIS = {
     "date_desc": ["-date_suivi", "-id_suivi"],
     "date_asc": ["date_suivi", "id_suivi"],
-    "ruche": ["id_ruche", "-date_suivi"],
+    "ruche": ["ruche__code_ruche", "-date_suivi"],
     "etat": ["-rang_etat", "-date_suivi"],
     "risque": ["-rang_risque", "-date_suivi"],
     "controle": ["date_prochain_controle", "-date_suivi"],
@@ -44,7 +44,7 @@ TRIS = {
 # ---------------------------------------------------------------------------
 def liste_suivis(request):
     form = RechercheSuiviForm(request.GET or None)
-    suivis = SuiviSanitaire.objects.annotate(rang_etat=RANG_ETAT, rang_risque=RANG_RISQUE)
+    suivis = SuiviSanitaire.objects.select_related("ruche").annotate(rang_etat=RANG_ETAT, rang_risque=RANG_RISQUE)
     tri = "date_desc"
 
     if form.is_valid():
@@ -60,18 +60,15 @@ def liste_suivis(request):
                 | Q(symptomes__icontains=q)
                 | Q(observation__icontains=q)
                 | Q(type_traitement__icontains=q)
+                | Q(ruche__code_ruche__icontains=q)      # recherche par code de ruche (ex : "R-002")
             )
-            # Recherche par code de ruche (ex : "R-002")
-            ids_ruches = [rid for rid, code in RUCHES_TEST if q.lower() in code.lower()]
-            if ids_ruches:
-                filtre |= Q(id_ruche__in=ids_ruches)
             # Recherche par numéro de suivi
             if q.isdigit():
                 filtre |= Q(id_suivi=int(q))
             suivis = suivis.filter(filtre)
 
         if ruche:
-            suivis = suivis.filter(id_ruche=ruche)
+            suivis = suivis.filter(ruche=ruche)
         if etat:
             suivis = suivis.filter(etat_sante=etat)
         if risque:
@@ -96,9 +93,9 @@ def liste_suivis(request):
 # consulterSuivi (détail)
 # ---------------------------------------------------------------------------
 def detail_suivi(request, pk):
-    suivi = get_object_or_404(SuiviSanitaire, pk=pk)
+    suivi = get_object_or_404(SuiviSanitaire.objects.select_related("ruche"), pk=pk)
     historique = (
-        SuiviSanitaire.objects.filter(id_ruche=suivi.id_ruche)
+        SuiviSanitaire.objects.filter(ruche_id=suivi.ruche_id)
         .exclude(pk=suivi.pk)
         .order_by("-date_suivi")[:5]
     )
@@ -124,7 +121,7 @@ def ajouter_suivi(request):
         initial = {}
         ruche = request.GET.get("ruche")          # ex : /suivis/ajouter/?ruche=2
         if ruche and ruche.isdigit():
-            initial["id_ruche"] = int(ruche)
+            initial["ruche"] = int(ruche)
         form = SuiviSanitaireForm(initial=initial)
 
     return render(request, TEMPLATE_DIR + "form.html", {"form": form, "titre": "Ajouter un suivi sanitaire", "mode": "ajout"})
