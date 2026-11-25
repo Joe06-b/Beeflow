@@ -451,7 +451,15 @@
         // VALIDATION GLOBALE À LA SOUMISSION
         // ==========================================
 
+        let isSubmitting = false;
+
         form.addEventListener('submit', function (e) {
+            if (isSubmitting) {
+                e.preventDefault();
+                e.stopPropagation();
+                return false;
+            }
+
             const checks = [
                 validateUsername(),
                 validateEmail(),
@@ -472,6 +480,7 @@
             if (!isValid) {
                 e.preventDefault();
                 e.stopPropagation();
+                isSubmitting = false;
 
                 // Chercher le premier champ en erreur
                 const firstErrorField = form.querySelector('input[style*="rgb(220, 53, 69)"], select[style*="rgb(220, 53, 69)"]') ||
@@ -489,7 +498,50 @@
                         inputToFocus.scrollIntoView({ behavior: 'smooth', block: 'center' });
                     }
                 }
+                return;
             }
+
+            // Empêcher les doubles envois (spam de clics) et bloquer les boutons
+            isSubmitting = true;
+
+            const actionsPanel = document.querySelector('.user-form-actions');
+            if (actionsPanel) {
+                actionsPanel.style.pointerEvents = 'none';
+            }
+
+            const formId = form.getAttribute('id');
+            const submitButtons = document.querySelectorAll(
+                formId
+                    ? `button[type="submit"][form="${formId}"], #${formId} button[type="submit"]`
+                    : 'button[type="submit"]'
+            );
+
+            // Désactivation visuelle des boutons sans couper les données POST du bouton cliqué
+            setTimeout(function () {
+                submitButtons.forEach(function (btn) {
+                    btn.disabled = true;
+                    btn.style.cursor = 'wait';
+                });
+            }, 0);
+        });
+
+        // Réactiver les boutons si la page est restaurée depuis le cache navigateur (bouton Précédent)
+        window.addEventListener('pageshow', function () {
+            isSubmitting = false;
+            const actionsPanel = document.querySelector('.user-form-actions');
+            if (actionsPanel) {
+                actionsPanel.style.pointerEvents = '';
+            }
+            const formId = form.getAttribute('id');
+            const submitButtons = document.querySelectorAll(
+                formId
+                    ? `button[type="submit"][form="${formId}"], #${formId} button[type="submit"]`
+                    : 'button[type="submit"]'
+            );
+            submitButtons.forEach(function (btn) {
+                btn.disabled = false;
+                btn.style.cursor = '';
+            });
         });
     }
 
