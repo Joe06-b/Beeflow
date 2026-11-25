@@ -1,0 +1,113 @@
+{% extends "layouts/base_backoffice.html" %}
+{% load static %}
+
+{% block title %}Météo : {{ zone.nomZone }} | BeeFlow administration{% endblock %}
+{% block extra_css %}
+<link rel="stylesheet" href="{% static 'css/environnement.css' %}">
+<link rel="stylesheet" href="{% static 'css/meteo.css' %}">
+{% endblock %}
+
+{% block content %}
+<div class="meteo-bo-detail"
+      data-meteo-backoffice-detail
+      data-weather-url="{{ weather_url }}"
+      data-refresh-url="{{ refresh_url }}"
+      data-meteo-simulations="{{ meteo_scenarios_enabled|yesno:'true,false' }}">
+  <nav class="breadcrumb env-bo-crumb" aria-label="Fil d'Ariane">
+    <a href="{% url 'environnement_bo:meteo' %}">{% include "includes/icon.html" with i="arrow-left" %} Météo des zones</a>
+    {% include "includes/icon.html" with i="chevron-right" %}
+    <span aria-current="page">{{ zone.nomZone }}</span>
+  </nav>
+
+  {% include "backoffice/environnementapp/_onglets.html" with onglet="meteo" %}
+
+  <header class="page-head meteo-page-head">
+    <div>
+      <p class="meteo-eyebrow">DÉTAIL MÉTÉO · ZONE N°{{ zone.idZone }}</p>
+      <h1>{{ zone.nomZone }}</h1>
+      <p>Latitude {{ zone.latitude }}° · Longitude {{ zone.longitude }}°</p>
+    </div>
+    <div class="page-actions">
+      <button class="btn btn-ghost" type="button" data-refresh>
+        {% include "includes/icon.html" with i="rotate" %} Actualiser les prévisions
+      </button>
+      <a href="{% url 'environnement_bo:meteo' %}" class="btn btn-ghost">
+        {% include "includes/icon.html" with i="arrow-left" %} Retour à la liste
+      </a>
+    </div>
+  </header>
+
+  <div class="meteo-controls-panel meteo-detail-controls">
+    <div class="meteo-control meteo-control-date">
+      <label for="meteo-day">Journée de prévision</label>
+      <select class="bf-select" id="meteo-day" data-day-select disabled><option value="">Chargement…</option></select>
+    </div>
+    <div class="meteo-control meteo-control-hour">
+      <label for="meteo-hour">Heure locale</label>
+      <select class="bf-select" id="meteo-hour" data-hour-select disabled><option value="">Chargement…</option></select>
+    </div>
+    <span class="meteo-detail-refresh-time">Dernière récupération : <strong data-updated>—</strong></span>
+  </div>
+
+  <p class="meteo-live-status" data-status role="status" aria-live="polite">Chargement des prévisions…</p>
+
+  <section class="meteo-stage-layout meteo-bo-stage" aria-label="Diorama et météo de la zone">
+    <div class="meteo-scene-card">
+      {% include "includes/meteo_scene.html" %}
+      {% if meteo_scenarios_enabled %}
+      <div class="meteo-simulation-controls">
+        <label for="meteo-simulation">Scénario de démonstration (DEBUG)</label>
+        <select class="bf-select" id="meteo-simulation" data-simulation-select>
+          <option value="">Prévisions réelles</option>
+          <option value="sunny">Soleil</option>
+          <option value="partly_cloudy">Ciel partiellement nuageux</option>
+          <option value="overcast">Ciel couvert</option>
+          <option value="fog">Brouillard</option>
+          <option value="light_rain">Pluie légère</option>
+          <option value="heavy_rain">Pluie forte</option>
+          <option value="storm">Orage avec éclairs</option>
+          <option value="snow">Neige</option>
+          <option value="night">Nuit</option>
+        </select>
+      </div>
+      <p class="meteo-simulation-banner" data-simulation-banner role="status" hidden></p>
+      {% endif %}
+      <div class="meteo-scene-meta">
+        <div><span class="meteo-kicker">SCÈNE MÉTÉO</span><h2>{{ zone.nomZone }}</h2></div>
+        <span class="meteo-weather-label" data-weather-description>En attente des données</span>
+      </div>
+    </div>
+    <aside class="meteo-conditions" aria-label="Données météo détaillées">
+      <div class="meteo-condition-heading">
+        <span class="meteo-kicker" data-weather-provenance>DONNÉES MÉTÉO</span>
+        <span class="meteo-weather-label" data-weather-description>En attente des données</span>
+      </div>
+      <div class="meteo-temperature"><strong data-value="temperature">—</strong><span>°C</span></div>
+      <p class="meteo-feels-like">Ressenti <strong data-value="apparent">—</strong></p>
+      <div class="meteo-metrics">
+        <div class="meteo-metric"><span class="meteo-metric-icon">{% include "includes/icon.html" with i="droplet" %}</span><span>Humidité</span><strong data-value="humidity">—</strong></div>
+        <div class="meteo-metric"><span class="meteo-metric-icon">{% include "includes/icon.html" with i="leaf" %}</span><span>Vent</span><strong data-value="wind">—</strong></div>
+        <div class="meteo-metric"><span class="meteo-metric-icon">{% include "includes/icon.html" with i="leaf" %}</span><span>Rafales</span><strong data-value="gusts">—</strong></div>
+        <div class="meteo-metric"><span class="meteo-metric-icon">{% include "includes/icon.html" with i="droplet" %}</span><span>Précipitations</span><strong data-value="precipitation">—</strong></div>
+        <div class="meteo-metric"><span class="meteo-metric-icon">{% include "includes/icon.html" with i="hub" %}</span><span>Couverture nuageuse</span><strong data-value="clouds">—</strong></div>
+        <div class="meteo-metric"><span class="meteo-metric-icon">{% include "includes/icon.html" with i="pin" %}</span><span>Direction du vent</span><strong data-value="direction">—</strong></div>
+        <div class="meteo-metric"><span class="meteo-metric-icon">{% include "includes/icon.html" with i="droplet" %}</span><span>Probabilité de pluie</span><strong data-value="probability">—</strong></div>
+        <div class="meteo-metric"><span class="meteo-metric-icon">{% include "includes/icon.html" with i="hub" %}</span><span>Pression</span><strong data-value="pressure">—</strong></div>
+        <div class="meteo-metric"><span class="meteo-metric-icon">{% include "includes/icon.html" with i="eye" %}</span><span>Visibilité</span><strong data-value="visibility">—</strong></div>
+        <div class="meteo-metric"><span class="meteo-metric-icon">{% include "includes/icon.html" with i="sun" %}</span><span>Indice UV</span><strong data-value="uv">—</strong></div>
+      </div>
+      <p class="meteo-data-source">Données fournies par <a href="https://open-meteo.com/" target="_blank" rel="noopener noreferrer">Open-Meteo</a></p>
+    </aside>
+  </section>
+
+  <section class="meteo-outlook panel" aria-labelledby="meteo-detail-outlook-title">
+    <div class="panel-head"><div><span class="meteo-kicker">TENDANCE JOURNALIÈRE</span><h2 id="meteo-detail-outlook-title">Prévisions disponibles</h2></div><span class="muted small" data-timezone></span></div>
+    <div class="meteo-day-list" data-day-list aria-label="Choisir une journée"></div>
+  </section>
+  <form class="meteo-csrf" aria-hidden="true">{% csrf_token %}</form>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script type="module" src="{% static 'js/meteo/meteo_backoffice.js' %}?v=3"></script>
+{% endblock %}

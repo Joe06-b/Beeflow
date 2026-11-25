@@ -39,11 +39,11 @@
                     <p>Reines, populations, emplacements et état de chaque ruche.</p>
                     <span class="face-foot">Ouvrir mes ruches {% include "includes/icon.html" with i="arrow-right" %}</span>
                 </a>
-                <a class="face" href="#" data-soon data-title="Environnement">
+                <a class="face face-live" href="{% url 'environnement:liste' %}">
                     <span class="face-chip">{% include "includes/icon.html" with i="leaf" %}</span>
                     <h3>Environnement</h3>
                     <p>Flore mellifère, météo et conditions autour du rucher.</p>
-                    <span class="face-foot is-soon">Bientôt disponible</span>
+                    <span class="face-foot">Ouvrir le module {% include "includes/icon.html" with i="arrow-right" %}</span>
                 </a>
                 <a class="face face-live" href="{% url 'suivi_sanitaire:liste' %}">
                     <span class="face-chip">{% include "includes/icon.html" with i="sanitaire" %}</span>
