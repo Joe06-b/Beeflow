@@ -45,10 +45,6 @@ urlpatterns = [
      # MODULE GESTION DU STOCK
     path("stocks/", include("StocksApp.urls")),
     path("dashboard/stocks/", include("StocksApp.urls_backoffice")),
-
-    # MODULE ENVIRONNEMENT
-    path("environnements/", include("environnementapp.urls")),
-    path("dashboard/environnements/", include("environnementapp.urls_backoffice")),
 ]
     
     # Photos des produits (en développement)

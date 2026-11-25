@@ -10,11 +10,7 @@ For the full list of settings and their values, see
 https://docs.djangoproject.com/en/6.1/ref/settings/
 """
 
-import mimetypes
 from pathlib import Path
-
-# Windows can map module assets to text/plain, which browsers reject for ES modules.
-mimetypes.add_type("text/javascript", ".js", strict=True)
 
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve().parent.parent
@@ -46,7 +42,6 @@ INSTALLED_APPS = [
     'rucheapp',
     'ProduitApp',
     'StocksApp',
-    'environnementapp',
 ]
 
 MIDDLEWARE = [
