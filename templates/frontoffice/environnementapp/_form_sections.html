@@ -1,0 +1,41 @@
+{# Champs du formulaire Environnement regroupés par catégorie pour le Frontoffice #}
+{% if form.non_field_errors %}
+<div class="notice is-bad">{% include "includes/icon.html" with i="alert" %}<div>{{ form.non_field_errors }}</div></div>
+{% endif %}
+
+<fieldset class="env-fieldset">
+  <legend><span class="hex hex-sm">{% include "includes/icon.html" with i="pin" %}</span> Identification de la zone</legend>
+  {% include "frontoffice/environnementapp/_champ.html" with field=form.nomZone %}
+  <div class="form-row">
+    {% include "frontoffice/environnementapp/_champ.html" with field=form.typeVegetation %}
+    {% include "frontoffice/environnementapp/_champ.html" with field=form.surface %}
+  </div>
+</fieldset>
+
+<fieldset class="env-fieldset">
+  <legend><span class="hex hex-sm">{% include "includes/icon.html" with i="pin" %}</span> Coordonnées géographiques</legend>
+  <div class="form-row">
+    {% include "frontoffice/environnementapp/_champ.html" with field=form.latitude %}
+    {% include "frontoffice/environnementapp/_champ.html" with field=form.longitude %}
+  </div>
+</fieldset>
+
+<fieldset class="env-fieldset">
+  <legend><span class="hex hex-sm">{% include "includes/icon.html" with i="sun" %}</span> Conditions météorologiques</legend>
+  <div class="form-row">
+    {% include "frontoffice/environnementapp/_champ.html" with field=form.temperature %}
+    {% include "frontoffice/environnementapp/_champ.html" with field=form.humidite %}
+  </div>
+  <div class="form-row">
+    {% include "frontoffice/environnementapp/_champ.html" with field=form.precipitation %}
+    {% include "frontoffice/environnementapp/_champ.html" with field=form.vitesseVent %}
+  </div>
+</fieldset>
+
+<fieldset class="env-fieldset">
+  <legend><span class="hex hex-sm">{% include "includes/icon.html" with i="leaf" %}</span> Floraison et date de mesure</legend>
+  <div class="form-row">
+    {% include "frontoffice/environnementapp/_champ.html" with field=form.niveauFloraison %}
+    {% include "frontoffice/environnementapp/_champ.html" with field=form.dateMesure %}
+  </div>
+</fieldset>

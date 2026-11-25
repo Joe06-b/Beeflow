@@ -1,0 +1,23 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    {% include "includes/_head.html" %}
+    <title>{% block title %}BeeFlow | Gestion apicole{% endblock %}</title>
+    {% block extra_css %}{% endblock %}
+</head>
+<body class="frontoffice {% block body_class %}{% endblock %}" data-icons="{% static 'img/icons.svg' %}" {% block body_attrs %}{% endblock %}>
+
+    {% include "includes/frontoffice_header.html" %}
+
+    <main class="front-main">
+        {% block content %}{% endblock %}
+    </main>
+
+    {% include "includes/frontoffice_footer.html" %}
+    {% include "includes/_toasts.html" %}
+
+    <script src="{% static 'js/beeflow.js' %}"></script>
+    {% block extra_js %}{% endblock %}
+</body>
+</html>

@@ -1,0 +1,51 @@
+{% extends "layouts/base_frontoffice.html" %}
+{% load static %}
+
+{% block title %}Supprimer la zone {{ zone.nomZone }} | BeeFlow{% endblock %}
+{% block extra_css %}<link rel="stylesheet" href="{% static 'css/environnement.css' %}">{% endblock %}
+
+{% block content %}
+<div class="container-narrow page">
+  <section class="panel env-confirm">
+    <span class="hex env-confirm-icon">{% include "includes/icon.html" with i="trash" %}</span>
+    <h1>Supprimer la zone « {{ zone.nomZone }} » ?</h1>
+    <p class="muted">
+      La zone environnementale n°<strong>{{ zone.idZone }}</strong> enregistrée le {{ zone.dateMesure|date:"d/m/Y à H:i" }}
+      sera définitivement effacée, avec l'ensemble de ses mesures météorologiques et florales.
+    </p>
+
+    <div class="table-scroll env-confirm-table">
+      <table class="table">
+        <thead>
+          <tr>
+            <th>N°</th>
+            <th>Zone</th>
+            <th>Végétation</th>
+            <th>Surface</th>
+            <th>Température</th>
+            <th>Floraison</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td class="num">{{ zone.idZone }}</td>
+            <td><strong>{{ zone.nomZone }}</strong></td>
+            <td><span class="badge badge-{{ zone.typeVegetation|lower }}">{{ zone.get_typeVegetation_display }}</span></td>
+            <td>{{ zone.surface }} ha</td>
+            <td>{{ zone.temperature }} °C</td>
+            <td><span class="badge lvl-{{ zone.niveauFloraison|lower }}">{{ zone.get_niveauFloraison_display }}</span></td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+
+    <form method="post" class="env-confirm-actions">
+      {% csrf_token %}
+      <a href="{% url 'environnement:detail' zone.pk %}" class="btn btn-ghost">Garder la zone</a>
+      <button type="submit" class="btn btn-danger">
+        {% include "includes/icon.html" with i="trash" %} Supprimer définitivement
+      </button>
+    </form>
+  </section>
+</div>
+{% endblock %}
