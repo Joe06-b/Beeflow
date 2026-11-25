@@ -7,6 +7,7 @@ from django.core.files.uploadedfile import SimpleUploadedFile
 from django.test import TestCase, override_settings
 from django.urls import reverse
 
+from StocksApp.models import Stock
 from .models import Produit
 
 # PNG 1x1 valide, pour tester l'envoi de photo
@@ -22,6 +23,11 @@ DONNEES = {
 
 class BaseTest(TestCase):
     def setUp(self):
+        self.stock = Stock.objects.create(
+            nom_stock="Stock test", type_stock="MIEL", emplacement="Entrepôt",
+            capacite_max=Decimal("500"), seuil_alerte_min=Decimal("10"), seuil_alerte_max=Decimal("400"),
+        )
+        DONNEES["stock"] = str(self.stock.pk)
         self.p1 = Produit.objects.create(categorie_produit="miel", origine_florale="Thym", quantite="2.00", unite="kg", prix="35.00", etat="disponible")
         self.p2 = Produit.objects.create(categorie_produit="pollen", origine_florale="Fleurs sauvages", quantite="0.00", unite="g", prix="12.00", etat="rupture_stock")
 
@@ -172,7 +178,21 @@ class FrontofficeCrudTests(BaseTest):
         response = self.client.post(reverse("produits_front:ajouter"), DONNEES, follow=True)
         self.assertContains(response, "ajouté avec succès")
 
+class StockAffectationTests(BaseTest):
+    def test_stock_obligatoire_a_l_ajout(self):
+        donnees = {k: v for k, v in DONNEES.items() if k != "stock"}
+        response = self.client.post(reverse("produits_front:ajouter"), donnees)
+        self.assertEqual(response.status_code, 200)
+        self.assertContains(response, "Veuillez choisir le stock d")
 
+    def test_stock_enregistre_avec_le_produit(self):
+        response = self.client.post(reverse("produits_front:ajouter"), DONNEES)
+        self.assertEqual(response.status_code, 302)
+        self.assertEqual(Produit.objects.latest("pk").stock, self.stock)
+
+    def test_liste_deroulante_affiche_l_id_du_stock(self):
+        response = self.client.get(reverse("produits_front:ajouter"))
+        self.assertContains(response, f"#{self.stock.pk} – Stock test")
 class BackofficeCrudTests(BaseTest):
     def test_pages_accessibles(self):
         for nom, args in [("liste", []), ("ajouter", []), ("detail", [self.p1.pk]), ("modifier", [self.p1.pk]), ("supprimer", [self.p1.pk])]:

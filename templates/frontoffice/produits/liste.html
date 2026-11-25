@@ -2,7 +2,11 @@
 {% load static %}
 
 {% block title %}Gestion des produits | BeeFlow{% endblock %}
-{% block extra_css %}<link rel="stylesheet" href="{% static 'css/produits.css' %}">{% endblock %}
+{% block extra_css %}<link rel="stylesheet" href="{% static 'css/produits.css' %}?v=3">
+<!-- La carte des modules doit venir AVANT tout module -->
+<script type="importmap">
+  { "imports": { "three": "{% static 'vendor/three/three.module.min.js' %}", "three/addons/": "{% static 'vendor/three/addons/' %}" } }
+</script>{% endblock %}
 
 {% block content %}
 <div class="container page">
@@ -48,7 +52,13 @@
   <p class="pr-summary"><strong>{{ total_count }}</strong> produit{{ total_count|pluralize }} correspondant{{ total_count|pluralize }} à votre sélection</p>
 
   {% if page.object_list %}
-  <div class="pr-grid">
+  <div class="pr-vues" role="group" aria-label="Mode d'affichage">
+    <button type="button" data-pr-vue="cartes" aria-pressed="true">{% include "includes/icon.html" with i="jar" %} Cartes</button>
+    <button type="button" data-pr-vue="etagere" aria-pressed="false">{% include "includes/icon.html" with i="hub" %} Étagère 3D</button>
+  </div>
+  <p class="pr-3d-erreur" id="pr3dError" role="alert" hidden>La vue 3D n'est pas disponible sur ce navigateur. Les cartes restent affichées.</p>
+
+  <div class="pr-grid" id="prVueCartes">
     {% for produit in page %}
     <article class="pr-card">
       <a class="pr-card-media" href="{% url 'produits_front:detail' produit.pk %}" aria-label="Consulter le produit {{ produit.pk }}">
@@ -62,7 +72,7 @@
           {% include "frontoffice/produits/_etat.html" with p=produit %}
         </div>
         <h2>{{ produit.origine_florale|default:produit.get_categorie_produit_display }}</h2>
-        <p class="pr-card-qty"><strong>{{ produit.quantite|floatformat:"-2" }} {{ produit.get_unite_display }}</strong> · {{ produit.prix }} TND</p>
+        <p class="pr-card-qty"><strong>{{ produit.quantite|floatformat:"-2" }} {{ produit.get_unite_display }}</strong> · {{ produit.volume_stockage|floatformat:"-6" }} m³ · {{ produit.prix }} TND</p>
         <div class="pr-card-barcode">
           <img src="{% url 'produits_front:code_barre_image' produit.pk %}" alt="Code-barres {{ produit.code_barre }}" loading="lazy">
           <small>EAN-13</small>
@@ -75,6 +85,20 @@
     </article>
     {% endfor %}
   </div>
+  <section class="pr3d" id="prVue3d" hidden aria-label="Étagère 3D des produits">
+    <div class="pr3d-viewer" id="pr3dViewer">
+      <div class="pr3d-canvas" id="pr3dCanvas" aria-label="Étagère 3D : un pot par produit. Flèches gauche et droite pour parcourir, Échap pour revenir."></div>
+      <div class="pr3d-tip" id="pr3dTip" hidden></div>
+      <aside class="pr3d-info" id="pr3dInfo" hidden></aside>
+      <p class="pr3d-hint">Glissez pour tourner · survolez un pot · cliquez pour zoomer · niveau du pot = volume du produit ÷ capacité du stock (m³)</p>
+      <div class="pr3d-loading">Chargement de l'étagère…</div>
+    </div>
+    <ul id="pr3dData" hidden>
+      {% for produit in page %}
+      <li data-id="{{ produit.pk }}" data-cat="{{ produit.categorie_produit }}" data-cat-label="{{ produit.get_categorie_produit_display }}" data-nom="{{ produit.origine_florale }}" data-qte="{{ produit.quantite|stringformat:'s' }}" data-unite="{{ produit.unite }}" data-etat="{{ produit.etat }}" data-etat-label="{{ produit.get_etat_display }}" data-prix="{{ produit.prix|stringformat:'s' }}" data-stock-id="{{ produit.stock_id|default_if_none:'' }}" data-stock-nom="{{ produit.stock.nom_stock|default:'' }}" data-vol="{{ produit.volume_stockage|stringformat:'s' }}" data-cap="{{ produit.stock.capacite_max|stringformat:'s' }}" data-cap="{{ produit.stock.capacite_max|stringformat:'s' }}" data-url="{% url 'produits_front:detail' produit.pk %}" data-url-modif="{% url 'produits_front:modifier' produit.pk %}"></li>
+      {% endfor %}
+    </ul>
+  </section>
   {% include "frontoffice/produits/_pagination.html" with extra_class="pr-pagination" %}
   {% else %}
   <section class="table-card">
@@ -95,3 +119,4 @@
 
 </div>
 {% endblock %}
+{% block extra_js %}<script type="module" src="{% static 'js/produits_3d.js' %}?v=2"></script>{% endblock %}

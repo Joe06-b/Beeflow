@@ -7,8 +7,10 @@
         <div><dt>Catégorie</dt><dd>{{ produit.get_categorie_produit_display }}</dd></div>
         <div><dt>Origine florale</dt><dd>{{ produit.origine_florale|default:'<span class="muted">—</span>' }}</dd></div>
         <div><dt>Quantité</dt><dd>{{ produit.quantite|floatformat:"-2" }} {{ produit.get_unite_display }}</dd></div>
+        <div><dt>Volume de stockage</dt><dd>{{ produit.volume_stockage|floatformat:"-6" }} m³</dd></div>
         <div><dt>Prix</dt><dd>{{ produit.prix }} TND</dd></div>
         <div><dt>État</dt><dd>{% include "frontoffice/produits/_etat.html" with p=produit %}</dd></div>
+        <div><dt>Stock</dt><dd>{% if produit.stock %}#{{ produit.stock_id }} – {{ produit.stock.nom_stock }}{% else %}<span class="muted">—</span>{% endif %}</dd></div>
         <div><dt>Ajouté le</dt><dd>{{ produit.created_at|date:"d/m/Y H:i" }}</dd></div>
       </dl>
     </section>

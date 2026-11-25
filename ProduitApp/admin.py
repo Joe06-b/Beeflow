@@ -14,7 +14,7 @@ class ProduitAdmin(admin.ModelAdmin):
             "fields": ("categorie_produit", "origine_florale", "description_sensorielle", "photo_produit")
         }),
         ("Stock et Prix", {
-            "fields": ("quantite", "unite", "prix", "etat")
+            "fields": ("quantite", "unite","volume_stockage", "prix", "etat")
         }),
         ("Identifiants et dates", {
             "fields": ("code_barre", "created_at", "updated_at"),

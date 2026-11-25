@@ -12,14 +12,43 @@
   if (!form) return;
 
   const el = n => form.elements[n];
-  const champs = { categorie: el("categorie_produit"), quantite: el("quantite"), prix: el("prix"), etat: el("etat") };
+  const champs = { categorie: el("categorie_produit"), stock: el("stock"), quantite: el("quantite"), volume: el("volume_stockage"), prix: el("prix"), etat: el("etat") };
   if (!champs.quantite || !champs.prix || !champs.etat) return;
 
-  const regles = {};            // panneau « Avant d'enregistrer » : texte d'aide statique, pas d'état
-  const msg = null;
-  const modeModification = false;
+  const regles = {};            // panneau « Avant d'enregistrer » : une entrée par data-rule
+  if (panel) panel.querySelectorAll("[data-rule]").forEach(li => { regles[li.dataset.rule] = li; });
+  const score = document.getElementById("prRulesScore");
+  const msg = document.getElementById("prRulesMsg");
+  const modeModification = form.dataset.mode === "modification";
   const touche = new Set();            // champs que l'utilisateur a déjà manipulés
   let tentative = false;               // true après une tentative d'enregistrement
+
+    /* ---- stocks proposés : type compatible + non plein + place suffisante (m³) ---- */
+  const optionsStock = champs.stock ? Array.from(champs.stock.options).map(o => ({
+    value: o.value, text: o.textContent,
+    restant: o.dataset.restant === undefined ? null : Number(o.dataset.restant),
+    type: o.dataset.type || null,
+  })) : [];
+  let stockRetire = false;
+
+    function filtrerStocks(vol) {
+    const select = champs.stock;
+    if (!select) return;
+    const cat = champs.categorie ? champs.categorie.value : "";
+    const besoin = vol !== null && !Number.isNaN(vol) && vol > 0 ? vol : 0;
+    const courant = select.value;
+    select.innerHTML = "";
+    optionsStock.forEach(o => {
+      if (o.value !== "") {
+        if (cat !== "" && o.type !== null && o.type !== cat) return;                           // type incompatible
+        if (o.restant !== null && (o.restant <= 0 || o.restant < besoin * (1 - 1e-9))) return; // plein ou trop petit
+      }
+      select.add(new Option(o.text, o.value, false, o.value === courant));
+    });
+    if (select.options.length === 1 && optionsStock.length > 1) select.options[0].textContent = "— Aucun stock compatible —";
+    if (courant !== "" && select.value !== courant) { stockRetire = true; touche.add("stock"); }
+    else if (select.value !== "") stockRetire = false;
+  }
 
   /* ---- utilitaires ---- */
   function nombre(input) {
@@ -52,8 +81,8 @@
 
   function etatRegle(nom, etat) {
     const li = regles[nom];
-    if (!li || li.classList.contains("is-" + etat)) return;
-    li.classList.remove("is-neutral", "is-valid", "is-invalid");
+    if (!li) return;
+    li.classList.remove("is-ok", "is-pending", "is-bad");
     li.classList.add("is-" + etat);
   }
 
@@ -62,9 +91,12 @@
   /* ---- évaluation de toutes les règles ---- */
   function evaluer() {
     const q = nombre(champs.quantite);
+    const v = champs.volume ? nombre(champs.volume) : null;
+    filtrerStocks(v);
     const p = nombre(champs.prix);
     const e = champs.etat.value;
     const cat = champs.categorie ? champs.categorie.value : "x";
+    const stk = champs.stock ? champs.stock.value : "x";
 
     const qOk = q !== null && !Number.isNaN(q);
     const pOk = p !== null && !Number.isNaN(p);
@@ -72,9 +104,12 @@
     const pNeg = pOk && p < 0 || Number.isNaN(p);
 
     // Règles du panneau
-    etatRegle("disponible", e !== "disponible" || !qOk || qNeg ? "neutral" : (q > 0 ? "valid" : "invalid"));
-    etatRegle("rupture", e !== "rupture_stock" || !qOk || qNeg ? "neutral" : (q === 0 ? "valid" : "invalid"));
-    etatRegle("positifs", qNeg || pNeg ? "invalid" : (qOk || pOk ? "valid" : "neutral"));
+    etatRegle("categorie", cat === "" ? "pending" : "ok");
+    etatRegle("stock", stk === "" ? "pending" : "ok");
+    etatRegle("quantite", !qOk && !qNeg ? "pending" : (qNeg ? "bad" : "ok"));
+    etatRegle("prix", !pOk && !pNeg ? "pending" : (pNeg ? "bad" : "ok"));
+    const incoherent = qOk && !qNeg && ((e === "disponible" && q === 0) || (e === "rupture_stock" && q > 0));
+    etatRegle("etat", incoherent ? "bad" : (qOk && !qNeg ? "ok" : "pending"));
 
     // Champs
     let erreurQ = null;
@@ -102,10 +137,31 @@
       else etatChamp("categorie", "valid");
     }
 
-    const bloquant = !!erreurQ || !!erreurE || pNeg || !qOk || !pOk || cat === "";
+    if (champs.stock) {
+      if (stk === "") etatChamp("stock", manque("stock"), stockRetire
+        ? "Ce stock n'est plus compatible (type ou capacité). Choisissez-en un autre."
+        : "Champ obligatoire.");
+      else etatChamp("stock", "valid");
+    }
+    
+    const volKo = !!champs.volume && (v === null || Number.isNaN(v) || v < 0 || (qOk && q > 0 && v === 0));
+    if (champs.volume) {
+      if (v === null) etatChamp("volume", manque("volume"), "Champ obligatoire.");
+      else if (Number.isNaN(v) || v < 0) etatChamp("volume", "invalid", "Le volume de stockage ne peut pas être négatif.");
+      else if (qOk && q > 0 && v === 0) etatChamp("volume", "invalid", "Le volume doit être supérieur à 0 quand la quantité est supérieure à 0.");
+      else etatChamp("volume", "valid");
+    }
+    const bloquant = volKo || !!erreurQ || !!erreurE || pNeg || !qOk || !pOk || cat === "" || stk === "";
     // EAN-13 : toujours généré par le serveur ; il est « prêt » dès que le formulaire est valide
-    etatRegle("ean", modeModification || !bloquant ? "valid" : "neutral");
+    etatRegle("ean", modeModification || !bloquant ? "ok" : "pending");
     if (!bloquant && msg) msg.hidden = true;
+    const items = Object.values(regles);
+    const ok = items.filter(li => li.classList.contains("is-ok")).length;
+    if (score) {
+      score.textContent = ok ? ok + "/" + items.length : "";
+      score.className = "pr-rules-score" + (ok === items.length ? " is-complete" : "");
+    }
+    if (panel) panel.classList.toggle("is-complete", ok === items.length);
     return !bloquant;
   }
 
@@ -134,6 +190,8 @@
       msg.textContent = "Corrigez les règles en rouge ou les champs obligatoires avant d'enregistrer.";
       msg.hidden = false;
     }
+    const fautive = panel && panel.querySelector("li.is-bad");
+    if (fautive) { fautive.classList.remove("shake"); void fautive.offsetWidth; fautive.classList.add("shake"); }
     const premier = form.querySelector(".field.is-invalid input, .field.is-invalid select");
     if (premier) premier.focus();
   });

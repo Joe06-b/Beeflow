@@ -2,7 +2,7 @@
 {% load static %}
 
 {% block title %}{{ titre }} | BeeFlow{% endblock %}
-{% block extra_css %}<link rel="stylesheet" href="{% static 'css/produits.css' %}">{% endblock %}
+{% block extra_css %}<link rel="stylesheet" href="{% static 'css/produits.css' %}?v=2">{% endblock %}
 
 {% block content %}
 <div class="container page">
@@ -23,7 +23,7 @@
   </header>
 
   <div class="grid-aside">
-    <form method="post" enctype="multipart/form-data" class="panel pr-form" id="produit-form" novalidate>
+    <form method="post" enctype="multipart/form-data" class="panel pr-form" id="produit-form" data-mode="{{ mode }}" novalidate>
       {% csrf_token %}
       {% include "frontoffice/produits/_form_sections.html" %}
     </form>

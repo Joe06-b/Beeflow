@@ -30,8 +30,11 @@ class Produit(models.Model):
         ("g", "Gramme"),
         ("l", "Litre"),
         ("ml", "Millilitre"),
-        ("unite", "Unité"),
     ], default="kg")
+    volume_stockage = models.DecimalField(
+        "Volume de stockage (m³)", max_digits=14, decimal_places=6,
+        validators=[MinValueValidator(Decimal("0"), "Le volume de stockage ne peut pas être négatif.")],
+    )
     prix = models.DecimalField(
         max_digits=10, decimal_places=2,
         validators=[MinValueValidator(Decimal("0"), "Le prix ne peut pas être négatif.")],
@@ -40,6 +43,11 @@ class Produit(models.Model):
     code_barre = models.CharField(max_length=13, unique=True, blank=True, null=True, editable=False)
     photo_produit = models.ImageField(upload_to="produits/", blank=True)
     description_sensorielle = models.TextField(blank=True)
+    stock = models.ForeignKey(
+        "StocksApp.Stock", on_delete=models.SET_NULL,
+        null=True, blank=True, related_name="produits",
+        verbose_name="Stock d'affectation",
+    )
     etat = models.CharField(max_length=20, choices=EtatProduit.choices, default=EtatProduit.DISPONIBLE)
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)

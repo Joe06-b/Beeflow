@@ -57,7 +57,7 @@ def filtrer_produits(params):
     champ_tri = TRIS[tri]
     if sens == "desc":
         champ_tri = "-" + champ_tri
-    return produits.order_by(champ_tri, "-pk"), tri, sens
+    return produits.select_related("stock").order_by(champ_tri, "-pk"), tri, sens
 
 
 def compteurs_produits():

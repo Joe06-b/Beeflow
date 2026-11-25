@@ -26,7 +26,7 @@
     <table class="table">
       <thead>
         <tr>
-          <th>ID</th><th>Photo</th><th>Catégorie</th><th>Origine</th><th>Quantité</th><th>Prix</th><th>Code-barres</th><th>État</th><th><span class="sr-only">Actions</span></th>
+          <th>ID</th><th>Photo</th><th>Catégorie</th><th>Origine</th><th>Quantité</th><th>Volume (m³)</th><th>Prix</th><th>Code-barres</th><th>État</th><th><span class="sr-only">Actions</span></th>
         </tr>
       </thead>
       <tbody>
@@ -40,6 +40,7 @@
           <td><a href="{% url 'produits:detail' produit.pk %}" class="pr-link">{{ produit.get_categorie_produit_display }}</a></td>
           <td>{{ produit.origine_florale|default:'<span class="muted">—</span>' }}</td>
           <td class="num">{{ produit.quantite|floatformat:"-2" }} {{ produit.get_unite_display }}</td>
+          <td class="num">{{ produit.volume_stockage|floatformat:"-6" }} m³</td>
           <td class="num">{{ produit.prix }} TND</td>
           <td>
             <a href="{% url 'produits:detail' produit.pk %}" class="pr-barcode-mini">

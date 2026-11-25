@@ -18,8 +18,14 @@
     {% include "frontoffice/produits/_champ.html" with field=form.unite %}
   </div>
   <div class="form-row">
+    {% include "frontoffice/produits/_champ.html" with field=form.volume_stockage %}
+  </div>
+  <div class="form-row">
     {% include "frontoffice/produits/_champ.html" with field=form.prix %}
     {% include "frontoffice/produits/_champ.html" with field=form.etat %}
+  </div>
+  <div class="form-row">
+    {% include "frontoffice/produits/_champ.html" with field=form.stock %}
   </div>
 </fieldset>
 

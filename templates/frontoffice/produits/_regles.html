@@ -1,10 +1,17 @@
 {# Aide affichée à côté du formulaire : les règles vérifiées à l'enregistrement (clean() du modèle) #}
-<div class="panel">
-  <div class="panel-head"><h2>{% include "includes/icon.html" with i="check" %} Avant d'enregistrer</h2></div>
-  <ul class="pr-rules">
-    <li>{% include "includes/icon.html" with i="box" class="ico-sm" %} Un produit disponible doit avoir une quantité supérieure à 0.</li>
-    <li>{% include "includes/icon.html" with i="alert" class="ico-sm" %} Un produit en rupture de stock doit avoir une quantité égale à 0.</li>
-    <li>{% include "includes/icon.html" with i="droplet" class="ico-sm" %} La quantité et le prix ne peuvent pas être négatifs.</li>
-    <li>{% include "includes/icon.html" with i="note" class="ico-sm" %} Le code-barres EAN-13 est généré automatiquement.</li>
+<div class="panel pr-rules-panel" id="pr-regles">
+  <div class="pr-rules-head">
+    <h2>{% include "includes/icon.html" with i="check" %} Avant d'enregistrer</h2>
+    <span class="pr-rules-score" id="prRulesScore" aria-live="polite"></span>
+  </div>
+  <ul class="pr-checks">
+    <li data-rule="categorie"><span class="pr-check-icon">{% include "includes/icon.html" with i="jar" %}</span><span>La catégorie du produit est sélectionnée.</span></li>
+    <li data-rule="stock"><span class="pr-check-icon">{% include "includes/icon.html" with i="hub" %}</span><span>Le stock d'affectation est sélectionné (type compatible, capacité suffisante en m³).</span></li>
+    <li data-rule="quantite"><span class="pr-check-icon">{% include "includes/icon.html" with i="box" %}</span><span>La quantité est renseignée et n'est pas négative.</span></li>
+    <li data-rule="prix"><span class="pr-check-icon">{% include "includes/icon.html" with i="droplet" %}</span><span>Le prix est renseigné et n'est pas négatif.</span></li>
+    <li data-rule="etat"><span class="pr-check-icon">{% include "includes/icon.html" with i="alert" %}</span><span>L'état est cohérent avec la quantité (disponible &gt; 0, rupture = 0).</span></li>
+    <li data-rule="ean"><span class="pr-check-icon">{% include "includes/icon.html" with i="note" %}</span><span>Le code-barres EAN-13 sera généré automatiquement.</span></li>
   </ul>
+  <p class="pr-rules-legend"><span><i class="is-ok"></i> respectée</span><span><i class="is-pending"></i> à compléter</span><span><i class="is-bad"></i> à corriger</span></p>
+  <p class="pr-rules-msg" id="prRulesMsg" role="alert" hidden></p>
 </div>
