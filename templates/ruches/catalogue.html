@@ -3,7 +3,7 @@
 {% block title %}Gestion des ruches | BeeFlow{% endblock %}
 {% block body_class %}page-ruches-front{% endblock %}
 {% block body_attrs %}data-honeycomb="soft"{% endblock %}
-{% block extra_css %}<link rel="stylesheet" href="{% static 'css/ruches_front.css' %}?v=20261126-1">{% endblock %}
+{% block extra_css %}<link rel="stylesheet" href="{% static 'css/ruches_front.css' %}?v=20261126-2">{% endblock %}
 {% block extra_js %}<script src="{% static 'js/ruches_filters.js' %}" defer></script>{% endblock %}
 {% block content %}
 <main class="rf-page">
@@ -43,8 +43,12 @@
         <div class="rf-card-content">
           <div class="rf-card-title-row"><span class="rf-state {{ ruche.etat_css }}"><i></i>{{ ruche.get_etat_predit_display }}</span><h2>{{ ruche.code_ruche }}</h2></div><p>{{ ruche.type_label }} <b>•</b> {{ ruche.race_label }}</p>
           <dl class="rf-card-meta"><div><dt>{% include "includes/icon.html" with i="users" %} Population</dt><dd>{{ ruche.nombre_abeilles }}</dd></div><div><dt>{% include "includes/icon.html" with i="calendar" %} Installation</dt><dd>{{ ruche.date_installation|date:"d/m/Y" }}</dd></div></dl>
-          <div class="rf-card-actions">
+          <div class="rf-card-actions{% if user.is_authenticated and user.role == 'apiculteur' %} rf-card-actions-manage{% endif %}">
             <a class="rf-card-detail" href="{% url 'ruches_front:detail' ruche.pk %}"><span>Voir les détails</span><span aria-hidden="true">→</span></a>
+            {% if user.is_authenticated and user.role == "apiculteur" %}
+              <a class="rf-card-edit" href="{% url 'ruches_front:modifier' ruche.pk %}" title="Modifier {{ ruche.code_ruche }}" aria-label="Modifier la ruche {{ ruche.code_ruche }}">{% include "includes/icon.html" with i="edit" %}<span class="sr-only">Modifier</span></a>
+              <a class="rf-card-delete" href="{% url 'ruches_front:supprimer' ruche.pk %}" title="Supprimer {{ ruche.code_ruche }}" aria-label="Supprimer la ruche {{ ruche.code_ruche }}">{% include "includes/icon.html" with i="trash" %}<span class="sr-only">Supprimer</span></a>
+            {% endif %}
           </div>
         </div>
       </article>

@@ -5,7 +5,7 @@
 {% block body_class %}page-ruches-front page-ruches-front-form{% endblock %}
 {% block body_attrs %}data-honeycomb="soft"{% endblock %}
 {% block extra_css %}
-<link rel="stylesheet" href="{% static 'css/ruches_front.css' %}?v=20261126-1">
+<link rel="stylesheet" href="{% static 'css/ruches_front.css' %}?v=20261126-2">
 <link rel="stylesheet" href="{% static 'css/ruche.css' %}">
 {% endblock %}
 
@@ -66,7 +66,11 @@
 
     <aside class="sticky stack">
       <div class="panel rch-form-actions">
-        <button type="submit" form="ruche-form" class="btn btn-honey">{% include "includes/icon.html" with i="check" %} Ajouter la ruche</button>
+        <button type="submit" form="ruche-form" class="btn btn-honey">{% include "includes/icon.html" with i="check" %} {% if mode == "modification" %}Enregistrer les modifications{% else %}Ajouter la ruche{% endif %}</button>
+        {% if mode == "modification" %}
+          <a href="{% url 'ruches_front:detail' ruche.pk %}" class="btn btn-ghost">{% include "includes/icon.html" with i="eye" %} Voir la ruche</a>
+          <a href="{% url 'ruches_front:supprimer' ruche.pk %}" class="btn btn-danger-ghost">{% include "includes/icon.html" with i="trash" %} Supprimer la ruche</a>
+        {% endif %}
         <a href="{% url 'ruches_front:liste' %}" class="btn btn-ghost">Annuler</a>
       </div>
       <div class="panel">

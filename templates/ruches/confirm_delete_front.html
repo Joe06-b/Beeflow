@@ -1,0 +1,41 @@
+{% extends "layouts/base_frontoffice.html" %}
+{% load static %}
+
+{% block title %}Supprimer {{ ruche.code_ruche }} | BeeFlow{% endblock %}
+{% block body_class %}page-ruches-front{% endblock %}
+{% block body_attrs %}data-honeycomb="soft"{% endblock %}
+{% block extra_css %}
+<link rel="stylesheet" href="{% static 'css/ruches_front.css' %}?v=20261126-2">
+<link rel="stylesheet" href="{% static 'css/ruche.css' %}">
+{% endblock %}
+
+{% block content %}
+<main class="rf-page rf-detail-page">
+  <nav class="breadcrumb rf-breadcrumb" aria-label="Fil d'Ariane">
+    <a href="{% url 'espace' %}">{% include "includes/icon.html" with i="hub" %} Mon espace</a>
+    {% include "includes/icon.html" with i="chevron-right" %}
+    <a href="{% url 'ruches_front:liste' %}">Gestion des ruches</a>
+    {% include "includes/icon.html" with i="chevron-right" %}
+    <span aria-current="page">Supprimer {{ ruche.code_ruche }}</span>
+  </nav>
+
+  <section class="panel rch-confirm">
+    <span class="hex rch-confirm-icon">{% include "includes/icon.html" with i="trash" %}</span>
+    <h1>Supprimer la ruche {{ ruche.code_ruche }} ?</h1>
+    <p class="muted">Cette action est définitive. La ruche disparaîtra aussi du tableau de gestion du dashboard.</p>
+
+    <dl class="rch-confirm-facts">
+      <div><dt>Type</dt><dd>{{ ruche.type_label }}</dd></div>
+      <div><dt>Race</dt><dd>{{ ruche.race_label }}</dd></div>
+      <div><dt>Population</dt><dd>{{ ruche.nombre_abeilles }} abeilles</dd></div>
+      <div><dt>État</dt><dd>{{ ruche.get_etat_predit_display }}</dd></div>
+    </dl>
+
+    <form method="post" class="rch-confirm-actions">
+      {% csrf_token %}
+      <a href="{% url 'ruches_front:detail' ruche.pk %}" class="btn btn-ghost">Annuler</a>
+      <button type="submit" class="btn btn-danger">{% include "includes/icon.html" with i="trash" %} Supprimer définitivement</button>
+    </form>
+  </section>
+</main>
+{% endblock %}

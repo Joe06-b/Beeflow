@@ -302,7 +302,7 @@ class RucheFrontCreateView(ApiculteurRequisMixin, CreateView):
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
-        context["form_title"] = "Ajouter une ruche"
+        context.update({"form_title": "Ajouter une ruche", "mode": "ajout"})
         return context
 
     def form_valid(self, form):
@@ -316,6 +316,51 @@ class RucheFrontCreateView(ApiculteurRequisMixin, CreateView):
             auteur=auteur_historique(self.request),
         )
         messages.success(self.request, f"La ruche {self.object.code_ruche} a été ajoutée.")
+        return response
+
+
+class RucheFrontUpdateView(ApiculteurRequisMixin, UpdateView):
+    model = Ruche
+    form_class = RucheFrontForm
+    template_name = "ruches/form_front.html"
+    context_object_name = "ruche"
+    success_url = reverse_lazy("ruches_front:liste")
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        context.update({"form_title": "Modifier la ruche", "mode": "modification"})
+        return context
+
+    def form_valid(self, form):
+        avant = Ruche.objects.get(pk=self.object.pk).valeurs_historiques()
+        response = super().form_valid(form)
+        HistoriqueRuche.enregistrer(
+            self.object,
+            ActionHistorique.MODIFICATION,
+            avant=avant,
+            apres=self.object.valeurs_historiques(),
+            auteur=auteur_historique(self.request),
+        )
+        messages.success(self.request, f"La ruche {self.object.code_ruche} a été modifiée.")
+        return response
+
+
+class RucheFrontDeleteView(ApiculteurRequisMixin, DeleteView):
+    model = Ruche
+    template_name = "ruches/confirm_delete_front.html"
+    context_object_name = "ruche"
+    success_url = reverse_lazy("ruches_front:liste")
+
+    def form_valid(self, form):
+        code_ruche = self.object.code_ruche
+        HistoriqueRuche.enregistrer(
+            self.object,
+            ActionHistorique.SUPPRESSION,
+            avant=self.object.valeurs_historiques(),
+            auteur=auteur_historique(self.request),
+        )
+        response = super().form_valid(form)
+        messages.success(self.request, f"La ruche {code_ruche} a été supprimée.")
         return response
 
 

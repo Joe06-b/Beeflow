@@ -448,9 +448,30 @@ class RucheFrontCreateTests(TestCase):
             role="apiculteur",
             telephone="+21612345678",
         )
+        cls.autre_apiculteur = get_user_model().objects.create_user(
+            username="autre-api",
+            email="autre-api@beeflow.test",
+            password="TestBeeFlow123!",
+            sexe="homme",
+            date_naissance=date(1991, 2, 2),
+            role="apiculteur",
+            telephone="+21687654321",
+        )
 
     def setUp(self):
         self.client.force_login(self.apiculteur)
+
+    def creer_ruche(self, code="FRONT-OWN", utilisateur=None):
+        return Ruche.objects.create(
+            code_ruche=code,
+            type_ruche="Dadant",
+            race_abeilles="Buckfast",
+            date_installation=date.today(),
+            presence_reine=True,
+            nombre_abeilles=32_000,
+            etat_predit=EtatPredit.BON,
+            user=utilisateur or self.apiculteur,
+        )
 
     def test_catalogue_affiche_mon_espace_et_le_bouton_ajouter(self):
         response = self.client.get(reverse("ruches_front:liste"))
@@ -490,3 +511,97 @@ class RucheFrontCreateTests(TestCase):
         tableau_crud = self.client.get(reverse("ruches:liste"))
         self.assertEqual(tableau_crud.status_code, 200)
         self.assertContains(tableau_crud, "FRONT-001")
+
+    def test_catalogue_affiche_les_icones_modifier_et_supprimer_sur_toutes_les_ruches(self):
+        ruche = self.creer_ruche()
+        ruche_autre = self.creer_ruche("FRONT-AUTRE", self.autre_apiculteur)
+
+        response = self.client.get(reverse("ruches_front:liste"))
+        self.assertContains(response, reverse("ruches_front:modifier", args=[ruche.pk]))
+        self.assertContains(response, reverse("ruches_front:supprimer", args=[ruche.pk]))
+        self.assertContains(response, reverse("ruches_front:modifier", args=[ruche_autre.pk]))
+        self.assertContains(response, reverse("ruches_front:supprimer", args=[ruche_autre.pk]))
+        self.assertNotContains(response, "<span>Modifier</span>", html=False)
+        self.assertNotContains(response, "<span>Supprimer</span>", html=False)
+        self.assertContains(response, '<span class="sr-only">Modifier</span>', html=False)
+        self.assertContains(response, '<span class="sr-only">Supprimer</span>', html=False)
+
+    def test_modification_front_met_a_jour_le_tableau_du_dashboard(self):
+        ruche = self.creer_ruche()
+        response = self.client.post(
+            reverse("ruches_front:modifier", args=[ruche.pk]),
+            {
+                "code_ruche": "CODE-FORGE",
+                "type_ruche": "Langstroth",
+                "race_abeilles": "Italienne",
+                "date_installation": date.today().isoformat(),
+                "presence_reine": "on",
+                "nombre_abeilles": 52_000,
+                "etat_predit": EtatPredit.A_SURVEILLER,
+                "idZone": "",
+                "user": self.autre_apiculteur.pk,
+            },
+        )
+        self.assertRedirects(response, reverse("ruches_front:liste"))
+
+        ruche.refresh_from_db()
+        self.assertEqual(ruche.code_ruche, "FRONT-OWN")
+        self.assertEqual(ruche.type_ruche, "Langstroth")
+        self.assertEqual(ruche.nombre_abeilles, 52_000)
+        self.assertEqual(ruche.user, self.apiculteur)
+
+        tableau_crud = self.client.get(reverse("ruches:liste"))
+        self.assertContains(tableau_crud, "FRONT-OWN")
+        self.assertContains(tableau_crud, "Langstroth")
+        self.assertContains(tableau_crud, "52000")
+
+    def test_suppression_front_retire_la_ruche_du_dashboard(self):
+        ruche = self.creer_ruche()
+        confirmation = self.client.get(
+            reverse("ruches_front:supprimer", args=[ruche.pk])
+        )
+        self.assertEqual(confirmation.status_code, 200)
+        self.assertContains(confirmation, "Supprimer définitivement")
+
+        response = self.client.post(
+            reverse("ruches_front:supprimer", args=[ruche.pk])
+        )
+        self.assertRedirects(response, reverse("ruches_front:liste"))
+        self.assertFalse(Ruche.objects.filter(pk=ruche.pk).exists())
+
+        tableau_crud = self.client.get(reverse("ruches:liste"))
+        self.assertNotContains(tableau_crud, "FRONT-OWN")
+        self.assertTrue(
+            HistoriqueRuche.objects.filter(
+                code_ruche="FRONT-OWN",
+                action=ActionHistorique.SUPPRESSION,
+                ruche__isnull=True,
+            ).exists()
+        )
+
+    def test_un_apiculteur_peut_modifier_et_supprimer_les_autres_ruches(self):
+        ruche_a_modifier = self.creer_ruche("FRONT-AUTRE", self.autre_apiculteur)
+        modification = self.client.post(
+            reverse("ruches_front:modifier", args=[ruche_a_modifier.pk]),
+            {
+                "code_ruche": "CODE-FORGE",
+                "type_ruche": "Warre",
+                "race_abeilles": "Noire",
+                "date_installation": date.today().isoformat(),
+                "presence_reine": "on",
+                "nombre_abeilles": 41_000,
+                "etat_predit": EtatPredit.A_SURVEILLER,
+                "idZone": "",
+            },
+        )
+        self.assertRedirects(modification, reverse("ruches_front:liste"))
+        ruche_a_modifier.refresh_from_db()
+        self.assertEqual(ruche_a_modifier.type_ruche, "Warre")
+        self.assertEqual(ruche_a_modifier.user, self.autre_apiculteur)
+
+        ruche_a_supprimer = self.creer_ruche("FRONT-SUPPR", self.autre_apiculteur)
+        suppression = self.client.post(
+            reverse("ruches_front:supprimer", args=[ruche_a_supprimer.pk])
+        )
+        self.assertRedirects(suppression, reverse("ruches_front:liste"))
+        self.assertFalse(Ruche.objects.filter(pk=ruche_a_supprimer.pk).exists())

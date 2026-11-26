@@ -4,7 +4,7 @@
 {% block title %}{{ ruche.code_ruche }} | BeeFlow{% endblock %}
 {% block body_class %}page-ruches-front{% endblock %}
 {% block body_attrs %}data-honeycomb="soft"{% endblock %}
-{% block extra_css %}<link rel="stylesheet" href="{% static 'css/ruches_front.css' %}?v=20261126-1">{% endblock %}
+{% block extra_css %}<link rel="stylesheet" href="{% static 'css/ruches_front.css' %}?v=20261126-2">{% endblock %}
 
 {% block content %}
 <main class="rf-page rf-detail-page">
@@ -21,7 +21,15 @@
         <img class="rf-detail-thumb rf-photo-{{ ruche.type_ruche|slugify }}" src="{% get_static_prefix %}img/ruches/{{ ruche.type_ruche|slugify }}.png" alt="Photo d'une ruche {{ ruche.type_label }}">
         <div><span>Détail de la colonie</span><h1>{{ ruche.code_ruche }}</h1><p>{{ ruche.type_label }} <b>•</b> {{ ruche.race_label }}</p></div>
       </div>
-      <span class="rf-state {{ ruche.etat_css }}"><i></i>{{ ruche.get_etat_predit_display }}</span>
+      <div class="rf-detail-side">
+        <span class="rf-state {{ ruche.etat_css }}"><i></i>{{ ruche.get_etat_predit_display }}</span>
+        {% if user.is_authenticated and user.role == "apiculteur" %}
+          <div class="rf-detail-actions">
+            <a class="rf-detail-action-icon is-edit" href="{% url 'ruches_front:modifier' ruche.pk %}" title="Modifier {{ ruche.code_ruche }}" aria-label="Modifier la ruche {{ ruche.code_ruche }}">{% include "includes/icon.html" with i="edit" %}<span class="sr-only">Modifier</span></a>
+            <a class="rf-detail-action-icon is-delete" href="{% url 'ruches_front:supprimer' ruche.pk %}" title="Supprimer {{ ruche.code_ruche }}" aria-label="Supprimer la ruche {{ ruche.code_ruche }}">{% include "includes/icon.html" with i="trash" %}<span class="sr-only">Supprimer</span></a>
+          </div>
+        {% endif %}
+      </div>
     </header>
     <div class="rf-detail-body">
       <section class="rf-hive-picture">
