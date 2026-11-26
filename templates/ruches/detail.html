@@ -43,7 +43,7 @@
     <section class="panel">
       <div class="panel-head"><h2>{% include "includes/icon.html" with i="hub" %} Rattachements</h2></div>
       <dl class="rch-facts rch-facts-compact">
-        <div><dt>user_id</dt><dd>{{ ruche.user_id|default:"Non renseigné" }}</dd></div>
+        <div><dt>Utilisateur</dt><dd>{% if ruche.user %}#{{ ruche.user_id }} — {{ ruche.user }}{% else %}Non renseigné{% endif %}</dd></div>
         <div><dt>idZone</dt><dd>{{ ruche.idZone|default:"Non renseigné" }}</dd></div>
       </dl>
     </section>

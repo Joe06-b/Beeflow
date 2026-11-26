@@ -38,7 +38,16 @@
 }
 
 /* En-tête ------------------------------------------------------------------ */
+.rf-breadcrumb { margin-bottom: 18px; }
 .rf-page-head { margin-bottom: 26px; }
+.rf-page-head-actions {
+  display: flex;
+  align-items: flex-end;
+  justify-content: space-between;
+  gap: 18px;
+  flex-wrap: wrap;
+}
+.rf-page-head-actions .btn { flex: 0 0 auto; }
 
 .rf-kicker {
   display: block;
@@ -405,11 +414,13 @@
 
 .rf-card-actions {
   display: grid;
-  grid-template-columns: minmax(0, 1fr) 58px;
+  grid-template-columns: minmax(0, 1fr);
   margin: auto -20px 0;
   border-top: 1px solid #efe3cb;
   background: #fbf5e6;
 }
+
+.rf-card-actions-manage { grid-template-columns: minmax(0, 1fr) 58px 58px; }
 
 .rf-card-actions > a {
   display: flex;
@@ -425,6 +436,14 @@
 .rf-card-actions .rf-card-detail { justify-content: space-between; }
 .rf-card-detail span:last-child { font-size: 19px; transition: transform 200ms ease; }
 .rf-card-detail:hover span:last-child { color: var(--bf-honey); transform: translateX(4px); }
+.rf-card-actions .rf-card-edit,
+.rf-card-actions .rf-card-delete { gap: 0; padding: 0; border-left: 1px solid #eadfc8; }
+.rf-card-actions .rf-card-edit { color: #704719; background: #fff9ec; }
+.rf-card-actions .rf-card-delete { color: #9b3d31; background: #fff4f1; }
+.rf-card-actions .rf-card-edit:hover { color: #4f2e0f; background: #fbefc8; }
+.rf-card-actions .rf-card-delete:hover { color: #7f2c23; background: #f8e3de; }
+.rf-card-actions .rf-card-edit .ico,
+.rf-card-actions .rf-card-delete .ico { width: 19px; height: 19px; }
 .rf-card-actions .rf-card-scan { border-left: 1px solid #ead8a6; color: #8a5f00; background: #fbefc8; padding-inline: 16px; }
 .rf-scan-grid { display: grid; grid-template-columns: repeat(2, 5px); grid-template-rows: repeat(2, 5px); gap: 3px; padding: 5px; border: 1.5px solid currentColor; border-radius: 5px; transition: transform 200ms ease; }
 .rf-scan-grid i { display: block; width: 5px; height: 5px; border: 1.5px solid currentColor; border-radius: 1px; }
@@ -524,6 +543,26 @@
 .rf-detail-head p { margin: 0; color: var(--bf-muted); font-size: 14px; }
 .rf-detail-head b { margin: 0 5px; color: var(--bf-honey); }
 .rf-detail-head .rf-state { position: static; flex: none; box-shadow: none; }
+.rf-detail-side { display: flex; align-items: flex-end; flex-direction: column; gap: 12px; }
+.rf-detail-actions { display: flex; gap: 8px; flex-wrap: wrap; justify-content: flex-end; }
+.rf-detail-action-icon {
+  display: inline-grid;
+  place-items: center;
+  width: 42px;
+  height: 42px;
+  border: 1px solid #eadfc8;
+  border-radius: 11px;
+  background: #fffdf8;
+  text-decoration: none;
+  transition: color 180ms ease, background-color 180ms ease, transform 180ms ease;
+}
+.rf-detail-action-icon .ico { width: 19px; height: 19px; }
+.rf-detail-action-icon.is-edit { color: #704719; }
+.rf-detail-action-icon.is-delete { color: #9b3d31; background: #fff4f1; }
+.rf-detail-action-icon:hover { transform: translateY(-1px); }
+.rf-detail-action-icon.is-edit:hover { background: #fbefc8; }
+.rf-detail-action-icon.is-delete:hover { background: #f8e3de; }
+.rf-detail-action-icon:focus-visible { box-shadow: 0 0 0 3px rgba(232, 163, 23, .28); }
 
 .rf-detail-body {
   display: grid;
@@ -860,6 +899,8 @@
 @media (max-width: 700px) {
   .rf-page { width: min(100% - 24px, 1400px); padding-top: 24px; }
   .rf-page-head h1 { font-size: 34px; }
+  .rf-page-head-actions { align-items: stretch; }
+  .rf-page-head-actions .btn { width: 100%; }
   .rf-filters { grid-template-columns: 1fr; }
   .rf-search,
   .rf-submit { grid-column: auto; }
@@ -871,6 +912,8 @@
   .rf-detail-body,
   .rf-detail-facts { grid-template-columns: 1fr; }
   .rf-detail-head { align-items: flex-start; flex-direction: column; }
+  .rf-detail-side { width: 100%; align-items: flex-start; }
+  .rf-detail-actions { justify-content: flex-start; }
   .rf-detail-page { width: min(100% - 24px, 1080px); }
   .rf-detail-body { padding: 20px; }
   .rf-hive-picture { display: block; }
@@ -899,6 +942,7 @@
   .rf-stats > div > span:last-child { font-size: 11px; }
   .rf-card-content { padding: 17px 17px 0; }
   .rf-card-actions { margin-inline: -17px; }
+  .rf-card-actions-manage { grid-template-columns: minmax(0, 1fr) 52px 52px; }
   .rf-card-meta { grid-template-columns: 1fr; }
   .rf-detail-identity { align-items: flex-start; }
   .rf-detail-thumb { width: 76px; height: 70px; }

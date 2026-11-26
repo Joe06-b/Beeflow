@@ -1,6 +1,14 @@
 from django import forms
+from django.contrib.auth import get_user_model
 
 from .models import RaceAbeilles, Ruche, TypeRuche
+
+
+class UtilisateurRucheChoiceField(forms.ModelChoiceField):
+    def label_from_instance(self, utilisateur):
+        nom = utilisateur.get_full_name().strip() or utilisateur.username
+        role = utilisateur.get_role_display()
+        return f"ID {utilisateur.pk} — {nom} — {role}"
 
 
 class RucheForm(forms.ModelForm):
@@ -14,6 +22,14 @@ class RucheForm(forms.ModelForm):
         label="Race des abeilles",
         widget=forms.Select(attrs={"class": "bf-select"}),
     )
+    user = UtilisateurRucheChoiceField(
+        queryset=get_user_model().objects.order_by("id"),
+        required=False,
+        empty_label="Aucun utilisateur (optionnel)",
+        label="Utilisateur",
+        help_text="Sélectionnez un utilisateur existant ou laissez ce choix vide.",
+        widget=forms.Select(attrs={"class": "bf-select"}),
+    )
 
     class Meta:
         model = Ruche
@@ -25,7 +41,7 @@ class RucheForm(forms.ModelForm):
             "presence_reine",
             "nombre_abeilles",
             "etat_predit",
-            "user_id",
+            "user",
             "idZone",
         ]
         widgets = {
@@ -41,9 +57,6 @@ class RucheForm(forms.ModelForm):
                 attrs={"class": "bf-input", "min": 1, "max": 2_000_000, "step": 1}
             ),
             "etat_predit": forms.Select(attrs={"class": "bf-select"}),
-            "user_id": forms.NumberInput(
-                attrs={"class": "bf-input", "min": 1, "placeholder": "Optionnel"}
-            ),
             "idZone": forms.NumberInput(
                 attrs={"class": "bf-input", "min": 1, "placeholder": "Optionnel"}
             ),
@@ -56,12 +69,13 @@ class RucheForm(forms.ModelForm):
             "presence_reine": "Décochez cette case si aucune reine n'est présente.",
             "nombre_abeilles": "Valeur comprise entre 1 et 2 000 000.",
             "etat_predit": "État courant ou résultat du modèle de prédiction.",
-            "user_id": "Identifiant du propriétaire dans le module Utilisateur.",
             "idZone": "Identifiant optionnel de la zone dans le module Environnement.",
         }
 
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
+        if "user" in self.fields:
+            self.fields["user"].queryset = get_user_model().objects.order_by("id")
         if self.instance and self.instance.pk:
             self.fields["code_ruche"].disabled = True
             self.fields["code_ruche"].help_text = (
@@ -87,3 +101,12 @@ class RucheForm(forms.ModelForm):
 
     def clean_race_abeilles(self):
         return self.cleaned_data["race_abeilles"].strip()
+
+
+class RucheFrontForm(RucheForm):
+    """Formulaire apiculteur : le propriétaire est imposé par la vue."""
+
+    user = None
+
+    class Meta(RucheForm.Meta):
+        fields = [champ for champ in RucheForm.Meta.fields if champ != "user"]
