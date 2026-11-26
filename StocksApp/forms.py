@@ -5,8 +5,9 @@ from .models import Stock
 
 class StockForm(forms.ModelForm):
     """Formulaire d'ajout / modification d'un stock.
-    Les règles de Stock.clean() sont appliquées automatiquement ;
-    taux_remplissage et statut sont calculés dans Stock.save()."""
+    Les règles de Stock.clean() sont appliquées automatiquement.
+    La quantité actuelle (m³), le taux de remplissage et le statut sont calculés
+    à partir des volumes des produits affectés au stock : ils ne sont pas saisis ici."""
 
     class Meta:
         model = Stock
@@ -16,33 +17,26 @@ class StockForm(forms.ModelForm):
             "emplacement",
             "description",
             "capacite_max",
-            "quantite_actuelle",
             "seuil_alerte_min",
             "seuil_alerte_max",
             "responsables",
         ]
         widgets = {
-            "nom_stock": forms.TextInput(attrs={"placeholder": "Ex : Miel de printemps 2026"}),
-            "emplacement": forms.TextInput(attrs={"placeholder": "Ex : Entrepôt A – étagère 2"}),
+            "nom_stock": forms.TextInput(attrs={"placeholder": "Ex : Cuve à miel A"}),
+            "emplacement": forms.TextInput(attrs={"placeholder": "Ex : Miellerie – chambre froide 1"}),
             "description": forms.Textarea(attrs={"rows": 3, "placeholder": "Remarques sur ce stock"}),
-            "capacite_max": forms.NumberInput(attrs={"step": "0.01", "min": "0", "placeholder": "Ex : 500"}),
-            "quantite_actuelle": forms.NumberInput(attrs={"step": "0.01", "min": "0", "placeholder": "Ex : 120"}),
-            "seuil_alerte_min": forms.NumberInput(attrs={"step": "0.01", "min": "0", "placeholder": "Ex : 50"}),
-            "seuil_alerte_max": forms.NumberInput(attrs={"step": "0.01", "min": "0", "placeholder": "Ex : 450"}),
+            "capacite_max": forms.NumberInput(attrs={"step": "0.001", "min": "0", "placeholder": "Ex : 2.5"}),
+            "seuil_alerte_min": forms.NumberInput(attrs={"step": "0.001", "min": "0", "placeholder": "Ex : 0.25"}),
+            "seuil_alerte_max": forms.NumberInput(attrs={"step": "0.001", "min": "0", "placeholder": "Ex : 2.25"}),
             "responsables": forms.SelectMultiple(attrs={"size": 4}),
         }
         help_texts = {
-            "seuil_alerte_min": "Alerte basse si la quantité descend à ce niveau.",
-            "seuil_alerte_max": "Alerte haute si la quantité atteint ce niveau.",
+            "capacite_max": "Volume total de rangement du stock, en m³ (1 m³ = 1 000 litres).",
+            "seuil_alerte_min": "Alerte basse si le volume occupé descend à ce niveau (m³).",
+            "seuil_alerte_max": "Alerte haute si le volume occupé atteint ce niveau (m³).",
             "responsables": "Ctrl + clic pour en sélectionner plusieurs.",
         }
 
-    def __init__(self, *args, **kwargs):
-        super().__init__(*args, **kwargs)
-        for field in self.fields.values():
-            css = "bf-select" if isinstance(field.widget, forms.Select) else "bf-input"
-            field.widget.attrs["class"] = css
-            
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
         for field in self.fields.values():
@@ -63,7 +57,6 @@ class RechercheStockForm(forms.Form):
         ("alerte", "Tri : alertes d'abord"),
         ("remplissage_desc", "Tri : plus remplis"),
         ("remplissage_asc", "Tri : moins remplis"),
-        ("quantite", "Tri : quantité"),
     ]
 
     q = forms.CharField(
