@@ -1,6 +1,6 @@
 """
 Vues du BACK OFFICE (administration) du module Gestion du stock.
-Toutes protégées par @admin_requis (statique pour l'instant, voir decorators.py).
+Toutes protégées par @admin_requis (voir decorators.py).
 """
 from django.contrib import messages
 from django.core.paginator import Paginator
@@ -83,11 +83,18 @@ def bo_modifier(request, pk):
 
 # ---------------------------------------------------------------------------
 # supprimerStock (un seul) / supprimer plusieurs
+# Les stocks qui contiennent des produits ne sont jamais supprimés.
 # ---------------------------------------------------------------------------
 @admin_requis
 def bo_supprimer(request, pk):
     stock = get_object_or_404(Stock, pk=pk)
     if request.method == "POST":
+        if stock.nb_produits:
+            messages.error(
+                request,
+                f"Impossible de supprimer « {stock.nom_stock} » : il contient {stock.nb_produits} produit(s).",
+            )
+            return redirect("stocks_bo:liste")
         nom = stock.nom_stock
         stock.delete()
         messages.success(request, f"Stock « {nom} » supprimé.")
@@ -103,12 +110,18 @@ def bo_supprimer_selection(request):
         messages.warning(request, "Aucun stock sélectionné.")
         return redirect("stocks_bo:liste")
 
-    stocks = Stock.objects.filter(pk__in=ids)
+    stocks = list(Stock.objects.filter(pk__in=ids))
 
     if "confirmer" in request.POST:          # 2e étape : suppression réelle
-        nb = stocks.count()
-        stocks.delete()
-        messages.success(request, f"{nb} stock(s) supprimé(s).")
+        supprimables = [s for s in stocks if not s.nb_produits]
+        bloques = [s for s in stocks if s.nb_produits]
+        for s in supprimables:
+            s.delete()
+        if supprimables:
+            messages.success(request, f"{len(supprimables)} stock(s) supprimé(s).")
+        if bloques:
+            noms = ", ".join(s.nom_stock for s in bloques)
+            messages.warning(request, f"Non supprimé(s) car ils contiennent des produits : {noms}.")
         return redirect("stocks_bo:liste")
 
     # 1re étape : page de confirmation

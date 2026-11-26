@@ -29,7 +29,6 @@ TRIS = {
     "alerte": ["rang_statut", "nom_stock"],
     "remplissage_desc": ["-taux_remplissage", "nom_stock"],
     "remplissage_asc": ["taux_remplissage", "nom_stock"],
-    "quantite": ["-quantite_actuelle", "nom_stock"],
 }
 
 
@@ -63,17 +62,18 @@ def _repartition(champ, choices):
 
 def calculer_statistiques():
     tous = Stock.objects.all()
-    sommes = tous.aggregate(capacite=Sum("capacite_max"), quantite=Sum("quantite_actuelle"))
+    sommes = tous.aggregate(occupe=Sum("quantite_actuelle"), capacite=Sum("capacite_max"))
+    occupe = sommes["occupe"] or Decimal("0")
     capacite = sommes["capacite"] or Decimal("0")
-    quantite = sommes["quantite"] or Decimal("0")
 
     return {
         "total": tous.count(),
         "nb_alertes": tous.filter(statut__in=STATUTS_ALERTE).count(),
         "nb_normaux": tous.filter(statut=Statut.NORMAL).count(),
-        "capacite_totale": capacite,
-        "quantite_totale": quantite,
-        "taux_global": round(quantite * 100 / capacite, 1) if capacite else 0,
+        "volume_occupe": occupe,                 # m³
+        "capacite_totale": capacite,             # m³
+        "volume_libre": max(capacite - occupe, Decimal("0")),
+        "taux_global": round(occupe * 100 / capacite, 1) if capacite else 0,
         "par_statut": _repartition("statut", Statut.choices),
         "par_type": _repartition("type_stock", Stock.TypeStock.choices),
     }

@@ -11,5 +11,5 @@ class StockAdmin(admin.ModelAdmin):
     )
     list_filter = ("type_stock", "statut")
     search_fields = ("nom_stock", "emplacement")
-    readonly_fields = ("taux_remplissage", "statut", "date_creation", "date_modification")
+    readonly_fields = ("quantite_actuelle", "taux_remplissage", "statut", "date_creation", "date_modification")
     filter_horizontal = ("responsables",)
