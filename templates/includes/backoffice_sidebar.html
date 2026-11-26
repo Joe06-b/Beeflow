@@ -15,8 +15,7 @@
         <a href="{% url 'ruches:liste' %}" class="{% if active_page == 'ruches' %}active{% endif %}">
             {% include "includes/icon.html" with i="hive" %} Gestion des ruches
         </a>
-        <a href="#" data-soon data-title="Environnement" title="Bientôt disponible"
-            class="{% if active_page == 'environnement' %}active{% endif %}">
+        <a href="{% url 'environnement_bo:liste' %}" class="{% if active_page == 'environnement' %}active{% endif %}">
             {% include "includes/icon.html" with i="leaf" %} Environnement
         </a>
         <a href="{% url 'suivi_sanitaire_bo:liste' %}" class="{% if active_page == 'sanitaire' %}active{% endif %}">
@@ -25,7 +24,7 @@
         <a href="{% url 'produits:liste' %}" class="{% if active_page == 'production' %}active{% endif %}">
             {% include "includes/icon.html" with i="jar" %} Production
         </a>
-                {# STOCK : lien activé #}
+        {# STOCK : lien activé #}
         <a href="{% url 'stocks_bo:liste' %}" class="{% if active_page == 'stock' %}active{% endif %}">
             {% include "includes/icon.html" with i="box" %} Gestion du stock
         </a>

@@ -1,0 +1,61 @@
+{% extends "layouts/base_backoffice.html" %}
+{% load static %}
+
+{% block title %}{{ page_title }} | BeeFlow administration{% endblock %}
+{% block extra_css %}<link rel="stylesheet" href="{% static 'css/environnement.css' %}">{% endblock %}
+
+{% block content %}
+<section class="panel env-confirm env-confirm-bo">
+  <span class="hex env-confirm-icon">{% include "includes/icon.html" with i="trash" %}</span>
+  <h1>{% if multiple %}Supprimer {{ zones|length }} zone{{ zones|length|pluralize }} ?{% else %}Supprimer cette zone ?{% endif %}</h1>
+  <p class="muted">Cette action est définitive : toutes les caractéristiques et mesures environnementales listées ci-dessous seront effacées.</p>
+
+  <div class="table-scroll env-confirm-table">
+    <table class="table">
+      <thead>
+        <tr>
+          <th>N°</th>
+          <th>Zone</th>
+          <th>Végétation</th>
+          <th>Surface</th>
+          <th>Température</th>
+          <th>Floraison</th>
+          <th>Date mesure</th>
+        </tr>
+      </thead>
+      <tbody>
+        {% for z in zones %}
+        <tr>
+          <td class="num">{{ z.idZone }}</td>
+          <td><strong>{{ z.nomZone }}</strong></td>
+          <td><span class="badge badge-{{ z.typeVegetation|lower }}">{{ z.get_typeVegetation_display }}</span></td>
+          <td>{{ z.surface }} ha</td>
+          <td>{{ z.temperature }} °C</td>
+          <td><span class="badge lvl-{{ z.niveauFloraison|lower }}">{{ z.get_niveauFloraison_display }}</span></td>
+          <td>{{ z.dateMesure|date:"d/m/Y H:i" }}</td>
+        </tr>
+        {% endfor %}
+      </tbody>
+    </table>
+  </div>
+
+  {% if multiple %}
+  <form method="post" action="{% url 'environnement_bo:supprimer_selection' %}" class="env-confirm-actions">
+    {% csrf_token %}
+    {% for z in zones %}<input type="hidden" name="ids" value="{{ z.pk }}">{% endfor %}
+    <a href="{% url 'environnement_bo:liste' %}" class="btn btn-ghost">Annuler</a>
+    <button type="submit" name="confirmer" value="1" class="btn btn-danger">
+      {% include "includes/icon.html" with i="trash" %} Supprimer définitivement
+    </button>
+  </form>
+  {% else %}
+  <form method="post" class="env-confirm-actions">
+    {% csrf_token %}
+    <a href="{% url 'environnement_bo:liste' %}" class="btn btn-ghost">Annuler</a>
+    <button type="submit" class="btn btn-danger">
+      {% include "includes/icon.html" with i="trash" %} Supprimer définitivement
+    </button>
+  </form>
+  {% endif %}
+</section>
+{% endblock %}

@@ -1,0 +1,276 @@
+{% extends "layouts/base_backoffice.html" %}
+{% load static %}
+
+{% block title %}Statistiques environnementales | BeeFlow administration{% endblock %}
+{% block extra_css %}
+<link rel="stylesheet" href="{% static 'css/environnement.css' %}?v=20261121-1">{% endblock %}
+
+{% block content %}
+{% include "backoffice/environnementapp/_onglets.html" with onglet="stats" %}
+
+{% if filtres_invalides %}
+<div class="alert error env-stats-alert" role="alert">
+  Certains filtres sont invalides. Les statistiques affichées ne tiennent pas compte des filtres soumis.
+</div>
+{% endif %}
+
+<section class="panel env-stats-filters" aria-label="Filtres statistiques">
+  <div class="panel-head">
+    <h2>{% include "includes/icon.html" with i="filter" %} Filtrer les statistiques</h2>
+  </div>
+  <form method="get" class="env-stats-form">
+    <div class="env-stats-fields">
+      <div class="env-stats-field">
+        {{ form.type_vegetation.label_tag }}
+        {{ form.type_vegetation }}
+        {{ form.type_vegetation.errors }}
+      </div>
+      <div class="env-stats-field">
+        {{ form.niveau_floraison.label_tag }}
+        {{ form.niveau_floraison }}
+        {{ form.niveau_floraison.errors }}
+      </div>
+      <div class="env-stats-field">
+        {{ form.niveau_risque.label_tag }}
+        {{ form.niveau_risque }}
+        {{ form.niveau_risque.errors }}
+      </div>
+      <div class="env-stats-field">
+        {{ form.date_debut.label_tag }}
+        {{ form.date_debut }}
+        {{ form.date_debut.errors }}
+      </div>
+      <div class="env-stats-field">
+        {{ form.date_fin.label_tag }}
+        {{ form.date_fin }}
+        {{ form.date_fin.errors }}
+      </div>
+    </div>
+    <div class="env-stats-actions">
+      <button type="submit" class="btn btn-dark">
+        {% include "includes/icon.html" with i="filter" %} Filtrer
+      </button>
+      <a href="{% url 'environnement_bo:statistiques' %}" class="btn btn-ghost">
+        {% include "includes/icon.html" with i="rotate" %} Réinitialiser
+      </a>
+    </div>
+  </form>
+</section>
+
+<section class="kpis kpis-3 env-stat-kpis" aria-label="Indicateurs environnementaux">
+  <div class="kpi">
+    <span class="hex hex-honey">{% include "includes/icon.html" with i="list" %}</span>
+    <div>
+      <div class="kpi-value">{{ stats.total }}</div>
+      <div class="kpi-label">Nombre total de zones</div>
+    </div>
+  </div>
+  <div class="kpi">
+    <span class="hex">{% include "includes/icon.html" with i="pin" %}</span>
+    <div>
+      <div class="kpi-value">{% if stats.surface_totale is not None %}{{ stats.surface_totale|floatformat:"2" }}{% else %}—{% endif %}<small> ha</small></div>
+      <div class="kpi-label">Surface totale</div>
+    </div>
+  </div>
+  <div class="kpi">
+    <span class="hex">{% include "includes/icon.html" with i="sun" %}</span>
+    <div>
+      <div class="kpi-value">{% if stats.temperature_moyenne is not None %}{{ stats.temperature_moyenne|floatformat:"1" }}{% else %}—{% endif %}<small> °C</small></div>
+      <div class="kpi-label">Température moyenne</div>
+    </div>
+  </div>
+  <div class="kpi">
+    <span class="hex">{% include "includes/icon.html" with i="droplet" %}</span>
+    <div>
+      <div class="kpi-value">{% if stats.humidite_moyenne is not None %}{{ stats.humidite_moyenne|floatformat:"1" }}{% else %}—{% endif %}<small> %</small></div>
+      <div class="kpi-label">Humidité moyenne</div>
+    </div>
+  </div>
+  <div class="kpi">
+    <span class="hex">{% include "includes/icon.html" with i="droplet" %}</span>
+    <div>
+      <div class="kpi-value">{% if stats.precipitation_moyenne is not None %}{{ stats.precipitation_moyenne|floatformat:"1" }}{% else %}—{% endif %}<small> mm</small></div>
+      <div class="kpi-label">Précipitations moyennes</div>
+    </div>
+  </div>
+  <div class="kpi">
+    <span class="hex">{% include "includes/icon.html" with i="leaf" %}</span>
+    <div>
+      <div class="kpi-value">{{ stats.types_vegetation }}</div>
+      <div class="kpi-label">Types de végétation représentés</div>
+    </div>
+  </div>
+</section>
+
+<div class="grid-2 env-stats-grid">
+  <section class="panel env-stat-chart">
+    <div class="panel-head">
+      <h2>{% include "includes/icon.html" with i="leaf" %} Répartition par type de végétation</h2>
+    </div>
+    {% if stats.total %}
+    <div class="env-chart env-chart-short"><canvas id="chart-vegetation" role="img"
+        aria-label="Répartition des zones par type de végétation"></canvas></div>
+    {% else %}<p class="muted env-chart-empty">Aucune zone ne correspond aux filtres sélectionnés.</p>{% endif %}
+  </section>
+  <section class="panel env-stat-chart">
+    <div class="panel-head">
+      <h2>{% include "includes/icon.html" with i="sun" %} Répartition par niveau de floraison</h2>
+    </div>
+    {% if stats.total %}
+    <div class="env-chart env-chart-short"><canvas id="chart-floraison" role="img"
+        aria-label="Nombre de zones par niveau de floraison"></canvas></div>
+    {% else %}<p class="muted env-chart-empty">Aucune zone ne correspond aux filtres sélectionnés.</p>{% endif %}
+  </section>
+</div>
+
+<div class="grid-2 env-stats-grid">
+  <section class="panel env-stat-chart">
+    <div class="panel-head">
+      <h2>{% include "includes/icon.html" with i="alert" %} Répartition par niveau de risque</h2>
+    </div>
+    {% if stats.total %}
+    <div class="env-chart env-chart-short"><canvas id="chart-risque" role="img"
+        aria-label="Répartition des zones par niveau de risque"></canvas></div>
+    {% else %}<p class="muted env-chart-empty">Aucune zone ne correspond aux filtres sélectionnés.</p>{% endif %}
+  </section>
+  <section class="panel env-stat-chart">
+    <div class="panel-head">
+      <h2>{% include "includes/icon.html" with i="chart" %} Évolution des mesures environnementales</h2>
+    </div>
+    {% if graphiques.evolution.disponible %}
+    <div class="env-chart"><canvas id="chart-evolution" role="img"
+        aria-label="Évolution quotidienne des moyennes de température et d'humidité"></canvas></div>
+    {% else %}
+    <p class="muted env-chart-empty">Les données filtrées ne couvrent pas au moins deux dates distinctes avec des
+      mesures suffisantes pour la température et l'humidité.</p>
+    {% endif %}
+  </section>
+</div>
+
+{{ graphiques|json_script:"donnees-graphiques" }}
+{% endblock %}
+
+{% block extra_js %}
+<script src="{% static 'vendor/chart.umd.js' %}"></script>
+<script>
+  (function () {
+    const dataNode = document.getElementById("donnees-graphiques");
+    if (typeof Chart === "undefined" || !dataNode) return;
+    const g = JSON.parse(dataNode.textContent);
+
+    Chart.defaults.font.family = "Figtree, 'Segoe UI', sans-serif";
+    Chart.defaults.font.size = 12.5;
+    Chart.defaults.color = "#7A6A5B";
+    Chart.defaults.plugins.tooltip.backgroundColor = "#2B1B0F";
+    Chart.defaults.plugins.tooltip.titleColor = "#E9B949";
+    Chart.defaults.plugins.tooltip.padding = 10;
+    Chart.defaults.plugins.tooltip.cornerRadius = 10;
+
+    const grille = "#EFE6D6";
+    const couleursVegetation = ["#9C5A2E", "#C98A00", "#3F7A4A", "#7A9B76", "#D9A13A", "#8B7355"];
+
+    function anneau(id, repartition, couleurs) {
+      const total = repartition.data.reduce((somme, valeur) => somme + valeur, 0);
+      const libelles = repartition.labels.map((libelle, index) => {
+        const proportion = total ? (repartition.data[index] * 100 / total).toFixed(1) : "0.0";
+        return `${libelle} (${proportion} %)`;
+      });
+      new Chart(document.getElementById(id), {
+        type: "doughnut",
+        data: {
+          labels: libelles,
+          datasets: [{
+            data: repartition.data,
+            backgroundColor: couleurs,
+            borderColor: "#FFFCF6",
+            borderWidth: 3,
+            hoverOffset: 5,
+          }],
+        },
+        options: {
+          maintainAspectRatio: false,
+          cutout: "62%",
+          plugins: {
+            legend: { position: "bottom", labels: { usePointStyle: true, pointStyle: "circle", boxWidth: 8, boxHeight: 8, padding: 14 } },
+            tooltip: { callbacks: { label: c => ` ${c.label}: ${c.raw} zone(s)` } },
+          },
+        },
+      });
+    }
+
+    if (document.getElementById("chart-vegetation")) {
+      anneau("chart-vegetation", g.vegetation, couleursVegetation);
+      anneau("chart-risque", g.risque, ["#3F7A4A", "#E0A526", "#C65B32", "#A93C30", "#8B7355"]);
+
+      new Chart(document.getElementById("chart-floraison"), {
+        type: "bar",
+        data: {
+          labels: g.floraison.labels,
+          datasets: [{
+            data: g.floraison.data,
+            backgroundColor: "#C98A00",
+            borderRadius: 6,
+            borderSkipped: "start",
+            maxBarThickness: 30,
+          }],
+        },
+        options: {
+          indexAxis: "y",
+          maintainAspectRatio: false,
+          plugins: {
+            legend: { display: false },
+            tooltip: { callbacks: { label: c => ` ${c.raw} zone(s)` } },
+          },
+          scales: {
+            x: { beginAtZero: true, ticks: { precision: 0 }, grid: { color: grille }, border: { display: false } },
+            y: { grid: { display: false }, border: { color: grille } },
+          },
+        },
+      });
+    }
+
+    if (document.getElementById("chart-evolution")) {
+      new Chart(document.getElementById("chart-evolution"), {
+        type: "line",
+        data: {
+          labels: g.evolution.labels,
+          datasets: [
+            {
+              label: "Température moyenne (°C)",
+              data: g.evolution.temperature,
+              yAxisID: "temperature",
+              borderColor: "#9C5A2E",
+              backgroundColor: "#9C5A2E",
+              borderWidth: 2,
+              pointRadius: 4,
+              tension: .3,
+            },
+            {
+              label: "Humidité moyenne (%)",
+              data: g.evolution.humidite,
+              yAxisID: "humidite",
+              borderColor: "#C98A00",
+              backgroundColor: "#C98A00",
+              borderWidth: 2,
+              pointRadius: 4,
+              tension: .3,
+            },
+          ],
+        },
+        options: {
+          maintainAspectRatio: false,
+          interaction: { mode: "index", intersect: false },
+          plugins: {
+            legend: { position: "top", align: "start", labels: { usePointStyle: true, pointStyle: "circle", boxWidth: 8, boxHeight: 8, padding: 16 } },
+          },
+          scales: {
+            x: { grid: { display: false }, border: { color: grille } },
+            temperature: { type: "linear", position: "left", title: { display: true, text: "°C" }, grid: { color: grille } },
+            humidite: { type: "linear", position: "right", min: 0, max: 100, title: { display: true, text: "%" }, grid: { drawOnChartArea: false } },
+          },
+        },
+      });
+    }
+  })();
+</script>
+{% endblock %}

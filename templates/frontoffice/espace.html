@@ -4,7 +4,8 @@
 {% block title %}BeeFlow | Mon espace{% endblock %}
 {% block body_class %}page-espace{% endblock %}
 {% block body_attrs %}data-honeycomb="strong"{% endblock %}
-{% block extra_css %}<link rel="stylesheet" href="{% static 'css/espace.css' %}?v=9">{% endblock %}
+{% block extra_css %}
+<link rel="stylesheet" href="{% static 'css/espace.css' %}?v=9">{% endblock %}
 
 {% block content %}
 <section class="espace">
@@ -14,22 +15,28 @@
         <p class="espace-hello">Bonjour {{ request.user.username|default:"apiculteur" }},</p>
         <h1>Par quelle face de la ruche commençons-nous ?</h1>
         <p class="espace-lead">Faites tourner la ruche en la glissant ou avec les flèches du clavier,
-           puis cliquez sur la face de devant pour ouvrir le module.</p>
+            puis cliquez sur la face de devant pour ouvrir le module.</p>
 
         <nav class="espace-list" aria-label="Modules">
-            <button type="button" data-face="0">{% include "includes/icon.html" with i="hive" %}<span>Gestion des ruches</span></button>
-            <button type="button" data-face="1">{% include "includes/icon.html" with i="leaf" %}<span>Environnement</span></button>
-            <button type="button" data-face="2">{% include "includes/icon.html" with i="sanitaire" %}<span>Suivi sanitaire</span></button>
-            <button type="button" data-face="3">{% include "includes/icon.html" with i="jar" %}<span>Production</span></button>
-            <button type="button" data-face="4">{% include "includes/icon.html" with i="box" %}<span>Gestion du stock</span></button>
-            <button type="button" data-face="5" class="is-locked">{% include "includes/icon.html" with i="lock" %}<span>Administration</span><em>Réservé</em></button>
+            <button type="button" data-face="0">{% include "includes/icon.html" with i="hive" %}<span>Gestion des
+                    ruches</span></button>
+            <button type="button" data-face="1">{% include "includes/icon.html" with i="leaf"
+                %}<span>Environnement</span></button>
+            <button type="button" data-face="2">{% include "includes/icon.html" with i="sanitaire" %}<span>Suivi
+                    sanitaire</span></button>
+            <button type="button" data-face="3">{% include "includes/icon.html" with i="jar"
+                %}<span>Production</span></button>
+            <button type="button" data-face="4">{% include "includes/icon.html" with i="box" %}<span>Gestion du
+                    stock</span></button>
+            <button type="button" data-face="5" class="is-locked">{% include "includes/icon.html" with i="lock"
+                %}<span>Administration</span><em>Réservé</em></button>
         </nav>
     </div>
 
     <!-- Scène 3D : prisme hexagonal = la ruche, une face par module -->
     <div class="hive-zone">
-        <div class="hive-stage" id="hiveStage" tabindex="0" role="group"
-             aria-roledescription="carrousel 3D" aria-label="Ruche des modules. Flèches gauche et droite pour tourner, Entrée pour ouvrir.">
+        <div class="hive-stage" id="hiveStage" tabindex="0" role="group" aria-roledescription="carrousel 3D"
+            aria-label="Ruche des modules. Flèches gauche et droite pour tourner, Entrée pour ouvrir.">
             <div class="hive" id="hive">
                 <div class="hive-cap hive-cap-top"><img src="{% static 'img/logo.svg' %}" alt=""></div>
                 <div class="hive-cap hive-cap-bottom"></div>
@@ -37,33 +44,39 @@
                     <span class="face-chip">{% include "includes/icon.html" with i="hive" %}</span>
                     <h3>Gestion des ruches</h3>
                     <p>Reines, populations, emplacements et état de chaque ruche.</p>
-                    <span class="face-foot">Ouvrir mes ruches {% include "includes/icon.html" with i="arrow-right" %}</span>
+                    <span class="face-foot">Ouvrir mes ruches {% include "includes/icon.html" with i="arrow-right"
+                        %}</span>
                 </a>
-                <a class="face" href="#" data-soon data-title="Environnement">
+                <a class="face face-live" href="{% url 'environnement:liste' %}">
                     <span class="face-chip">{% include "includes/icon.html" with i="leaf" %}</span>
                     <h3>Environnement</h3>
                     <p>Flore mellifère, météo et conditions autour du rucher.</p>
-                    <span class="face-foot is-soon">Bientôt disponible</span>
+                    <span class="face-foot">Ouvrir le module {% include "includes/icon.html" with i="arrow-right"
+                        %}</span>
                 </a>
                 <a class="face face-live" href="{% url 'suivi_sanitaire:liste' %}">
                     <span class="face-chip">{% include "includes/icon.html" with i="sanitaire" %}</span>
                     <h3>Suivi sanitaire</h3>
                     <p>Contrôles, maladies, traitements et prochains rendez-vous.</p>
-                    <span class="face-status" id="faceSanitaire" data-url="{% url 'suivi_sanitaire:alertes_compte' %}"></span>
-                    <span class="face-foot">Ouvrir le module {% include "includes/icon.html" with i="arrow-right" %}</span>
+                    <span class="face-status" id="faceSanitaire"
+                        data-url="{% url 'suivi_sanitaire:alertes_compte' %}"></span>
+                    <span class="face-foot">Ouvrir le module {% include "includes/icon.html" with i="arrow-right"
+                        %}</span>
                 </a>
                 <a class="face face-live" href="{% url 'produits_front:liste' %}">
                     <span class="face-chip">{% include "includes/icon.html" with i="jar" %}</span>
                     <h3>Production</h3>
                     <p>Produits apicoles : stock, prix, états et codes-barres.</p>
-                    <span class="face-foot">Ouvrir le module {% include "includes/icon.html" with i="arrow-right" %}</span>
+                    <span class="face-foot">Ouvrir le module {% include "includes/icon.html" with i="arrow-right"
+                        %}</span>
                 </a>
-                 {# STOCK : face activée #}
+                {# STOCK : face activée #}
                 <a class="face face-live" href="{% url 'stocks:liste' %}">
                     <span class="face-chip">{% include "includes/icon.html" with i="box" %}</span>
                     <h3>Gestion du stock</h3>
                     <p>Miel, cire, pollen et autres produits : quantités et alertes.</p>
-                    <span class="face-foot">Ouvrir le module {% include "includes/icon.html" with i="arrow-right" %}</span>
+                    <span class="face-foot">Ouvrir le module {% include "includes/icon.html" with i="arrow-right"
+                        %}</span>
                 </a>
                 {# Face verrouillée : l'administration est un espace séparé, réservé au compte administrateur #}
                 <a class="face face-locked" href="#" data-locked aria-disabled="true">
@@ -77,9 +90,12 @@
         </div>
 
         <div class="hive-controls">
-            <button type="button" class="hive-btn" data-turn="-1" aria-label="Face précédente">{% include "includes/icon.html" with i="chevron-left" %}</button>
-            <span class="hive-hint">{% include "includes/icon.html" with i="rotate" class="ico-sm" %} Glissez pour tourner</span>
-            <button type="button" class="hive-btn" data-turn="1" aria-label="Face suivante">{% include "includes/icon.html" with i="chevron-right" %}</button>
+            <button type="button" class="hive-btn" data-turn="-1" aria-label="Face précédente">{% include
+                "includes/icon.html" with i="chevron-left" %}</button>
+            <span class="hive-hint">{% include "includes/icon.html" with i="rotate" class="ico-sm" %} Glissez pour
+                tourner</span>
+            <button type="button" class="hive-btn" data-turn="1" aria-label="Face suivante">{% include
+                "includes/icon.html" with i="chevron-right" %}</button>
             <button type="button" class="hive-sound" data-sound-toggle aria-label="Couper le son"></button>
         </div>
     </div>
@@ -87,4 +103,5 @@
 </section>
 {% endblock %}
 
-{% block extra_js %}<script src="{% static 'js/hub.js' %}?v=9"></script>{% endblock %}
+{% block extra_js %}
+<script src="{% static 'js/hub.js' %}?v=9"></script>{% endblock %}

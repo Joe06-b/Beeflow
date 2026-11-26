@@ -1,0 +1,170 @@
+{% extends "layouts/base_frontoffice.html" %}
+{% load static %}
+
+{% block title %}Zone {{ zone.nomZone }} | BeeFlow{% endblock %}
+{% block extra_css %}<link rel="stylesheet" href="{% static 'css/environnement.css' %}">{% endblock %}
+
+{% block content %}
+<div class="container page">
+
+  <nav class="breadcrumb" aria-label="Fil d'Ariane">
+    <a href="{% url 'espace' %}">{% include "includes/icon.html" with i="hub" %} Mon espace</a>
+    {% include "includes/icon.html" with i="chevron-right" %}
+    <a href="{% url 'environnement:liste' %}">Environnement</a>
+    {% include "includes/icon.html" with i="chevron-right" %}
+    <span aria-current="page">{{ zone.nomZone }}</span>
+  </nav>
+
+  <header class="page-head">
+    <div>
+      <h1>{{ zone.nomZone }}</h1>
+      <p>Zone environnementale n°{{ zone.idZone }}, relevé enregistré le {{ zone.dateMesure|date:"j F Y à H:i" }}.</p>
+    </div>
+    <div class="page-actions">
+      <a href="{% url 'environnement:modifier' zone.pk %}" class="btn btn-ghost">
+        {% include "includes/icon.html" with i="edit" %} Modifier
+      </a>
+      <a href="{% url 'environnement:supprimer' zone.pk %}" class="btn btn-danger-ghost">
+        {% include "includes/icon.html" with i="trash" %} Supprimer
+      </a>
+    </div>
+  </header>
+
+  <div class="grid-aside">
+    <div class="stack">
+
+      <!-- Section 1 : Identification & Géographie -->
+      <section class="panel">
+        <div class="panel-head">
+          <h2>{% include "includes/icon.html" with i="pin" %} Identification & Géographie</h2>
+        </div>
+        <dl class="env-facts">
+          <div>
+            <dt>Nom de la zone</dt>
+            <dd><strong>{{ zone.nomZone }}</strong></dd>
+          </div>
+          <div>
+            <dt>Type de végétation</dt>
+            <dd>
+              <span class="badge badge-{{ zone.typeVegetation|lower }}">
+                {{ zone.get_typeVegetation_display }}
+              </span>
+            </dd>
+          </div>
+          <div>
+            <dt>Surface totale</dt>
+            <dd>{{ zone.surface }} hectare{{ zone.surface|pluralize }}</dd>
+          </div>
+          <div>
+            <dt>Coordonnées GPS</dt>
+            <dd>
+              <span>Latitude : {{ zone.latitude }}°</span> · <span>Longitude : {{ zone.longitude }}°</span>
+            </dd>
+          </div>
+        </dl>
+      </section>
+
+      <!-- Section 2 : Conditions météorologiques -->
+      <section class="panel">
+        <div class="panel-head">
+          <h2>{% include "includes/icon.html" with i="sun" %} Conditions météorologiques</h2>
+        </div>
+        <div class="env-facts-row">
+          <div>
+            <dt>Température</dt>
+            <dd>{{ zone.temperature }} <small style="font-size:14px; color:var(--muted);">°C</small></dd>
+          </div>
+          <div>
+            <dt>Humidité</dt>
+            <dd>{{ zone.humidite }} <small style="font-size:14px; color:var(--muted);">%</small></dd>
+          </div>
+          <div>
+            <dt>Précipitations</dt>
+            <dd>{{ zone.precipitation }} <small style="font-size:14px; color:var(--muted);">mm</small></dd>
+          </div>
+          <div>
+            <dt>Vitesse du vent</dt>
+            <dd>{{ zone.vitesseVent }} <small style="font-size:14px; color:var(--muted);">km/h</small></dd>
+          </div>
+        </div>
+      </section>
+
+      <!-- Section 3 : Flore et indicateurs environnementaux -->
+      <section class="panel">
+        <div class="panel-head">
+          <h2>{% include "includes/icon.html" with i="leaf" %} Flore & Indicateurs environnementaux</h2>
+        </div>
+        <dl class="env-facts">
+          <div>
+            <dt>Niveau de floraison</dt>
+            <dd>
+              <span class="badge lvl-{{ zone.niveauFloraison|lower }}">
+                {{ zone.get_niveauFloraison_display }}
+              </span>
+            </dd>
+          </div>
+          <div>
+            <dt>Niveau de risque</dt>
+            <dd>
+              <span class="badge lvl-{{ zone.niveauRisque|lower }}">
+                {{ zone.get_niveauRisque_display }}
+              </span>
+            </dd>
+          </div>
+          <div>
+            <dt>Score de qualité</dt>
+            <dd>
+              {% if zone.scoreQualite is not None %}
+                <strong>{{ zone.scoreQualite }}/100</strong>
+              {% else %}
+                <span class="muted">Non calculé (fonctionnalité prévue ultérieurement)</span>
+              {% endif %}
+            </dd>
+          </div>
+          <div>
+            <dt>Date et heure du relevé</dt>
+            <dd>{{ zone.dateMesure|date:"l j F Y à H:i" }}</dd>
+          </div>
+        </dl>
+      </section>
+
+    </div>
+
+    <!-- Panneau latéral synthétique -->
+    <aside class="panel sticky env-summary" aria-label="Synthèse de la zone">
+      <div class="panel-head">
+        <h2>{% include "includes/icon.html" with i="leaf" %} Synthèse</h2>
+      </div>
+
+      <div class="env-summary-row">
+        <span class="muted small">Végétation</span>
+        <span class="badge badge-{{ zone.typeVegetation|lower }}">{{ zone.get_typeVegetation_display }}</span>
+      </div>
+
+      <div class="env-summary-row">
+        <span class="muted small">Floraison</span>
+        <span class="badge lvl-{{ zone.niveauFloraison|lower }}">{{ zone.get_niveauFloraison_display }}</span>
+      </div>
+
+      <div class="env-summary-row">
+        <span class="muted small">Niveau de risque</span>
+        <span class="badge lvl-{{ zone.niveauRisque|lower }}">{{ zone.get_niveauRisque_display }}</span>
+      </div>
+
+      <div class="env-card-metric">
+        <span class="muted small">Ambiance thermique</span>
+        <strong>{{ zone.temperature }} °C</strong>
+        <span>Humidité {{ zone.humidite }}%</span>
+      </div>
+
+      <a href="{% url 'environnement:modifier' zone.pk %}" class="btn btn-honey env-block">
+        {% include "includes/icon.html" with i="edit" %} Modifier cette zone
+      </a>
+      <a href="{% url 'environnement:liste' %}" class="btn btn-ghost env-block">
+        {% include "includes/icon.html" with i="arrow-left" %} Retour aux zones
+      </a>
+    </aside>
+  </div>
+
+</div>
+{% endblock %}

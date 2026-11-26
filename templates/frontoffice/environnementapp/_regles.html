@@ -1,0 +1,11 @@
+{# Aide affichée à côté du formulaire : règles de validation du modèle Environnement #}
+<div class="panel">
+  <div class="panel-head"><h2>{% include "includes/icon.html" with i="check" %} Avant d'enregistrer</h2></div>
+  <ul class="env-rules">
+    <li>{% include "includes/icon.html" with i="pin" class="ico-sm" %} La surface doit être strictement positive (> 0 ha).</li>
+    <li>{% include "includes/icon.html" with i="globe" class="ico-sm" %} Coordonnées valides : lat (-90° à 90°), lon (-180° à 180°).</li>
+    <li>{% include "includes/icon.html" with i="droplet" class="ico-sm" %} L'humidité doit être comprise entre 0% et 100%.</li>
+    <li>{% include "includes/icon.html" with i="sun" class="ico-sm" %} Précipitations et vitesse du vent positives ou nulles (≥ 0).</li>
+    <li>{% include "includes/icon.html" with i="calendar" class="ico-sm" %} La date de mesure ne peut pas être dans le futur.</li>
+  </ul>
+</div>

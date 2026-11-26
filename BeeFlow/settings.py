@@ -42,6 +42,7 @@ INSTALLED_APPS = [
     'rucheapp',
     'ProduitApp',
     'StocksApp',
+    'environnementapp',
 ]
 
 MIDDLEWARE = [

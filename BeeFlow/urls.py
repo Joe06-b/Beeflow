@@ -42,9 +42,10 @@ urlpatterns = [
     path("produits/", include("ProduitApp.urls")),
     path("dashboard/produits/", include("ProduitApp.urls_backoffice")),
     
-     # MODULE GESTION DU STOCK
     path("stocks/", include("StocksApp.urls")),
     path("dashboard/stocks/", include("StocksApp.urls_backoffice")),
+    path("environnements/", include("environnementapp.urls")),
+    path("dashboard/environnements/", include("environnementapp.urls_backoffice")),
 ]
     
     # Photos des produits (en développement)
