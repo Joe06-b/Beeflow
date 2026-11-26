@@ -389,10 +389,6 @@ button.profile:hover, .profile[aria-expanded="true"] { border-color: var(--line)
 }
 .welcome h1 { color: var(--wax); }
 .welcome p { color: #DCC9AE; margin-top: 8px; }
-.welcome::after {
-    content: ""; position: absolute; right: -40px; top: -30px; width: 280px; height: 280px;
-    background: url("../img/logo.svg") center / contain no-repeat; opacity: .12; transform: rotate(12deg);
-}
 
 /* Graphique du tableau de bord */
 .chart { height: 190px; display: flex; align-items: flex-end; justify-content: space-around; border-bottom: 1px solid var(--line); padding-top: 20px; }
