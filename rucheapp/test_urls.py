@@ -15,10 +15,16 @@ suivi_sanitaire_patterns = (
 urlpatterns = [
     path("", page_vide, name="accueil"),
     path("espace/", page_vide, name="espace"),
+    path("comptes/login/", page_vide, name="login"),
+    path("comptes/logout/", page_vide, name="logout"),
     path("dashboard/", page_vide, name="dashboard"),
     path(
         "dashboard/suivis/",
         include(suivi_sanitaire_patterns, namespace="suivi_sanitaire_bo"),
+    ),
+    path(
+        "dashboard/utilisateurs/",
+        include(("UtilisateursApp.urls", "utilisateurs"), namespace="utilisateurs"),
     ),
     path("dashboard/ruches/", include(("rucheapp.urls", "ruches"), namespace="ruches")),
     path("ruches/", include(("rucheapp.urls_frontoffice", "ruches_front"), namespace="ruches_front")),

@@ -4,11 +4,17 @@
 {% block title %}{{ ruche.code_ruche }} | BeeFlow{% endblock %}
 {% block body_class %}page-ruches-front{% endblock %}
 {% block body_attrs %}data-honeycomb="soft"{% endblock %}
-{% block extra_css %}<link rel="stylesheet" href="{% static 'css/ruches_front.css' %}?v=20261121-2">{% endblock %}
+{% block extra_css %}<link rel="stylesheet" href="{% static 'css/ruches_front.css' %}?v=20261126-1">{% endblock %}
 
 {% block content %}
 <main class="rf-page rf-detail-page">
-  <a class="rf-back" href="{% url 'ruches_front:liste' %}">← Retour à la gestion des ruches</a>
+  <nav class="breadcrumb rf-breadcrumb" aria-label="Fil d'Ariane">
+    <a href="{% url 'espace' %}">{% include "includes/icon.html" with i="hub" %} Mon espace</a>
+    {% include "includes/icon.html" with i="chevron-right" %}
+    <a href="{% url 'ruches_front:liste' %}">Gestion des ruches</a>
+    {% include "includes/icon.html" with i="chevron-right" %}
+    <span aria-current="page">{{ ruche.code_ruche }}</span>
+  </nav>
   <article class="rf-detail-card {{ ruche.etat_css }}">
     <header class="rf-detail-head">
       <div class="rf-detail-identity">
@@ -34,7 +40,7 @@
         <div><dt>Population</dt><dd>{{ ruche.nombre_abeilles }} abeilles</dd></div>
         <div><dt>Reine présente</dt><dd class="{% if ruche.presence_reine %}rf-yes{% else %}rf-no{% endif %}">{{ ruche.presence_reine|yesno:"Oui,Non" }}</dd></div>
         <div><dt>État de la colonie</dt><dd>{{ ruche.get_etat_predit_display }}</dd></div>
-        <div><dt>Utilisateur</dt><dd>{% if ruche.user_id %}#{{ ruche.user_id }}{% else %}Non renseigné{% endif %}</dd></div>
+        <div><dt>Utilisateur</dt><dd>{% if ruche.user %}#{{ ruche.user_id }} — {{ ruche.user }}{% else %}Non renseigné{% endif %}</dd></div>
         <div><dt>Environnement</dt><dd>{% if ruche.idZone %}Zone #{{ ruche.idZone }}{% else %}Non renseigné{% endif %}</dd></div>
       </dl>
     </div>

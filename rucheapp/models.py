@@ -2,6 +2,7 @@ import re
 import uuid
 from datetime import date
 
+from django.conf import settings
 from django.core.exceptions import ValidationError
 from django.db import models
 
@@ -50,10 +51,17 @@ class Ruche(models.Model):
         verbose_name="État prédit",
     )
 
-    # Ces deux identifiants restent indépendants pour ne pas créer de dépendance
-    # vers les modules Utilisateur et Environnement de l'équipe. Ils pourront
-    # ensuite être remplacés par de vraies ForeignKey sans changer le CRUD.
-    user_id = models.PositiveIntegerField(null=True, blank=True, verbose_name="user_id")
+    user = models.ForeignKey(
+        settings.AUTH_USER_MODEL,
+        null=True,
+        blank=True,
+        on_delete=models.SET_NULL,
+        related_name="ruches",
+        db_column="user_id",
+        verbose_name="ID utilisateur",
+    )
+    # L'environnement reste un identifiant optionnel tant que le module de
+    # l'équipe ne fournit pas encore son modèle définitif.
     idZone = models.PositiveIntegerField(
         null=True,
         blank=True,

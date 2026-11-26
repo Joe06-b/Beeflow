@@ -2,6 +2,7 @@ from datetime import date, timedelta
 from io import BytesIO
 from unittest.mock import patch
 
+from django.contrib.auth import get_user_model
 from django.test import TestCase, override_settings
 from django.urls import reverse
 from pypdf import PdfReader
@@ -136,7 +137,7 @@ class RucheCrudTests(TestCase):
                 "presence_reine": "on",
                 "nombre_abeilles": 30_000,
                 "etat_predit": EtatPredit.A_SURVEILLER,
-                "user_id": "",
+                "user": "",
                 "idZone": "",
             },
         )
@@ -157,7 +158,7 @@ class RucheCrudTests(TestCase):
                 "presence_reine": "on",
                 "nombre_abeilles": 50_000,
                 "etat_predit": EtatPredit.BON,
-                "user_id": "",
+                "user": "",
                 "idZone": "",
             },
         )
@@ -186,7 +187,7 @@ class RucheCrudTests(TestCase):
                 "presence_reine": "on",
                 "nombre_abeilles": 45_000,
                 "etat_predit": EtatPredit.BON,
-                "user_id": "",
+                "user": "",
                 "idZone": "",
             },
         )
@@ -220,7 +221,7 @@ class RucheCrudTests(TestCase):
                 "presence_reine": "on",
                 "nombre_abeilles": 45_000,
                 "etat_predit": EtatPredit.BON,
-                "user_id": "",
+                "user": "",
                 "idZone": "",
             },
         )
@@ -432,3 +433,60 @@ class RucheFormTests(TestCase):
         )
         self.assertFalse(form.is_valid())
         self.assertIn("code_ruche", form.errors)
+
+
+@override_settings(ROOT_URLCONF="BeeFlow.urls")
+class RucheFrontCreateTests(TestCase):
+    @classmethod
+    def setUpTestData(cls):
+        cls.apiculteur = get_user_model().objects.create_user(
+            username="api-front",
+            email="api-front@beeflow.test",
+            password="TestBeeFlow123!",
+            sexe="femme",
+            date_naissance=date(1990, 1, 1),
+            role="apiculteur",
+            telephone="+21612345678",
+        )
+
+    def setUp(self):
+        self.client.force_login(self.apiculteur)
+
+    def test_catalogue_affiche_mon_espace_et_le_bouton_ajouter(self):
+        response = self.client.get(reverse("ruches_front:liste"))
+        self.assertEqual(response.status_code, 200)
+        self.assertContains(response, reverse("espace"))
+        self.assertContains(response, "Mon espace")
+        self.assertContains(response, reverse("ruches_front:ajouter"))
+        self.assertContains(response, "Ajouter une ruche")
+
+    def test_formulaire_front_reprend_le_style_back_sans_choix_utilisateur(self):
+        response = self.client.get(reverse("ruches_front:ajouter"))
+        self.assertEqual(response.status_code, 200)
+        self.assertContains(response, "css/ruche.css")
+        self.assertContains(response, reverse("espace"))
+        self.assertNotContains(response, 'name="user"', html=False)
+
+    def test_ajout_front_apparait_dans_le_crud_back(self):
+        response = self.client.post(
+            reverse("ruches_front:ajouter"),
+            {
+                "code_ruche": "FRONT-001",
+                "type_ruche": "Dadant",
+                "race_abeilles": "Buckfast",
+                "date_installation": date.today().isoformat(),
+                "presence_reine": "on",
+                "nombre_abeilles": 32_000,
+                "etat_predit": EtatPredit.BON,
+                "idZone": "",
+                "user": 999999,
+            },
+        )
+        self.assertRedirects(response, reverse("ruches_front:liste"))
+
+        ruche = Ruche.objects.get(code_ruche="FRONT-001")
+        self.assertEqual(ruche.user, self.apiculteur)
+
+        tableau_crud = self.client.get(reverse("ruches:liste"))
+        self.assertEqual(tableau_crud.status_code, 200)
+        self.assertContains(tableau_crud, "FRONT-001")

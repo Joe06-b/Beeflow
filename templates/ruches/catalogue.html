@@ -3,11 +3,21 @@
 {% block title %}Gestion des ruches | BeeFlow{% endblock %}
 {% block body_class %}page-ruches-front{% endblock %}
 {% block body_attrs %}data-honeycomb="soft"{% endblock %}
-{% block extra_css %}<link rel="stylesheet" href="{% static 'css/ruches_front.css' %}?v=20261121-3">{% endblock %}
+{% block extra_css %}<link rel="stylesheet" href="{% static 'css/ruches_front.css' %}?v=20261126-1">{% endblock %}
 {% block extra_js %}<script src="{% static 'js/ruches_filters.js' %}" defer></script>{% endblock %}
 {% block content %}
 <main class="rf-page">
-  <header class="rf-page-head"><span class="rf-kicker">Notre rucher</span><h1>Gestion des ruches</h1></header>
+  <nav class="breadcrumb rf-breadcrumb" aria-label="Fil d'Ariane">
+    <a href="{% url 'espace' %}">{% include "includes/icon.html" with i="hub" %} Mon espace</a>
+    {% include "includes/icon.html" with i="chevron-right" %}
+    <span aria-current="page">Gestion des ruches</span>
+  </nav>
+  <header class="rf-page-head rf-page-head-actions">
+    <div><span class="rf-kicker">Notre rucher</span><h1>Gestion des ruches</h1></div>
+    {% if user.is_authenticated and user.role == "apiculteur" %}
+      <a class="btn btn-honey" href="{% url 'ruches_front:ajouter' %}">{% include "includes/icon.html" with i="plus" %} Ajouter une ruche</a>
+    {% endif %}
+  </header>
   <section class="rf-stats" aria-label="Statistiques des ruches">
     <div><span class="rf-stat-icon">{% include "includes/icon.html" with i="hive" %}</span><strong>{{ nb_resultats }}</strong><span>Ruches affichées</span></div>
     <div><span class="rf-stat-icon rf-stat-good">{% include "includes/icon.html" with i="check" %}</span><strong>{{ nb_bon }}</strong><span>Bon</span></div>

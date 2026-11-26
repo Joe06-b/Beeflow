@@ -52,7 +52,7 @@
     <fieldset class="rch-fieldset">
       <legend>{% include "includes/icon.html" with i="hub" %} Rattachements</legend>
       <div class="form-row">
-        {% include "ruches/_field.html" with champ=form.user_id %}
+        {% include "ruches/_field.html" with champ=form.user %}
         {% include "ruches/_field.html" with champ=form.idZone %}
       </div>
     </fieldset>
@@ -73,7 +73,7 @@
         <li data-rule="code"><span class="rch-rule-mark" aria-hidden="true"></span><span>Le code est renseigné, valide et unique.</span></li>
         <li data-rule="date"><span class="rch-rule-mark" aria-hidden="true"></span><span>La date d'installation n'est pas future.</span></li>
         <li data-rule="population"><span class="rch-rule-mark" aria-hidden="true"></span><span>La population est comprise entre 1 et 2 000 000.</span></li>
-        <li data-rule="relations"><span class="rch-rule-mark" aria-hidden="true"></span><span>user_id et idZone sont vides ou positifs.</span></li>
+        <li data-rule="relations"><span class="rch-rule-mark" aria-hidden="true"></span><span>L'utilisateur est facultatif et idZone est vide ou positif.</span></li>
       </ul>
     </div>
   </aside>
@@ -89,7 +89,6 @@
   const code = document.getElementById("id_code_ruche");
   const date = document.getElementById("id_date_installation");
   const population = document.getElementById("id_nombre_abeilles");
-  const userId = document.getElementById("id_user_id");
   const zoneId = document.getElementById("id_idZone");
   const reine = document.getElementById("id_presence_reine");
   const ligneReine = form.querySelector("[data-boolean-row]");
@@ -117,7 +116,7 @@
     marquer("date", Boolean(date.value) && date.value <= aujourdHui);
     const nb = Number(population.value);
     marquer("population", Number.isInteger(nb) && nb >= 1 && nb <= 2000000);
-    marquer("relations", entierOptionnelValide(userId) && entierOptionnelValide(zoneId));
+    marquer("relations", entierOptionnelValide(zoneId));
 
     const avecReine = reine.checked;
     ligneReine.classList.toggle("is-true", avecReine);
@@ -125,7 +124,7 @@
     valeurReine.textContent = avecReine ? "Oui" : "Non";
   }
 
-  [code, date, population, userId, zoneId, reine].forEach(champ => {
+  [code, date, population, zoneId, reine].forEach(champ => {
     champ.addEventListener("input", verifier);
     champ.addEventListener("change", verifier);
   });
