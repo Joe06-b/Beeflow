@@ -1,24 +1,8 @@
-# Python
-__pycache__/
-*.py[cod]
-*.pyc
-
-# Virtual environment
-.venv/
 venv/
-env/
-
-# Django
-db.sqlite3
-media/
-
-# Environment variables
+.venv/
+__pycache__/
+*.pyc
 .env
-
-# IDE
+db.sqlite3
 .vscode/
 .idea/
-
-# System
-.DS_Store
-Thumbs.db
